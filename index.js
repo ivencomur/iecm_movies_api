@@ -52,7 +52,7 @@ app.get('/', (req, res) => {
 
 
 app.get('/documentation', (req, res) => {
-  res.sendFile(path.join(__dirname, 'documentation.html'));
+  res.sendFile( 'documentation.html');
 });
 
 
