@@ -1,0 +1,59 @@
+# Compiled source #
+
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages #
+
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+*.json
+
+# Logs and databases #
+
+*.log
+*.sql
+*.sqlite
+log.txt
+
+# OS generated files #
+
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Node.js
+node_modules
+node_modules/
+package-lock.json
+npm-debug.log*
+
+# Environment variables
+.env
+*.env.*
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+
+# Build artifacts
+dist/
+build/
+
+# Specific Node.js related ignores
+text.js
