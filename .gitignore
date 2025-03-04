@@ -9,4 +9,3 @@ npm-debug.log*
 *.tmp
 dist/
 build/
-text.js
