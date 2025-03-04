@@ -1,108 +1,46 @@
 const express = require('express');
-const bodyParser = require('body-parser');
+const morgan = require('morgan');
 const path = require('path');
-const fs = require('fs');
+
 const app = express();
-const PORT = process.env.PORT || 8080;
+const port = 8080; 
+
+app.use(morgan('common'));
 
 
-const logStream = fs.createWriteStream(path.join(__dirname, 'log.txt'), {flags: 'a'});
-const logger = (req, res, next) => {
-  const timestamp = new Date().toISOString();
-  const logEntry = `[${timestamp}] ${req.method} ${req.url}\n`;
-  logStream.write(logEntry);
-  next();
-};
+app.use(express.static(path.join(__dirname, 'public')));
 
 
-const movies = [
-  {
-    id: 1,
-    title: "Inception",
-    director: "Christopher Nolan",
-    genre: "Sci-Fi",
-    year: 2010
-  },
-  {
-    id: 2,
-    title: "The Godfather",
-    director: "Francis Ford Coppola",
-    genre: "Crime",
-    year: 1972
-  },
-  {
-    id: 3,
-    title: "Pulp Fiction",
-    director: "Quentin Tarantino",
-    genre: "Crime",
-    year: 1994
-  }
+const top10Movies = [
+  { title: 'Requiem for a Dream', year: 2000 },
+  { title: 'The Godfather', year: 1972 },
+  { title: 'The Miracle of Marcelino', year: 1955 },
+  { title: 'The Discreet Charm of the Bourgeoisie', year: 1972 },
+  { title: "Schindler's List", year: 1993 },
+  { title: 'The Silence of the Lambs', year: 1991 },
+  { title: 'Pulp Fiction', year: 1994 },
+  { title: 'The Fifth Element', year: 1997 },
+  { title: 'The Strategy of the Snail', year: 1993 },
+  { title: 'Fight Club', year: 1999 },
 ];
 
 
-app.use(logger);
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.get('/movies', (req, res) => {
+  res.json(top10Movies);
+});
 
 
 app.get('/', (req, res) => {
-  res.sendFile('index.html');
-});
-
-
-app.get('/documentation', (req, res) => {
-  res.sendFile( 'documentation.html');
-});
-
-
-app.get('/movies', (req, res) => {
-  res.json(movies);
-});
-
-
-app.get('/movies/:id', (req, res) => {
-  const movie = movies.find(movie => movie.id === parseInt(req.params.id));
-  if (movie) {
-    res.json(movie);
-  } else {
-    res.status(404).send('Movie not found');
-  }
-});
-
-
-app.get('/movies/genre/:genreName', (req, res) => {
-  const genreMovies = movies.filter(movie => 
-    movie.genre.toLowerCase() === req.params.genreName.toLowerCase()
-  );
-  
-  if (genreMovies.length > 0) {
-    res.json(genreMovies);
-  } else {
-    res.status(404).send('No movies found with that genre');
-  }
-});
-
-
-app.get('/movies/director/:directorName', (req, res) => {
-  const directorMovies = movies.filter(movie => 
-    movie.director.toLowerCase().includes(req.params.directorName.toLowerCase())
-  );
-  
-  if (directorMovies.length > 0) {
-    res.json(directorMovies);
-  } else {
-    res.status(404).send('No movies found by that director');
-  }
+  res.send('Welcome to my first movies API!');
 });
 
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send('Something went wrong!');
+  res.status(500).send('There is an error!');
 });
 
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(port, () => {
+  console.log(`Server listening at http://localhost:${port}`);
 });
