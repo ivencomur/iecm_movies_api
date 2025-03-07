@@ -109,3 +109,36 @@ footer .social-media a:hover img {
     width: 90%;
   }
 }
+li {
+  
+  font-size: 0.95rem;
+}
+ul.li{
+  font-size: 0.4rem;
+  text-align:justify;
+  color:#0a4c8a;
+  font-weight:200;
+}
+h3 {
+  font-size: 2rem;
+  text-align: center;
+  color: #048673;
+  font-weight: bold;
+}
+p {
+  font-size: 0.1rem;
+  color:#0a4c8a;
+  font-weight:100;
+}
+thead {
+  font-size: 2rem;
+  text-align: center;
+  color: #048673;
+  font-weight: bold;
+}
+td{
+  font-size: 1.4rem;
+  text-align:justify;
+  color:#0a4c8a;
+  font-weight:500; 
+}
