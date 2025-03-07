@@ -2,10 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />    
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <title> THE MOVIEMOBS </title>
+    <title>THE MOVIEMOBS - API Documentation</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Moderustic:wght@400;700&display=swap"
       rel="stylesheet"
@@ -15,21 +15,261 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css\style.production.css" />
-    
   </head>
-
   <body>
     <header></header>
     <main class="profile container">
       <h4 class="header__title text-center">
-        Welcome to My Server-Side Programming Project!
+        Welcome to My Server-Side Programming Project - API Documentation!
       </h4>
-      <p>Hello everyone, here we have the instructions for this project.</p>
+      <p>Here you will find the documentation for the Movie API.</p>
+
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Request</th>
+            <th>Endpoint URL</th>
+            <th>Method</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Get all movies</td>
+            <td>/movies</td>
+            <td>GET</td>
+            <td>Lists all movies from MytopMovies with details.</td>
+          </tr>
+          <tr>
+            <td>Get movie by title</td>
+            <td>/movies/:title</td>
+            <td>GET</td>
+            <td>
+              Shows description, genre, director, and image Endpoint URL for a
+              single movie by title from MytopMovies.
+            </td>
+          </tr>
+          <tr>
+            <td>Get genre by name (Placeholder)</td>
+            <td>/genres/:name</td>
+            <td>GET</td>
+            <td>
+              Returns description of a genre by name. (Not fully implemented in
+              this example)
+            </td>
+          </tr>
+          <tr>
+            <td>Get director by name (Placeholder)</td>
+            <td>/directors/:name</td>
+            <td>GET</td>
+            <td>
+              Returns bio, birth year, and death year of a director by name.
+              (Not fully implemented in this example yet)
+            </td>
+          </tr>
+          <tr>
+            <td>Register new user (Placeholder)</td>
+            <td>/users</td>
+            <td>POST</td>
+            <td>
+              Registers a new user. (Not fully implemented in this example yet)
+            </td>
+          </tr>
+          <tr>
+            <td>Update user info (Placeholder)</td>
+            <td>/users/:username</td>
+            <td>PUT</td>
+            <td>
+              Updates user information (e.g., username). (Not fully implemented
+              in this example)
+            </td>
+          </tr>
+          <tr>
+            <td>Add movie to favorites (Placeholder)</td>
+            <td>/users/:username/movies/:movieId</td>
+            <td>POST</td>
+            <td>
+              Adds a movie to a user's list of favorites. (Not fully implemented
+              in this example)
+            </td>
+          </tr>
+          <tr>
+            <td>Remove movie from favorites (Placeholder)</td>
+            <td>/users/:username/movies/:movieId</td>
+            <td>DELETE</td>
+            <td>
+              Removes a movie from a user's list of favorites. (Not fully
+              implemented in this example)
+            </td>
+          </tr>
+          <tr>
+            <td>Deregister user (Placeholder)</td>
+            <td>/users/:username</td>
+            <td>DELETE</td>
+            <td>
+              Unsubscribes an existing user. (Not fully implemented in this
+              example)
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Get All Movies</h3>
+      <p>Returns a list of all movies with details from MytopMovies.</p>
+      <ul>
+        <li><strong>Endpoint URL:</strong> /movies</li>
+        <li><strong>Method:</strong> GET</li>
+        <li><strong>Query Parameters:</strong> None</li>
+        <li><strong>Request Body:</strong> None</li>
+        <li>
+          <strong>Response Data:</strong> JSON array of movie objects (e.g.,
+          <code
+            >[{ "title": "Requiem for a Dream", "year": 2000, "description":
+            "...", "genre": "...", "director": "...", "imageEndpoint URL": "..."
+            }, ...]</code
+          >)
+        </li>
+      </ul>
+
+      <h3>Get movie by title</h3>
+      <p>
+        Shows description, genre, director, and image Endpoint URL for a single
+        movie by title from MytopMovies.
+      </p>
+      <ul>
+        <li><strong>Endpoint URL:</strong> /movies/:title</li>
+        <li><strong>Method:</strong> GET</li>
+        <li><strong>Query Parameters:</strong> None</li>
+        <li><strong>Request Body:</strong> None</li>
+        <li>
+          <strong>Response Data:</strong> JSON object containing movie details
+          (e.g.,
+          <code
+            >{ "title": "Requiem for a Dream", "year": 2000, "description":
+            "...", "genre": "...", "director": "...", "imageEndpoint URL": "..."
+            }</code
+          >)
+        </li>
+      </ul>
+
+      <h3>Get genre by name (Placeholder)</h3>
+      <p>
+        Returns description of a genre by name. (Not fully implemented in this
+        example)
+      </p>
+      <ul>
+        <li><strong>Endpoint URL:</strong> /genres/:name</li>
+        <li><strong>Method:</strong> GET</li>
+        <li><strong>Query Parameters:</strong> None</li>
+        <li><strong>Request Body:</strong> None</li>
+        <li>
+          <strong>Response Data:</strong> JSON object containing genre details.
+          (To be implemented soon)
+        </li>
+      </ul>
+
+      <h3>Get director by name (Placeholder)</h3>
+      <p>
+        Returns bio, birth year, and death year of a director by name. (Not
+        fully implemented in this example)
+      </p>
+      <ul>
+        <li><strong>Endpoint URL:</strong> /directors/:name</li>
+        <li><strong>Method:</strong> GET</li>
+        <li><strong>Query Parameters:</strong> None</li>
+        <li><strong>Request Body:</strong> None</li>
+        <li>
+          <strong>Response Data:</strong> JSON object containing director
+          details. (To be implemented soon)
+        </li>
+      </ul>
+
+      <h3>Register new user (Placeholder)</h3>
+      <p>Registers a new user. (Not fully implemented in this example yet)</p>
+      <ul>
+        <li><strong>Endpoint URL:</strong> /users</li>
+        <li><strong>Method:</strong> POST</li>
+        <li><strong>Query Parameters:</strong> None</li>
+        <li>
+          <strong>Request Body:</strong> JSON object containing user
+          registration details. (To be implemented soon)
+        </li>
+        <li>
+          <strong>Response Data:</strong> JSON object containing user
+          registration confirmation. (To be implemented soon)
+        </li>
+      </ul>
+
+      <h3>Update user info (Placeholder)</h3>
+      <p>
+        Updates user information (e.g., username). (Not fully implemented in
+        this example)
+      </p>
+      <ul>
+        <li><strong>Endpoint URL:</strong> /users/:username</li>
+        <li><strong>Method:</strong> PUT</li>
+        <li><strong>Query Parameters:</strong> None</li>
+        <li>
+          <strong>Request Body:</strong> JSON object containing user update
+          details. (To be implemented soon)
+        </li>
+        <li>
+          <strong>Response Data:</strong> JSON object containing user update
+          confirmation. (To be implemented soon)
+        </li>
+      </ul>
+
+      <h3>Add movie to favorites (Placeholder)</h3>
+      <p>
+        Adds a movie to a user's list of favorites. (Not fully implemented in
+        this example)
+      </p>
+      <ul>
+        <li><strong>Endpoint URL:</strong> /users/:username/movies/:movieId</li>
+        <li><strong>Method:</strong> POST</li>
+        <li><strong>Query Parameters:</strong> None</li>
+        <li><strong>Request Body:</strong> None</li>
+        <li>
+          <strong>Response Data:</strong> JSON object containing confirmation.
+          (To be implemented soon)
+        </li>
+      </ul>
+
+      <h3>Remove movie from favorites (Placeholder)</h3>
+      <p>
+        Removes a movie from a user's list of favorites. (Not fully implemented
+        in this example)
+      </p>
+      <ul>
+        <li><strong>Endpoint URL:</strong> /users/:username/movies/:movieId</li>
+        <li><strong>Method:</strong> DELETE</li>
+        <li><strong>Query Parameters:</strong> None</li>
+        <li><strong>Request Body:</strong> None</li>
+        <li>
+          <strong>Response Data:</strong> JSON object containing confirmation.
+          (To be implemented soon)
+        </li>
+      </ul>
+
+      <h3>Deregister user (Placeholder)</h3>
+      <p>
+        Unsubscribes an existing user. (Not fully implemented in this example
+        yet)
+      </p>
+      <ul>
+        <li><strong>Endpoint URL:</strong> /users/:username</li>
+        <li><strong>Method:</strong> DELETE</li>
+        <li><strong>Query Parameters:</strong> None</li>
+        <li><strong>Request Body:</strong> None</li>
+        <li>
+          <strong>Response Data:</strong> JSON object containing confirmation.
+          (To be implemented soon)
+        </li>
+      </ul>
     </main>
     <footer></footer>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="C:\index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@"></script>
+    <script src="index.js"></script>
   </body>
 </html>
