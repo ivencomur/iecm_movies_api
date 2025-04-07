@@ -1,5 +1,5 @@
 {
-  "name": "my_movies_api_2.3",
+  "name": "my_movies_api",
   "version": "1.0.0",
   "main": "text.js",
   "scripts": {
@@ -14,8 +14,9 @@
     "body-parser": "^1.20.3",
     "express": "^4.21.2",
     "lodash": "^4.17.21",
-    "morgan": "^1.10.0"
-  },
+    "mongoose": "^8.13.1",
+    "morgan": "^1.10.0",
+     },
   "devDependencies": {
     "eslint": "^9.21.0"
   },
@@ -28,4 +29,9 @@
     "url": "https://github.com/ivencomur/MY_MOVIES_API_2.4/issues"
   },
   "homepage": "https://github.com/ivencomur/MY_MOVIES_API_2.4#readme"
+}
+
+"scripts": {
+  "dev": "nodemon index.js",
+  "lint": "eslint ."
 }
