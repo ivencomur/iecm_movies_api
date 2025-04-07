@@ -1,275 +1,633 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <title>THE MOVIEMOBS - API Documentation</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Moderustic:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="css\style.production.css" />
-  </head>
-  <body>
-    <header></header>
-    <main class="profile container">
-      <h4 class="header__title text-center">
-        Welcome to My Server-Side Programming Project - API Documentation!
-      </h4>
-      <p>Here you will find the documentation for the Movie API.</p>
-
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>Request</th>
-            <th>Endpoint URL</th>
-            <th>Method</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Get all movies</td>
-            <td>/movies</td>
-            <td>GET</td>
-            <td>Lists all movies from MytopMovies with details.</td>
-          </tr>
-          <tr>
-            <td>Get movie by title</td>
-            <td>/movies/:title</td>
-            <td>GET</td>
-            <td>
-              Shows description, genre, director, and image Endpoint URL for a
-              single movie by title from MytopMovies.
-            </td>
-          </tr>
-          <tr>
-            <td>Get genre by name (Placeholder)</td>
-            <td>/genres/:name</td>
-            <td>GET</td>
-            <td>
-              Returns description of a genre by name. (Not fully implemented in
-              this example)
-            </td>
-          </tr>
-          <tr>
-            <td>Get director by name (Placeholder)</td>
-            <td>/directors/:name</td>
-            <td>GET</td>
-            <td>
-              Returns bio, birth year, and death year of a director by name.
-              (Not fully implemented in this example yet)
-            </td>
-          </tr>
-          <tr>
-            <td>Register new user (Placeholder)</td>
-            <td>/users</td>
-            <td>POST</td>
-            <td>
-              Registers a new user. (Not fully implemented in this example yet)
-            </td>
-          </tr>
-          <tr>
-            <td>Update user info (Placeholder)</td>
-            <td>/users/:username</td>
-            <td>PUT</td>
-            <td>
-              Updates user information (e.g., username). (Not fully implemented
-              in this example)
-            </td>
-          </tr>
-          <tr>
-            <td>Add movie to favorites (Placeholder)</td>
-            <td>/users/:username/movies/:movieId</td>
-            <td>POST</td>
-            <td>
-              Adds a movie to a user's list of favorites. (Not fully implemented
-              in this example)
-            </td>
-          </tr>
-          <tr>
-            <td>Remove movie from favorites (Placeholder)</td>
-            <td>/users/:username/movies/:movieId</td>
-            <td>DELETE</td>
-            <td>
-              Removes a movie from a user's list of favorites. (Not fully
-              implemented in this example)
-            </td>
-          </tr>
-          <tr>
-            <td>Deregister user (Placeholder)</td>
-            <td>/users/:username</td>
-            <td>DELETE</td>
-            <td>
-              Unsubscribes an existing user. (Not fully implemented in this
-              example)
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>Get All Movies</h3>
-      <p>Returns a list of all movies with details from MytopMovies.</p>
-      <ul>
-        <li><strong>Endpoint URL:</strong> /movies</li>
-        <li><strong>Method:</strong> GET</li>
-        <li><strong>Query Parameters:</strong> None</li>
-        <li><strong>Request Body:</strong> None</li>
-        <li>
-          <strong>Response Data:</strong> JSON array of movie objects (e.g.,
-          <code
-            >[{ "title": "Requiem for a Dream", "year": 2000, "description":
-            "...", "genre": "...", "director": "...", "imageEndpoint URL": "..."
-            }, ...]</code
-          >)
-        </li>
-      </ul>
-
-      <h3>Get movie by title</h3>
-      <p>
-        Shows description, genre, director, and image Endpoint URL for a single
-        movie by title from MytopMovies.
-      </p>
-      <ul>
-        <li><strong>Endpoint URL:</strong> /movies/:title</li>
-        <li><strong>Method:</strong> GET</li>
-        <li><strong>Query Parameters:</strong> None</li>
-        <li><strong>Request Body:</strong> None</li>
-        <li>
-          <strong>Response Data:</strong> JSON object containing movie details
-          (e.g.,
-          <code
-            >{ "title": "Requiem for a Dream", "year": 2000, "description":
-            "...", "genre": "...", "director": "...", "imageEndpoint URL": "..."
-            }</code
-          >)
-        </li>
-      </ul>
-
-      <h3>Get genre by name (Placeholder)</h3>
-      <p>
-        Returns description of a genre by name. (Not fully implemented in this
-        example)
-      </p>
-      <ul>
-        <li><strong>Endpoint URL:</strong> /genres/:name</li>
-        <li><strong>Method:</strong> GET</li>
-        <li><strong>Query Parameters:</strong> None</li>
-        <li><strong>Request Body:</strong> None</li>
-        <li>
-          <strong>Response Data:</strong> JSON object containing genre details.
-          (To be implemented soon)
-        </li>
-      </ul>
-
-      <h3>Get director by name (Placeholder)</h3>
-      <p>
-        Returns bio, birth year, and death year of a director by name. (Not
-        fully implemented in this example)
-      </p>
-      <ul>
-        <li><strong>Endpoint URL:</strong> /directors/:name</li>
-        <li><strong>Method:</strong> GET</li>
-        <li><strong>Query Parameters:</strong> None</li>
-        <li><strong>Request Body:</strong> None</li>
-        <li>
-          <strong>Response Data:</strong> JSON object containing director
-          details. (To be implemented soon)
-        </li>
-      </ul>
-
-      <h3>Register new user (Placeholder)</h3>
-      <p>Registers a new user. (Not fully implemented in this example yet)</p>
-      <ul>
-        <li><strong>Endpoint URL:</strong> /users</li>
-        <li><strong>Method:</strong> POST</li>
-        <li><strong>Query Parameters:</strong> None</li>
-        <li>
-          <strong>Request Body:</strong> JSON object containing user
-          registration details. (To be implemented soon)
-        </li>
-        <li>
-          <strong>Response Data:</strong> JSON object containing user
-          registration confirmation. (To be implemented soon)
-        </li>
-      </ul>
-
-      <h3>Update user info (Placeholder)</h3>
-      <p>
-        Updates user information (e.g., username). (Not fully implemented in
-        this example)
-      </p>
-      <ul>
-        <li><strong>Endpoint URL:</strong> /users/:username</li>
-        <li><strong>Method:</strong> PUT</li>
-        <li><strong>Query Parameters:</strong> None</li>
-        <li>
-          <strong>Request Body:</strong> JSON object containing user update
-          details. (To be implemented soon)
-        </li>
-        <li>
-          <strong>Response Data:</strong> JSON object containing user update
-          confirmation. (To be implemented soon)
-        </li>
-      </ul>
-
-      <h3>Add movie to favorites (Placeholder)</h3>
-      <p>
-        Adds a movie to a user's list of favorites. (Not fully implemented in
-        this example)
-      </p>
-      <ul>
-        <li><strong>Endpoint URL:</strong> /users/:username/movies/:movieId</li>
-        <li><strong>Method:</strong> POST</li>
-        <li><strong>Query Parameters:</strong> None</li>
-        <li><strong>Request Body:</strong> None</li>
-        <li>
-          <strong>Response Data:</strong> JSON object containing confirmation.
-          (To be implemented soon)
-        </li>
-      </ul>
-
-      <h3>Remove movie from favorites (Placeholder)</h3>
-      <p>
-        Removes a movie from a user's list of favorites. (Not fully implemented
-        in this example)
-      </p>
-      <ul>
-        <li><strong>Endpoint URL:</strong> /users/:username/movies/:movieId</li>
-        <li><strong>Method:</strong> DELETE</li>
-        <li><strong>Query Parameters:</strong> None</li>
-        <li><strong>Request Body:</strong> None</li>
-        <li>
-          <strong>Response Data:</strong> JSON object containing confirmation.
-          (To be implemented soon)
-        </li>
-      </ul>
-
-      <h3>Deregister user (Placeholder)</h3>
-      <p>
-        Unsubscribes an existing user. (Not fully implemented in this example
-        yet)
-      </p>
-      <ul>
-        <li><strong>Endpoint URL:</strong> /users/:username</li>
-        <li><strong>Method:</strong> DELETE</li>
-        <li><strong>Query Parameters:</strong> None</li>
-        <li><strong>Request Body:</strong> None</li>
-        <li>
-          <strong>Response Data:</strong> JSON object containing confirmation.
-          (To be implemented soon)
-        </li>
-      </ul>
-    </main>
-    <footer></footer>
+    <html lang="en">
+    
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Movie API Documentation</title>
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+      <link rel="stylesheet" href="css/style.production.css">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Moderustic&display=swap" rel="stylesheet">
+    </head>
+    
+    <body>
+      <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+          <a class="navbar-brand" href="#">Movie API Docs</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item active">
+                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#api-endpoints">API Endpoints</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#data-objects">Data Objects</a>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false">
+                  Contact
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="mailto:your_email@example.com">Email</a>
+                  <a class="dropdown-item" href="tel:+1234567890">Call</a>
+                  <a class="dropdown-item" href="https://github.com/your_github" target="_blank">GitHub</a>
+                  <a class="dropdown-item" href="https://x.com/your_x" target="_blank">X</a>
+                  <a class="dropdown-item" href="https://www.linkedin.com/in/your_linkedin" target="_blank">LinkedIn</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </header>
+    
+      <main>
+        <div class="container profile">
+          <h1 class="header__title">Movie API Documentation</h1>
+          <p>Welcome to the documentation for the Movie API. This API provides access to information about movies,
+            actors, directors, and genres.</p>
+    
+          <section id="api-endpoints">
+            <h3>API Endpoints</h3>
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead class="thead-dark">
+                  <tr>
+                    <th>Endpoint</th>
+                    <th>Method</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="url">/movies/title/:title</span></td>
+                    <td>GET</td>
+                    <td>Returns data (director, genre, actors) about a single movie by its title.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/movies/genre/:genreName</span></td>
+                    <td>GET</td>
+                    <td>Returns a list of movies by genre.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/movies/director/:directorName</span></td>
+                    <td>GET</td>
+                    <td>Returns a list of movies by director.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/movies/:movieId</span></td>
+                    <td>GET</td>
+                    <td>Returns data (director, genre, actors) about a single movie by its ID.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/movies</span></td>
+                    <td>POST</td>
+                    <td>Creates a new movie. Requires a JSON request body with movie details.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/movies/:movieId</span></td>
+                    <td>PUT</td>
+                    <td>Updates movie info by ID. Requires a JSON request body with updated movie details.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/movies/:movieId</span></td>
+                    <td>DELETE</td>
+                    <td>Deletes a movie by ID.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/movies/:movieId/cast</span></td>
+                    <td>GET</td>
+                    <td>Returns the cast (actors) of a movie.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/actors/movie/:movieId</span></td>
+                    <td>GET</td>
+                    <td>Returns a list of actors for a specific movie.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/actors/genre/:genreName</span></td>
+                    <td>GET</td>
+                    <td>Returns a list of actors who have appeared in movies of a specific genre.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/actors/name/:name</span></td>
+                    <td>GET</td>
+                    <td>Returns data about a single actor by their name.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/actors/:actorId</span></td>
+                    <td>GET</td>
+                    <td>Returns data about a single actor by their ID.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/actors</span></td>
+                    <td>GET</td>
+                    <td>Returns a list of all actors.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/actors</span></td>
+                    <td>POST</td>
+                    <td>Creates a new actor. Requires a JSON request body with actor details.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/actors/:actorId</span></td>
+                    <td>PUT</td>
+                    <td>Updates actor info by ID. Requires a JSON request body with updated actor details.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/actors/:actorId</span></td>
+                    <td>DELETE</td>
+                    <td>Deletes an actor by ID.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/genres</span></td>
+                    <td>GET</td>
+                    <td>Returns a list of all genres.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/genres/:name</span></td>
+                    <td>DELETE</td>
+                    <td>Deletes a genre by name.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/genres/:name</span></td>
+                    <td>PUT</td>
+                    <td>Updates a genre's description by name.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/directors</span></td>
+                    <td>GET</td>
+                    <td>Returns a list of all directors.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/directors/name/:name</span></td>
+                    <td>GET</td>
+                    <td>Returns data about a single director by their name.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/directors/:directorId</span></td>
+                    <td>GET</td>
+                    <td>Returns data about a single director by their ID.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/users</span></td>
+                    <td>POST</td>
+                    <td>Registers a new user. Requires a JSON request body with user details.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/users/:username</span></td>
+                    <td>PUT</td>
+                    <td>Updates user information. Requires a JSON request body with updated user details.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/users/:username/favorites/:movieId</span></td>
+                    <td>POST</td>
+                    <td>Adds a movie to a user's list of favorite movies.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/users/:username/favorites/:movieId</span></td>
+                    <td>DELETE</td>
+                    <td>Removes a movie from a user's list of favorite movies.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/users/:username</span></td>
+                    <td>DELETE</td>
+                    <td>Deregisters a user.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/</span></td>
+                    <td>GET</td>
+                    <td>Welcome message.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/admin/users</span></td>
+                    <td>GET</td>
+                    <td>(Admin) Returns a list of all users.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/admin/movies</span></td>
+                    <td>GET</td>
+                    <td>(Admin) Returns a list of all movies with details.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/admin/genres</span></td>
+                    <td>GET</td>
+                    <td>(Admin) Returns a list of all genres.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/admin/directors</span></td>
+                    <td>GET</td>
+                    <td>(Admin) Returns a list of all directors.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="url">/admin/actors</span></td>
+                    <td>GET</td>
+                    <td>(Admin) Returns a list of all actors.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+    
+          <section id="endpoint-details">
+            <h3>Endpoint Details</h3>
+    
+            <section id="get-movie-by-title">
+              <h4>Get movie by title</h4>
+              <p>
+                <code>GET /movies/title/:title</code>
+              </p>
+              <p>
+                Returns a single movie object that matches the title provided in the
+                URL.
+              </p>
+              <p>
+                Example:
+                <code>/movies/title/Die%20Hard</code>
+              </p>
+              <p>
+                Response:
+              </p>
+              <pre>
+                    {
+                      "movieId": 1,
+                      "title": "Die Hard",
+                      "description": "A New York cop battles terrorists in a Los Angeles skyscraper.",
+                      "director": {
+                        "directorid": 200001,
+                        "name": "Christopher Nolan",
+                        "bio": "British-American film director known for his complex, mind-bending plots and visual style.",
+                        "birthyear": "1970-07-30T00:00:00.000Z",
+                        "deathyear": null
+                      },
+                      "genre": {
+                        "genreid": 100001,
+                        "name": "Action",
+                        "description": "Films involving high-stakes, physical feats and battles."
+                      },
+                      "imageURL": "diehard.png",
+                      "featured": true,
+                      "releaseYear": 1988,
+                      "rating": 8.2,
+                      "actors": [
+                        {
+                          "actorid": 4000003,
+                          "name": "Bruce Willis",
+                          "bio": "American actor known for his role in Die Hard",
+                          "birthdate": "1955-03-19T00:00:00.000Z",
+                          "deathdate": null,
+                          "pictureurl": "bruce_willis.jpg"
+                        }
+                      ]
+                    }
+                  </pre>
+              <p>
+                Status Codes:
+                <ul>
+                  <li>200 OK - Success</li>
+                  <li>404 Not Found - Movie not found</li>
+                  <li>500 Internal Server Error - Server error</li>
+                </ul>
+              </p>
+            </section>
+    
+            <section id="create-new-movie">
+              <h4>Create new movie</h4>
+              <p>
+                <code>POST /movies</code>
+              </p>
+              <p>Creates a new movie in the database.</p>
+              <p>
+                Request Body Example:
+              </p>
+              <pre>
+                    {
+                      "title": "New Movie Title",
+                      "description": "Description of the new movie.",
+                      "directorid": 200001,  // Director ID from the directors table
+                      "genreid": 100001,     // Genre ID from the genres table
+                      "imageurl": "new_movie.jpg",
+                      "featured": true,
+                      "releaseyear": 2024,
+                      "rating": 7.5
+                    }
+                  </pre>
+              <p>
+                Response:
+              </p>
+              <pre>
+                    {
+                      "movieid": 21,
+                      "title": "New Movie Title",
+                      "description": "Description of the new movie.",
+                      "directorid": 200001,
+                      "genreid": 100001,
+                      "imageurl": "new_movie.jpg",
+                      "featured": true,
+                      "releaseyear": 2024,
+                      "rating": 7.5
+                    }
+                  </pre>
+              <p>
+                Status Codes:
+                <ul>
+                  <li>201 Created - Movie created successfully</li>
+                  <li>500 Internal Server Error - Server error</li>
+                </ul>
+              </p>
+            </section>
+    
+            <section id="register-user">
+              <h4>Register new user</h4>
+              <p>
+                <code>POST /users</code>
+              </p>
+              <p>Registers a new user in the application.</p>
+              <p>
+                Request Body Example:
+              </p>
+              <pre>
+                    {
+                      "username": "newuser",
+                      "email": "newuser@example.com",
+                      "firstname": "New",
+                      "lastname": "User"
+                    }
+                  </pre>
+              <p>
+                Response:
+              </p>
+              <pre>
+                    {
+                      "userid": 300006,
+                      "username": "newuser",
+                      "email": "newuser@example.com",
+                      "firstname": "New",
+                      "lastname": "User"
+                    }
+                  </pre>
+              <p>
+                Status Codes:
+                <ul>
+                  <li>201 Created - User registered successfully</li>
+                  <li>400 Bad Request - Username already exists</li>
+                  <li>500 Internal Server Error - Server error</li>
+                </ul>
+              </p>
+            </section>
+    
+            <section id="update-user-info">
+              <h4>Update user info</h4>
+              <p>
+                <code>PUT /users/:username</code>
+              </p>
+              <p>Updates the information for an existing user.</p>
+              <p>
+                Request Body Example:
+              </p>
+              <pre>
+                    {
+                      "email": "updateduser@example.com",
+                      "firstname": "Updated",
+                      "lastname": "User"
+                    }
+                  </pre>
+              <p>
+                Response:
+              </p>
+              <pre>
+                    {
+                      "userid": 300006,
+                      "username": "newuser",
+                      "email": "updateduser@example.com",
+                      "firstname": "Updated",
+                      "lastname": "User"
+                    }
+                  </pre>
+              <p>
+                Status Codes:
+                <ul>
+                  <li>200 OK - User information updated successfully</li>
+                  <li>404 Not Found - User not found</li>
+                  <li>500 Internal Server Error - Server error</li>
+                </ul>
+              </p>
+            </section>
+    
+            <section id="add-movie-to-favorites">
+              <h4>Add movie to favorites</h4>
+              <p>
+                <code>POST /users/:username/favorites/:movieId</code>
+              </p>
+              <p>Adds a movie to a user's list of favorite movies.</p>
+              <p>
+                Example:
+                <code>/users/existinguser/favorites/123</code>
+              </p>
+              <p>
+                Response:
+              </p>
+              <pre>
+                    Movie added to favorites.
+                  </pre>
+              <p>
+                Status Codes:
+                <ul>
+                  <li>200 OK - Movie added to favorites</li>
+                  <li>400 Bad Request - Movie already in favorites</li>
+                  <li>404 Not Found - User or movie not found</li>
+                  <li>500 Internal Server Error - Server error</li>
+                </ul>
+              </p>
+            </section>
+    
+            <section id="get-all-movies-admin">
+              <h4>Get all movies with details (Admin)</h4>
+              <p>
+                <code>GET /admin/movies</code>
+              </p>
+              <p>
+                Returns a list of all movies with director, genre, and actor
+                details. This endpoint might involve joining multiple tables to
+                retrieve all the information.
+              </p>
+              <p>
+                Response:
+              </p>
+              <pre>
+                    [
+                      {
+                        "movieId": 1,
+                        "title": "Die Hard",
+                        "description": "A New York cop battles terrorists in a Los Angeles skyscraper.",
+                        "director": {
+                          "directorid": 200001,
+                          "name": "Christopher Nolan",
+                          "bio": "British-American film director known for his complex, mind-bending plots and visual style.",
+                          "birthyear": "1970-07-30T00:00:00.000Z",
+                          "deathyear": null
+                        },
+                        "genre": {
+                          "genreid": 100001,
+                          "name": "Action",
+                          "description": "Films involving high-stakes, physical feats and battles."
+                        },
+                        "imageURL": "diehard.png",
+                        "featured": true,
+                        "releaseYear": 1988,
+                        "rating": 8.2,
+                        "actors": [
+                          {
+                            "actorid": 4000003,
+                            "name": "Bruce Willis",
+                            "bio": "American actor known for his role in Die Hard",
+                            "birthdate": "1955-03-19T00:00:00.000Z",
+                            "deathdate": null,
+                            "pictureurl": "bruce_willis.jpg"
+                          }
+                        ]
+                      },
+                        // ... more movies
+                      ]
+                    </pre>
+                <p>
+                  Status Codes:
+                  <ul>
+                    <li>200 OK - Success</li>
+                    <li>500 Internal Server Error - Server error</li>
+                  </ul>
+                </p>
+              </section>
+            </section>
+      
+            <section id="data-objects">
+              <h3>Data Objects</h3>
+      
+              <section id="movie-object-details">
+                <h4>Movie Object</h4>
+                <p>
+                  Represents a movie in the API. Note that director and genre are
+                  represented by their IDs, and actors are related through the
+                  moviecast table.
+                </p>
+                <pre>
+                      {
+                        "movieId": 1,         // Integer (Primary Key)
+                        "title": "Die Hard",  // String
+                        "description": "A New York cop battles terrorists in a Los Angeles skyscraper.", // String
+                        "directorid": 200001,  // Integer (Foreign Key to directors table)
+                        "genreid": 100001,     // Integer (Foreign Key to genres table)
+                        "imageURL": "diehard.png", // String (URL)
+                        "featured": true,      // Boolean
+                        "releaseYear": 1988,   // Integer
+                        "rating": 8.2         // Double
+                      }
+                    </pre>
+              </section>
+      
+              <section id="genre-object-details">
+                <h4>Genre Object</h4>
+                <p>Represents a genre of movies.</p>
+                <pre>
+                      {
+                        "genreid": 100001,   // Integer (Primary Key)
+                        "name": "Action",    // String
+                        "description": "Films involving high-stakes, physical feats and battles." // String
+                      }
+                    </pre>
+              </section>
+      
+              <section id="director-object-details">
+                <h4>Director Object</h4>
+                <p>Represents a director of movies.</p>
+                <pre>
+                      {
+                        "directorid": 200001,  // Integer (Primary Key)
+                        "name": "Christopher Nolan", // String
+                        "bio": "British-American film director...", // String
+                        "birthyear": "1970-07-30T00:00:00.000Z", // Date (or String in some responses)
+                        "deathyear": null       // Date (or String/null)
+                      }
+                    </pre>
+              </section>
+      
+              <section id="actor-object-details">
+                <h4>Actor Object</h4>
+                <p>Represents an actor in movies.</p>
+                <pre>
+                      {
+                        "actorid": 4000003,  // Integer (Primary Key)
+                        "name": "Bruce Willis", // String
+                        "bio": "American actor...", // String
+                        "birthdate": "1955-03-19T00:00:00.000Z", // Date (or String)
+                        "deathdate": null,     // Date (or String/null)
+                        "pictureurl": "bruce_willis.jpg" // String (URL)
+                      }
+                    </pre>
+              </section>
+      
+              <section id="user-object-details">
+                <h4>User Object</h4>
+                <p>Represents a user of the application.</p>
+                <pre>
+                      {
+                        "userid": 300006,  // Integer (Primary Key)
+                        "username": "newuser", // String
+                        "email": "newuser@example.com", // String
+                        "firstname": "New",    // String
+                        "lastname": "User"     // String
+                      }
+                    </pre>
+              </section>
+            </section>
+          </div>
+        </main>
+    <footer class="page-footer">
+        <br />
+        <br />
+        <h3>Ivan Cortés Murcia</h3>
+        <p>Lawrenceville, GA, USA</p>
+        <p>Tel: <a href="tel:+17608******">+17608******</a></p>
+        <a href="mailto:ivancortes@hotmail.com">ivancortes@hotmail.com</a>
+        <p>Find me on:</p>
+        <div class="social-media">
+            <a id="github-link" href="https://github.com/ivencomur" target="_blank"
+                ><img
+                    src="img/logo_github_icon.svg"
+                    alt="Github"
+                    width="30"
+                    height="30"
+            /></a>
+            <a id="twitter-link" href="https://x.com/IVENCOMUR" target="_blank"
+                ><img
+                    src="img/xformertwittericon.svg"
+                    alt="X former Twitter"
+                    width="30"
+                    height="30"
+            /></a>
+            <a
+                id="linkedin-link"
+                href="https://www.linkedin.com/in/ivan-cortes-murcia-22053953"
+                target="_blank"
+                ><img
+                    src="img/linkedinicon.svg"
+                    alt="LinkedIn"
+                    width="30"
+                    height="30"
+            /></a>
+        </div>
+    </footer>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="index.js"></script>
-  </body>
-</html>
+    </body>
+    </html>
