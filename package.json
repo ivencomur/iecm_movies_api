@@ -4,7 +4,9 @@
   "main": "text.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js",
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "",
@@ -16,7 +18,8 @@
     "lodash": "^4.17.21",
     "mongoose": "^8.13.1",
     "morgan": "^1.10.0",
-     },
+    "pg": "^8.14.1"
+  },
   "devDependencies": {
     "eslint": "^9.21.0"
   },
@@ -29,9 +32,4 @@
     "url": "https://github.com/ivencomur/MY_MOVIES_API_2.4/issues"
   },
   "homepage": "https://github.com/ivencomur/MY_MOVIES_API_2.4#readme"
-}
-
-"scripts": {
-  "dev": "nodemon index.js",
-  "lint": "eslint ."
 }
