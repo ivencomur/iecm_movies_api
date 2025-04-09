@@ -4,43 +4,52 @@ const movieSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
     genre: {
-        name: String,
-        description: String
+        name: { type: String, required: true },
+        description: { type: String, required: true }
     },
     director: {
-        name: String,
-        bio: String,
+        name: { type: String, required: true },
+        bio: { type: String, required: true },
         birth: Date,
         death: Date
     },
-    actors: [String],
+    actors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Actor' }],
     imagePath: String,
-    featured: Boolean
+    featured: { type: Boolean, default: false }
 });
 
 const userSchema = new mongoose.Schema({
-    username: { type: String, required: true },
+    username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
     birthday: Date,
-    favoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }] // References Movie IDs
+    favoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }]
 });
 
 const genreSchema = new mongoose.Schema({
-    name: { type: String, required: true },
+    name: { type: String, required: true, unique: true },
     description: { type: String, required: true }
 });
 
 const directorSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    bio: String,
+    bio: { type: String, required: true },
     birth: Date,
     death: Date
+});
+
+const actorSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    bio: { type: String, required: true },
+    birth: Date,
+    death: Date,
+    pictureUrl: String
 });
 
 const Movie = mongoose.model('Movie', movieSchema);
 const User = mongoose.model('User', userSchema);
 const Genre = mongoose.model('Genre', genreSchema);
 const Director = mongoose.model('Director', directorSchema);
+const Actor = mongoose.model('Actor', actorSchema);
 
-module.exports = { Movie, User, Genre, Director };
+module.exports = { Movie, User, Genre, Director, Actor };
