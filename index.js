@@ -1,777 +1,678 @@
+// Import dependencies
+const mongoose = require("mongoose");
 const express = require("express");
+const bodyParser = require("body-parser");
+const uuid = require("uuid");
 const morgan = require("morgan");
 const path = require("path");
-const { Client } = require("pg");
 
+// Define models
+const Models = require("./models.js");
+const Movies = Models.Movie;
+const Users = Models.User;
+const Genres = Models.Genre;
+const Directors = Models.Director;
+const Actors = Models.Actor;
+
+// Config
+require("dotenv").config();
+const PORT = process.env.PORT || 8080;
+const MONGO_URI = process.env.MONGO_URI;
+
+// Setup app
 const app = express();
+
+// Connect to db
+mongoose.connect(MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", function () {
+  console.log("Connected to MongoDB");
+});
+
+// Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
-const port = process.env.PORT || 8080;
-
 app.use(morgan("common"));
 
-const dbConfig = {
-  host: "localhost",
-  port: 5432,
-  user: "postgres",
-  password: "your_password",
-  database: "iecm_movies_api_DB",
-};
+// Requests/endpoints
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to the Movie API!" });
+});
 
-const connectDB = async () => {
-  const client = new Client(dbConfig);
-  await client.connect();
-  return client;
-};
-
-const disconnectDB = async (client) => {
-  await client.end();
-};
-
-const mapMovieResult = (row, directors, genres, actors) => {
-  return {
-    movieId: row.movieid,
-    title: row.title,
-    description: row.description,
-    director: directors.find((d) => d.directorid === row.directorid) || null,
-    genre: genres.find((g) => g.genreid === row.genreid) || null,
-    imageURL: row.imageurl,
-    featured: row.featured,
-    releaseYear: row.releaseyear,
-    rating: row.rating,
-    actors: actors.filter((actor) => actor.movieIds.includes(row.movieid)),
-  };
-};
-
-const getActorsWithMovieIds = async (client) => {
-  const actorsResult = await client.query(`SELECT * FROM actors;`);
-  const movieCastResult = await client.query(`SELECT * FROM moviecast;`);
-
-  const actors = actorsResult.rows.map((actor) => ({
-    ...actor,
-    movieIds: movieCastResult.rows
-      .filter((mc) => mc.actorid === actor.actorid)
-      .map((mc) => mc.movieid),
-  }));
-  return actors;
-};
+app.get("/movies", async (req, res) => {
+  try {
+    const movies = await Movies.find()
+      .populate("genre")
+      .populate("director")
+      .populate("actors");
+    res.status(200).json(movies);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
+});
 
 app.get("/movies/title/:title", async (req, res) => {
   try {
-    const client = await connectDB();
-    const { title } = req.params;
-
-    const movieResult = await client.query(
-      `SELECT * FROM movies WHERE title = $1`,
-      [title]
-    );
-    const directorsResult = await client.query(`SELECT * FROM directors;`);
-    const genresResult = await client.query(`SELECT * FROM genres;`);
-    const actors = await getActorsWithMovieIds(client);
-
-    if (movieResult.rows.length > 0) {
-      const movie = mapMovieResult(
-        movieResult.rows[0],
-        directorsResult.rows,
-        genresResult.rows,
-        actors
-      );
-      res.status(200).json(movie);
-    } else {
-      res.status(404).send("Movie not found.");
+    const movie = await Movies.findOne({
+      title: { $regex: new RegExp(req.params.title, "i") },
+    })
+      .populate("genre")
+      .populate("director")
+      .populate("actors");
+    if (!movie) {
+      return res.status(404).json({ error: "Movie not found." });
     }
-    await disconnectDB(client);
+    res.status(200).json(movie);
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
 });
 
 app.get("/movies/genre/:genreName", async (req, res) => {
   try {
-    const client = await connectDB();
-    const { genreName } = req.params;
-
-    const genreResult = await client.query(
-      `SELECT genreid FROM genres WHERE name = $1`,
-      [genreName]
-    );
-    if (genreResult.rows.length === 0) {
-      await disconnectDB(client);
-      return res.status(404).send("Genre not found");
-    }
-    const genreId = genreResult.rows[0].genreid;
-    const moviesResult = await client.query(
-      `SELECT * FROM movies WHERE genreid = $1`,
-      [genreId]
-    );
-    const directorsResult = await client.query(`SELECT * FROM directors;`);
-    const genresResult = await client.query(`SELECT * FROM genres;`);
-    const actors = await getActorsWithMovieIds(client);
-
-    const movies = moviesResult.rows.map((movie) =>
-      mapMovieResult(movie, directorsResult.rows, genresResult.rows, actors)
-    );
+    const movies = await Movies.find({
+      "genre.name": { $regex: new RegExp(req.params.genreName, "i") },
+    })
+      .populate("genre")
+      .populate("director")
+      .populate("actors");
     res.status(200).json(movies);
-    await disconnectDB(client);
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
 });
 
 app.get("/movies/director/:directorName", async (req, res) => {
   try {
-    const client = await connectDB();
-    const { directorName } = req.params;
-
-    const directorResult = await client.query(
-      `SELECT directorid FROM directors WHERE name = $1`,
-      [directorName]
-    );
-    if (directorResult.rows.length === 0) {
-      await disconnectDB(client);
-      return res.status(404).send("Director not found");
-    }
-    const directorId = directorResult.rows[0].directorid;
-
-    const moviesResult = await client.query(
-      `SELECT * FROM movies WHERE directorid = $1`,
-      [directorId]
-    );
-    const directorsResult = await client.query(`SELECT * FROM directors;`);
-    const genresResult = await client.query(`SELECT * FROM genres;`);
-    const actors = await getActorsWithMovieIds(client);
-
-    const movies = moviesResult.rows.map((movie) =>
-      mapMovieResult(movie, directorsResult.rows, genresResult.rows, actors)
-    );
+    const movies = await Movies.find({
+      "director.name": { $regex: new RegExp(req.params.directorName, "i") },
+    })
+      .populate("genre")
+      .populate("director")
+      .populate("actors");
     res.status(200).json(movies);
-    await disconnectDB(client);
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
 });
 
 app.get("/movies/:movieId", async (req, res) => {
   try {
-    const client = await connectDB();
-    const { movieId } = req.params;
-    const movieResult = await client.query(
-      `SELECT * FROM movies WHERE movieid = $1`,
-      [movieId]
-    );
-    const directorsResult = await client.query(`SELECT * FROM directors;`);
-    const genresResult = await client.query(`SELECT * FROM genres;`);
-    const actors = await getActorsWithMovieIds(client);
-
-    if (movieResult.rows.length > 0) {
-      const movie = mapMovieResult(
-        movieResult.rows[0],
-        directorsResult.rows,
-        genresResult.rows,
-        actors
-      );
-      res.status(200).json(movie);
-    } else {
-      res.status(404).send("Movie not found.");
+    const movie = await Movies.findById(req.params.movieId)
+      .populate("genre")
+      .populate("director")
+      .populate("actors");
+    if (!movie) {
+      return res.status(404).json({ error: "Movie not found." });
     }
-    await disconnectDB(client);
+    res.status(200).json(movie);
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
 });
 
 app.post("/movies", async (req, res) => {
   try {
-    const client = await connectDB();
-    const {
+    const { title, description, genre, director, actors, imagePath, featured } =
+      req.body;
+
+    const genreDoc = await Genres.findOne({ name: genre.name });
+    if (!genreDoc) {
+      return res.status(400).json({ error: "Genre not found." });
+    }
+
+    const directorDoc = await Directors.findOne({ name: director.name });
+    if (!directorDoc) {
+      return res.status(400).json({ error: "Director not found." });
+    }
+
+    const actorDocs = await Actors.find({ name: { $in: actors } });
+    const actorIds = actorDocs.map((actor) => actor._id);
+
+    const newMovie = new Movies({
       title,
       description,
-      directorid,
-      genreid,
-      imageurl,
+      genre: genreDoc._id,
+      director: directorDoc._id,
+      actors: actorIds,
+      imagePath,
       featured,
-      releaseyear,
-      rating,
-    } = req.body;
-    const result = await client.query(
-      `INSERT INTO movies (title, description, directorid, genreid, imageurl, featured, releaseyear, rating) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-      [
-        title,
-        description,
-        directorid,
-        genreid,
-        imageurl,
-        featured,
-        releaseyear,
-        rating,
-      ]
-    );
-    res.status(201).json(result.rows[0]);
-    await disconnectDB(client);
+    });
+
+    const savedMovie = await newMovie.save();
+    const populatedMovie = await Movies.findById(savedMovie._id)
+      .populate("genre")
+      .populate("director")
+      .populate("actors");
+    res.status(201).json(populatedMovie);
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
 });
 
 app.put("/movies/:movieId", async (req, res) => {
   try {
-    const client = await connectDB();
-    const { movieId } = req.params;
-    const {
-      title,
-      description,
-      directorid,
-      genreid,
-      imageurl,
-      featured,
-      releaseyear,
-      rating,
-    } = req.body;
-
-    const result = await client.query(
-      `UPDATE movies SET title = $2, description = $3, directorid = $4, genreid = $5, imageurl = $6, featured = $7, releaseyear = $8, rating = $9 WHERE movieid = $1 RETURNING *`,
-      [
-        movieId,
-        title,
-        description,
-        directorid,
-        genreid,
-        imageurl,
-        featured,
-        releaseyear,
-        rating,
-      ]
-    );
-    if (result.rows.length > 0) {
-      res.status(200).json(result.rows[0]);
-    } else {
-      res.status(404).send("Movie not found.");
+    const { title, description, genre, director, actors, imagePath, featured } =
+      req.body;
+    const updateData = {};
+    if (title) updateData.title = title;
+    if (description) updateData.description = description;
+    if (genre && genre.name) {
+      const genreDoc = await Genres.findOne({ name: genre.name });
+      if (!genreDoc) return res.status(400).json({ error: "Genre not found." });
+      updateData.genre = genreDoc._id;
     }
-    await disconnectDB(client);
+    if (director && director.name) {
+      const directorDoc = await Directors.findOne({ name: director.name });
+      if (!directorDoc)
+        return res.status(400).json({ error: "Director not found." });
+      updateData.director = directorDoc._id;
+    }
+    if (actors && Array.isArray(actors)) {
+      const actorDocs = await Actors.find({ name: { $in: actors } });
+      updateData.actors = actorDocs.map((actor) => actor._id);
+    }
+    if (imagePath) updateData.imagePath = imagePath;
+    if (featured !== undefined) updateData.featured = featured;
+
+    const updatedMovie = await Movies.findByIdAndUpdate(
+      req.params.movieId,
+      updateData,
+      { new: true }
+    )
+      .populate("genre")
+      .populate("director")
+      .populate("actors");
+
+    if (!updatedMovie) {
+      return res.status(404).json({ error: "Movie not found." });
+    }
+    res.status(200).json(updatedMovie);
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
 });
 
 app.delete("/movies/:movieId", async (req, res) => {
   try {
-    const client = await connectDB();
-    const { movieId } = req.params;
-    const result = await client.query(
-      `DELETE FROM movies WHERE movieid = $1 RETURNING *`,
-      [movieId]
-    );
-    if (result.rows.length > 0) {
-      res.status(200).send("Movie deleted successfully.");
-    } else {
-      res.status(404).send("Movie not found.");
+    const deletedMovie = await Movies.findByIdAndDelete(req.params.movieId);
+    if (!deletedMovie) {
+      return res.status(404).json({ error: "Movie not found." });
     }
-    await disconnectDB(client);
+    res.status(200).send("Movie deleted successfully.");
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
 });
 
-app.get("/movies/:movieId/cast", async (req, res) => {
+app.get("/movies/:movieId/actors", async (req, res) => {
   try {
-    const client = await connectDB();
-    const { movieId } = req.params;
-    const result = await client.query(
-      `SELECT a.* FROM actors a JOIN moviecast mc ON a.actorid = mc.actorid WHERE mc.movieid = $1`,
-      [movieId]
-    );
-    if (result.rows.length > 0) {
-      res.status(200).json(result.rows);
-    } else {
-      res.status(404).send("Movie not found.");
+    const movie = await Movies.findById(req.params.movieId).populate("actors");
+    if (!movie) {
+      return res.status(404).json({ error: "Movie not found." });
     }
-    await disconnectDB(client);
+    res
+      .status(200)
+      .json(
+        movie.actors.map((actor) => ({ _id: actor._id, name: actor.name }))
+      );
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
-  }
-});
-
-app.get("/actors/movie/:movieId", async (req, res) => {
-  try {
-    const client = await connectDB();
-    const { movieId } = req.params;
-    const result = await client.query(
-      `SELECT a.* FROM actors a JOIN moviecast mc ON a.actorid = mc.actorid WHERE mc.movieid = $1`,
-      [movieId]
-    );
-    if (result.rows.length > 0) {
-      res.status(200).json(result.rows);
-    } else {
-      res.status(404).send("Movie not found.");
-    }
-    await disconnectDB(client);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
-  }
-});
-
-app.get("/actors/genre/:genreName", async (req, res) => {
-  try {
-    const client = await connectDB();
-    const { genreName } = req.params;
-    const result = await client.query(
-      `SELECT a.* FROM actors a JOIN moviecast mc ON a.actorid = mc.actorid JOIN movies m ON mc.movieid = m.movieid JOIN genres g ON m.genreid = g.genreid WHERE g.name = $1`,
-      [genreName]
-    );
-    if (result.rows.length > 0) {
-      res.status(200).json(result.rows);
-    } else {
-      res.status(404).send("No actors found for this genre.");
-    }
-    await disconnectDB(client);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
-  }
-});
-
-app.get("/actors/name/:name", async (req, res) => {
-  try {
-    const client = await connectDB();
-    const { name } = req.params;
-    const result = await client.query(`SELECT * FROM actors WHERE name = $1`, [
-      name,
-    ]);
-    if (result.rows.length > 0) {
-      res.status(200).json(result.rows[0]);
-    } else {
-      res.status(404).send("Actor not found.");
-    }
-    await disconnectDB(client);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
-  }
-});
-
-app.get("/actors/:actorId", async (req, res) => {
-  try {
-    const client = await connectDB();
-    const { actorId } = req.params;
-    const result = await client.query(
-      `SELECT * FROM actors WHERE actorid = $1`,
-      [actorId]
-    );
-    if (result.rows.length > 0) {
-      res.status(200).json(result.rows[0]);
-    } else {
-      res.status(404).send("Actor not found.");
-    }
-    await disconnectDB(client);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
-  }
-});
-
-app.get("/actors", async (req, res) => {
-  try {
-    const client = await connectDB();
-    const result = await client.query(`SELECT * FROM actors`);
-    res.status(200).json(result.rows);
-    await disconnectDB(client);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
-  }
-});
-
-app.post("/actors", async (req, res) => {
-  try {
-    const client = await connectDB();
-    const { name, bio, birthdate, deathdate, pictureurl } = req.body;
-    const result = await client.query(
-      `INSERT INTO actors (name, bio, birthdate, deathdate, pictureurl) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [name, bio, birthdate, deathdate, pictureurl]
-    );
-    res.status(201).json(result.rows[0]);
-    await disconnectDB(client);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
-  }
-});
-
-app.put("/actors/:actorId", async (req, res) => {
-  try {
-    const client = await connectDB();
-    const { actorId } = req.params;
-    const { name, bio, birthdate, deathdate, pictureurl } = req.body;
-    const result = await client.query(
-      `UPDATE actors SET name = $2, bio = $3, birthdate = $4, deathdate = $5, pictureurl = $6 WHERE actorid = $1 RETURNING *`,
-      [actorId, name, bio, birthdate, deathdate, pictureurl]
-    );
-    if (result.rows.length > 0) {
-      res.status(200).json(result.rows[0]);
-    } else {
-      res.status(404).send("Actor not found.");
-    }
-    await disconnectDB(client);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
-  }
-});
-
-app.delete("/actors/:actorId", async (req, res) => {
-  try {
-    const client = await connectDB();
-    const { actorId } = req.params;
-    const result = await client.query(
-      `DELETE FROM actors WHERE actorid = $1 RETURNING *`,
-      [actorId]
-    );
-    if (result.rows.length > 0) {
-      res.status(200).send("Actor deleted successfully.");
-    } else {
-      res.status(404).send("Actor not found.");
-    }
-    await disconnectDB(client);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
-  }
-});
-
-app.get("/genres", async (req, res) => {
-  try {
-    const client = await connectDB();
-    const result = await client.query(`SELECT * FROM genres`);
-    res.status(200).json(result.rows);
-    await disconnectDB(client);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
-  }
-});
-
-app.delete("/genres/:name", async (req, res) => {
-  try {
-    const client = await connectDB();
-    const { name } = req.params;
-    const result = await client.query(
-      `DELETE FROM genres WHERE name = $1 RETURNING *`,
-      [name]
-    );
-    if (result.rows.length > 0) {
-      res.status(200).send("Genre deleted successfully.");
-    } else {
-      res.status(404).send("Genre not found.");
-    }
-    await disconnectDB(client);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
-  }
-});
-
-app.put("/genres/:name", async (req, res) => {
-  try {
-    const client = await connectDB();
-    const { name } = req.params;
-    const { description } = req.body;
-    const result = await client.query(
-      `UPDATE genres SET description = $2 WHERE name = $1 RETURNING *`,
-      [name, description]
-    );
-    if (result.rows.length > 0) {
-      res.status(200).json(result.rows[0]);
-    } else {
-      res.status(404).send("Genre not found.");
-    }
-    await disconnectDB(client);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
-  }
-});
-
-app.get("/directors", async (req, res) => {
-  try {
-    const client = await connectDB();
-    const result = await client.query(`SELECT * FROM directors`);
-    res.status(200).json(result.rows);
-    await disconnectDB(client);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
-  }
-});
-
-app.get("/directors/name/:name", async (req, res) => {
-  try {
-    const client = await connectDB();
-    const { name } = req.params;
-    const result = await client.query(
-      `SELECT * FROM directors WHERE name = $1`,
-      [name]
-    );
-    if (result.rows.length > 0) {
-      res.status(200).json(result.rows[0]);
-    } else {
-      res.status(404).send("Director not found.");
-    }
-    await disconnectDB(client);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
-  }
-});
-
-app.get("/directors/:directorId", async (req, res) => {
-  try {
-    const client = await connectDB();
-    const { directorId } = req.params;
-    const result = await client.query(
-      `SELECT * FROM directors WHERE directorid = $1`,
-      [directorId]
-    );
-    if (result.rows.length > 0) {
-      res.status(200).json(result.rows[0]);
-    } else {
-      res.status(404).send("Director not found.");
-    }
-    await disconnectDB(client);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
 });
 
 app.post("/users", async (req, res) => {
   try {
-    const client = await connectDB();
-    const { username, email, firstname, lastname } = req.body;
-    const checkResult = await client.query(
-      `SELECT * FROM users WHERE username = $1`,
-      [username]
-    );
-    if (checkResult.rows.length > 0) {
-      await disconnectDB(client);
-      return res
-        .status(400)
-        .send(
-          "Username already exists. <a href='/documentation.html#register-user'>Try again?</a>"
-        );
-    } else {
-      const result = await client.query(
-        `INSERT INTO users (username, email, firstname, lastname) VALUES ($1, $2, $3, $4) RETURNING *`,
-        [username, email, firstname, lastname]
-      );
-      res.status(201).json(result.rows[0]);
+    const { username, password, email, birthday } = req.body;
+    const existingUser = await Users.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ error: "Username already exists." });
     }
-    await disconnectDB(client);
+    const existingEmail = await Users.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ error: "Email already exists." });
+    }
+    const newUser = new Users({ username, password, email, birthday });
+    const savedUser = await newUser.save();
+    res
+      .status(201)
+      .json({
+        _id: savedUser._id,
+        username: savedUser.username,
+        email: savedUser.email,
+        birthday: savedUser.birthday,
+        favoriteMovies: savedUser.favoriteMovies,
+      });
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
 });
 
 app.put("/users/:username", async (req, res) => {
   try {
-    const client = await connectDB();
-    const { username } = req.params;
-    const { email, firstname, lastname } = req.body;
-    const result = await client.query(
-      `UPDATE users SET email = $2, firstname = $3, lastname = $4 WHERE username = $1 RETURNING *`,
-      [username, email, firstname, lastname]
+    const { password, email, birthday } = req.body;
+    const updatedUser = await Users.findOneAndUpdate(
+      { username: req.params.username },
+      { password, email, birthday },
+      { new: true }
     );
-    if (result.rows.length > 0) {
-      res.status(200).json(result.rows[0]);
-    } else {
-      res.status(404).send("User not found.");
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found." });
     }
-    await disconnectDB(client);
+    res
+      .status(200)
+      .json({
+        _id: updatedUser._id,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        birthday: updatedUser.birthday,
+        favoriteMovies: updatedUser.favoriteMovies,
+      });
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
-  }
-});
-
-app.delete("/users/:username", async (req, res) => {
-  try {
-    const client = await connectDB();
-    const { username } = req.params;
-    const result = await client.query(
-      `DELETE FROM users WHERE username = $1 RETURNING *`,
-      [username]
-    );
-    if (result.rows.length > 0) {
-      res.status(200).send("User deregistered successfully.");
-    } else {
-      res.status(404).send("User not found.");
-    }
-    await disconnectDB(client);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
 });
 
 app.post("/users/:username/favorites/:movieId", async (req, res) => {
   try {
-    const client = await connectDB();
-    const { username, movieId } = req.params;
-
-    const userResult = await client.query(
-      `SELECT userid FROM users WHERE username = $1`,
-      [username]
-    );
-    if (userResult.rows.length === 0) {
-      await disconnectDB(client);
-      return res.status(404).send("User not found.");
+    const user = await Users.findOneAndUpdate(
+      { username: req.params.username },
+      { $addToSet: { favoriteMovies: req.params.movieId } },
+      { new: true }
+    ).populate("favoriteMovies");
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
     }
-    const userId = userResult.rows[0].userid;
-
-    const checkResult = await client.query(
-      `SELECT * FROM usersmovies WHERE userid = $1 AND movieid = $2`,
-      [userId, parseInt(movieId, 10)]
-    );
-    if (checkResult.rows.length > 0) {
-      await disconnectDB(client);
-      return res
-        .status(400)
-        .send("Movie is already in user's favorites.");
-    }
-
-    const result = await client.query(
-      `INSERT INTO usersmovies (userid, movieid) VALUES ($1, $2) RETURNING *`,
-      [userId, parseInt(movieId, 10)]
-    );
-    if (result.rows.length > 0) {
-      res.status(200).send("Movie added to favorites.");
-    } else {
-      res.status(500).send("Failed to add movie to favorites.");
-    }
-    await disconnectDB(client);
+    res
+      .status(200)
+      .json(
+        user.favoriteMovies.map((movie) => ({
+          _id: movie._id,
+          title: movie.title,
+        }))
+      );
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
 });
 
 app.delete("/users/:username/favorites/:movieId", async (req, res) => {
   try {
-    const client = await connectDB();
-    const { username, movieId } = req.params;
-
-    const userResult = await client.query(
-      `SELECT userid FROM users WHERE username = $1`,
-      [username]
-    );
-    if (userResult.rows.length === 0) {
-      await disconnectDB(client);
-      return res.status(404).send("User not found.");
+    const user = await Users.findOneAndUpdate(
+      { username: req.params.username },
+      { $pull: { favoriteMovies: req.params.movieId } },
+      { new: true }
+    ).populate("favoriteMovies");
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
     }
-    const userId = userResult.rows[0].userid;
-
-    const result = await client.query(
-      `DELETE FROM usersmovies WHERE userid = $1 AND movieid = $2 RETURNING *`,
-      [userId, parseInt(movieId, 10)]
-    );
-    if (result.rows.length > 0) {
-      res.status(200).send("Movie removed from favorites.");
-    } else {
-      res.status(404).send("Movie not found in favorites.");
-    }
-    await disconnectDB(client);
+    res
+      .status(200)
+      .json(
+        user.favoriteMovies.map((movie) => ({
+          _id: movie._id,
+          title: movie.title,
+        }))
+      );
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
 });
 
-app.get("/", (req, res) => {
-  res.send("Welcome to the Movie API!");
+app.delete("/users/:username", async (req, res) => {
+  try {
+    const deletedUser = await Users.findOneAndDelete({
+      username: req.params.username,
+    });
+    if (!deletedUser) {
+      return res.status(404).json({ error: "User not found." });
+    }
+    res.status(200).send("User deleted successfully.");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
 });
 
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send("We are sorry, there has been an error.");
+app.get("/genres", async (req, res) => {
+  try {
+    const genres = await Genres.find();
+    res.status(200).json(genres);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
 });
 
-app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`);
+app.get("/genres/:name", async (req, res) => {
+  try {
+    const genre = await Genres.findOne({
+      name: { $regex: new RegExp(req.params.name, "i") },
+    });
+    if (!genre) {
+      return res.status(404).json({ error: "Genre not found." });
+    }
+    res.status(200).json(genre);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
+});
+
+app.post("/genres", async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const existingGenre = await Genres.findOne({ name });
+    if (existingGenre) {
+      return res.status(400).json({ error: "Genre name already exists." });
+    }
+    const newGenre = new Genres({ name, description });
+    const savedGenre = await newGenre.save();
+    res.status(201).json(savedGenre);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
+});
+
+app.put("/genres/:name", async (req, res) => {
+  try {
+    const { description } = req.body;
+    const updatedGenre = await Genres.findOneAndUpdate(
+      { name: req.params.name },
+      { description },
+      { new: true }
+    );
+    if (!updatedGenre) {
+      return res.status(404).json({ error: "Genre not found." });
+    }
+    res.status(200).json(updatedGenre);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
+});
+
+app.delete("/genres/:name", async (req, res) => {
+  try {
+    const deletedGenre = await Genres.findOneAndDelete({
+      name: req.params.name,
+    });
+    if (!deletedGenre) {
+      return res.status(404).json({ error: "Genre not found." });
+    }
+    res.status(200).send("Genre deleted successfully.");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
+});
+
+app.get("/directors", async (req, res) => {
+  try {
+    const directors = await Directors.find();
+    res.status(200).json(directors);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
+});
+
+app.get("/directors/name/:name", async (req, res) => {
+  try {
+    const director = await Directors.findOne({
+      name: { $regex: new RegExp(req.params.name, "i") },
+    });
+    if (!director) {
+      return res.status(404).json({ error: "Director not found." });
+    }
+    res.status(200).json(director);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
+});
+
+app.get("/directors/:directorId", async (req, res) => {
+  try {
+    const director = await Directors.findById(req.params.directorId);
+    if (!director) {
+      return res.status(404).json({ error: "Director not found." });
+    }
+    res.status(200).json(director);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
+});
+
+app.post("/directors", async (req, res) => {
+  try {
+    const { name, bio, birth, death } = req.body;
+    const existingDirector = await Directors.findOne({ name });
+    if (existingDirector) {
+      return res.status(400).json({ error: "Director name already exists." });
+    }
+    const newDirector = new Directors({ name, bio, birth, death });
+    const savedDirector = await newDirector.save();
+    res.status(201).json(savedDirector);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
+});
+
+app.put("/directors/:directorId", async (req, res) => {
+  try {
+    const { name, bio, birth, death } = req.body;
+    const updatedDirector = await Directors.findByIdAndUpdate(
+      req.params.directorId,
+      { name, bio, birth, death },
+      { new: true }
+    );
+    if (!updatedDirector) {
+      return res.status(404).json({ error: "Director not found." });
+    }
+    res.status(200).json(updatedDirector);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
+});
+
+app.delete("/directors/:directorId", async (req, res) => {
+  try {
+    const deletedDirector = await Directors.findByIdAndDelete(
+      req.params.directorId
+    );
+    if (!deletedDirector) {
+      return res.status(404).json({ error: "Director not found." });
+    }
+    res.status(200).send("Director deleted successfully.");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
+});
+
+app.get("/actors", async (req, res) => {
+  try {
+    const actors = await Actors.find();
+    res.status(200).json(actors);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
+});
+
+app.get("/actors/name/:name", async (req, res) => {
+  try {
+    const actor = await Actors.findOne({
+      name: { $regex: new RegExp(req.params.name, "i") },
+    });
+    if (!actor) {
+      return res.status(404).json({ error: "Actor not found." });
+    }
+    res.status(200).json(actor);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
+});
+
+app.get("/actors/:actorId", async (req, res) => {
+  try {
+    const actor = await Actors.findById(req.params.actorId);
+    if (!actor) {
+      return res.status(404).json({ error: "Actor not found." });
+    }
+    res.status(200).json(actor);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
+});
+
+app.post("/actors", async (req, res) => {
+  try {
+    const { name, bio, birth, death, pictureUrl } = req.body;
+    const existingActor = await Actors.findOne({ name });
+    if (existingActor) {
+      return res.status(400).json({ error: "Actor name already exists." });
+    }
+    const newActor = new Actors({ name, bio, birth, death, pictureUrl });
+    const savedActor = await newActor.save();
+    res.status(201).json(savedActor);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
+});
+
+app.put("/actors/:actorId", async (req, res) => {
+  try {
+    const { name, bio, birth, death, pictureUrl } = req.body;
+    const updatedActor = await Actors.findByIdAndUpdate(
+      req.params.actorId,
+      { name, bio, birth, death, pictureUrl },
+      { new: true }
+    );
+    if (!updatedActor) {
+      return res.status(404).json({ error: "Actor not found." });
+    }
+    res.status(200).json(updatedActor);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
+});
+
+app.delete("/actors/:actorId", async (req, res) => {
+  try {
+    const deletedActor = await Actors.findByIdAndDelete(req.params.actorId);
+    if (!deletedActor) {
+      return res.status(404).json({ error: "Actor not found." });
+    }
+    res.status(200).send("Actor deleted successfully.");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
+  }
 });
 
 app.get("/admin/users", async (req, res) => {
   try {
-    const client = await connectDB();
-    const result = await client.query(`SELECT * FROM users`);
-    res.status(200).json(result.rows);
-    await disconnectDB(client);
+    const users = await Users.find();
+    res
+      .status(200)
+      .json(
+        users.map((user) => ({
+          _id: user._id,
+          username: user.username,
+          email: user.email,
+          birthday: user.birthday,
+        }))
+      );
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
 });
 
 app.get("/admin/movies", async (req, res) => {
   try {
-    const client = await connectDB();
-    const moviesResult = await client.query(`SELECT * FROM movies`);
-    const directorsResult = await client.query(`SELECT * FROM directors`);
-    const genresResult = await client.query(`SELECT * FROM genres`);
-    const actors = await getActorsWithMovieIds(client);
-
-    const movies = moviesResult.rows.map((movie) =>
-      mapMovieResult(movie, directorsResult.rows, genresResult.rows, actors)
+    const movies = await Movies.find().populate("genre").populate("director");
+    res.status(200).json(
+      movies.map((movie) => ({
+        _id: movie._id,
+        title: movie.title,
+        description: movie.description,
+        genre: movie.genre ? { name: movie.genre.name } : null,
+        director: movie.director ? { name: movie.director.name } : null,
+        imagePath: movie.imagePath,
+        featured: movie.featured,
+      }))
     );
-    res.status(200).json(movies);
-    await disconnectDB(client);
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
 });
 
 app.get("/admin/genres", async (req, res) => {
   try {
-    const client = await connectDB();
-    const result = await client.query(`SELECT * FROM genres`);
-    res.status(200).json(result.rows);
-    await disconnectDB(client);
+    const genres = await Genres.find();
+    res.status(200).json(genres);
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
 });
 
 app.get("/admin/directors", async (req, res) => {
   try {
-    const client = await connectDB();
-    const result = await client.query(`SELECT * FROM directors`);
-    res.status(200).json(result.rows);
-    await disconnectDB(client);
+    const directors = await Directors.find();
+    res.status(200).json(directors);
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
 });
 
 app.get("/admin/actors", async (req, res) => {
   try {
-    const client = await connectDB();
-    const result = await client.query(`SELECT * FROM actors`);
-    res.status(200).json(result.rows);
-    await disconnectDB(client);
+    const actors = await Actors.find();
+    res.status(200).json(actors);
   } catch (err) {
     console.error(err);
-    res.status(500).send("We are sorry, there has been an error.");
+    res.status(500).send("Error: " + err);
   }
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("There is an error!");
+});
+
+app.listen(PORT, () => {
+  console.log("Running on port", PORT);
 });

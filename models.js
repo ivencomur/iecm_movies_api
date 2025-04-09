@@ -1,54 +1,49 @@
 const mongoose = require('mongoose');
 
-
-const actorSchema = new mongoose.Schema({
-  Name: { type: String, required: true },
-  Bio: String,
-  Birth: Date,
-  Death: Date
-});
-
 const movieSchema = new mongoose.Schema({
-  Title: { type: String, required: true },
-  Description: { type: String, required: true },
-  
-  Genre: {
-    Name: String,
-    Description: String
-  },
- 
-  Director: {
-    Name: String,
-    Bio: String,
-    Birth: Date,
-    Death: Date
-  },
-  
-  StarringActor: { type: mongoose.Schema.Types.ObjectId, ref: 'Actor' },
-  
-  Actors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Actor' }],
-  ImagePath: String,
-  Featured: Boolean
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    genre: {
+        name: { type: String, required: true },
+        description: { type: String, required: true }
+    },
+    director: {
+        name: { type: String, required: true },
+        bio: { type: String, required: true },
+        birth: Date,
+        death: Date
+    },
+    actors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Actor' }],
+    imagePath: String,
+    featured: { type: Boolean, default: false }
 });
 
 const userSchema = new mongoose.Schema({
-  Username: { type: String, required: true },
-  Password: { type: String, required: true },
-  Email: { type: String, required: true },
-  Birthday: Date,
-  FavoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }]
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    birthday: Date,
+    favoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }]
 });
 
 const genreSchema = new mongoose.Schema({
-  Name: { type: String, required: true },
-  Description: { type: String, required: true }
+    name: { type: String, required: true, unique: true },
+    description: { type: String, required: true }
 });
 
 const directorSchema = new mongoose.Schema({
-  Name: { type: String, required: true },
-  Bio: String,
-  Birth: Date,
-  Death: Date
+    name: { type: String, required: true },
+    bio: { type: String, required: true },
+    birth: Date,
+    death: Date
+});
+
+const actorSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    bio: { type: String, required: true },
+    birth: Date,
+    death: Date,
+    pictureUrl: String
 });
 
 const Movie = mongoose.model('Movie', movieSchema);
