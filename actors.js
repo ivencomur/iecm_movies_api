@@ -12,6 +12,12 @@ mongoose.connect(MONGO_URI, {
 
 const Actor = mongoose.model('Actor', actorSchema);
 
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", function () {
+  console.log("Connected to MongoDB");
+});
+
 const actorsData = [
   {
     name: 'Tom Hardy',
