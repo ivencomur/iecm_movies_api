@@ -23,7 +23,9 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     birthday: Date,
-    favoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }]
+    favoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }],
+    firstname: String, // Added firstname
+    lastname: String   // Added lastname
 });
 
 const genreSchema = new mongoose.Schema({

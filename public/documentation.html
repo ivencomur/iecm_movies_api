@@ -157,7 +157,8 @@
                         <tr>
                             <td><span class="url">/genres/:name</span></td>
                             <td>PUT</td>
-                            <td>Updates a genre's description by name. Requires a JSON request body with updated description.</td>
+                            <td>Updates a genre's description by name. Requires a JSON request body with updated
+                                description.</td>
                         </tr>
                         <tr>
                             <td><span class="url">/genres/:name</span></td>
@@ -187,7 +188,8 @@
                         <tr>
                             <td><span class="url">/directors/:directorId</span></td>
                             <td>PUT</td>
-                            <td>Updates director info by ID. Requires a JSON request body with updated director details.</td>
+                            <td>Updates director info by ID. Requires a JSON request body with updated director
+                                details.</td>
                         </tr>
                         <tr>
                             <td><span class="url">/directors/:directorId</span></td>
@@ -365,7 +367,7 @@
                 <p><code>PUT /users/:username</code></p>
                 <p>Updates the information of an existing user.</p>
                 <p>Request Body: <code>{ "username": "...", "password": "...", "email": "...", "birthday": "YYYY-MM-DDTHH:mm:ss.SSSZ" }</code> (all or some fields)</p>
-                <pre>{ "_id": "...", "username": "...", "password": "...", "email": "...", "birthday": "...", "favoriteMovies": ["..."], "__v": 0 }</pre>
+                <pre>{ "_id": "...", "username": "...", "password": "...", "email": "...", "birthday": "...", "favoriteMovies": [], "__v": 0 }</pre>
                 <p>Status Codes: 200 OK, 404 Not Found, 500 Internal Server Error</p>
             </section>
 
@@ -373,7 +375,7 @@
                 <h4>Add movie to favorites</h4>
                 <p><code>POST /users/:username/favorites/:movieId</code></p>
                 <p>Adds a movie to a user's favorite movies list.</p>
-                <pre>[ { "_id": "...", "title": "...", "description": "...", "genre": { ... }, "director": { ... }, "actors": [...], "imagePath": "...", "featured": true, "__v": 0 }, ... ]</pre>
+                <pre>Movie added to favorites.</pre>
                 <p>Status Codes: 200 OK, 404 Not Found, 500 Internal Server Error</p>
             </section>
 
@@ -381,7 +383,7 @@
                 <h4>Remove movie from favorites</h4>
                 <p><code>DELETE /users/:username/favorites/:movieId</code></p>
                 <p>Removes a movie from a user's favorite movies list.</p>
-                <pre>[ { "_id": "...", "title": "...", "description": "...", "genre": { ... }, "director": { ... }, "actors": [...], "imagePath": "...", "featured": true, "__v": 0 }, ... ]</pre>
+                <pre>Movie removed from favorites.</pre>
                 <p>Status Codes: 200 OK, 404 Not Found, 500 Internal Server Error</p>
             </section>
 
@@ -389,7 +391,7 @@
                 <h4>Deregister user</h4>
                 <p><code>DELETE /users/:username</code></p>
                 <p>Deletes a user from the application.</p>
-                <pre>User deleted successfully.</pre>
+                <pre>User deregistered successfully.</pre>
                 <p>Status Codes: 200 OK, 404 Not Found, 500 Internal Server Error</p>
             </section>
 
@@ -409,19 +411,19 @@
                 <p>Status Codes: 200 OK, 404 Not Found, 500 Internal Server Error</p>
             </section>
 
-            <section id="create-genre">
-                <h4>Create a new genre</h4>
+            <section id="create-new-genre">
+                <h4>Create new genre</h4>
                 <p><code>POST /genres</code></p>
                 <p>Creates a new genre in the database.</p>
                 <p>Request Body: <code>{ "name": "...", "description": "..." }</code></p>
                 <pre>{ "_id": "...", "name": "...", "description": "...", "__v": 0 }</pre>
-                <p>Status Codes: 201 Created, 500 Internal Server Error</p>
+                <p>Status Codes: 201 Created, 400 Bad Request, 500 Internal Server Error</p>
             </section>
 
             <section id="update-genre">
-                <h4>Update a genre by name</h4>
+                <h4>Update genre description</h4>
                 <p><code>PUT /genres/:name</code></p>
-                <p>Updates a genre's description by name.</p>
+                <p>Updates the description of an existing genre.</p>
                 <p>Request Body: <code>{ "description": "..." }</code></p>
                 <pre>{ "_id": "...", "name": "...", "description": "...", "__v": 0 }</pre>
                 <p>Status Codes: 200 OK, 404 Not Found, 500 Internal Server Error</p>
@@ -430,7 +432,7 @@
             <section id="delete-genre">
                 <h4>Delete a genre by name</h4>
                 <p><code>DELETE /genres/:name</code></p>
-                <p>Deletes a genre by name.</p>
+                <p>Deletes a genre from the database.</p>
                 <pre>Genre deleted successfully.</pre>
                 <p>Status Codes: 200 OK, 404 Not Found, 500 Internal Server Error</p>
             </section>
@@ -459,13 +461,13 @@
                 <p>Status Codes: 200 OK, 404 Not Found, 500 Internal Server Error</p>
             </section>
 
-            <section id="create-director">
-                <h4>Create a new director</h4>
+            <section id="create-new-director">
+                <h4>Create new director</h4>
                 <p><code>POST /directors</code></p>
                 <p>Creates a new director in the database.</p>
                 <p>Request Body: <code>{ "name": "...", "bio": "...", "birth": "YYYY-MM-DDTHH:mm:ss.SSSZ", "death": "YYYY-MM-DDTHH:mm:ss.SSSZ" }</code></p>
-                <pre>{ "_id": "...", "name": "...", "bio": "...", "birth": "YYYY-MM-DDTHH:mm:ss.SSSZ", "death": "YYYY-MM-DDTHH:mm:ss.SSSZ", "__v": 0 }</pre>
-                <p>Status Codes: 201 Created, 500 Internal Server Error</p>
+                <pre>{ "_id": "...", "name": "...", "bio": "...", "birth": "...", "death": "...", "__v": 0 }</pre>
+                <p>Status Codes: 201 Created, 400 Bad Request, 500 Internal Server Error</p>
             </section>
 
             <section id="update-director">
@@ -473,7 +475,7 @@
                 <p><code>PUT /directors/:directorId</code></p>
                 <p>Updates the information of an existing director.</p>
                 <p>Request Body: <code>{ "name": "...", "bio": "...", "birth": "YYYY-MM-DDTHH:mm:ss.SSSZ", "death": "YYYY-MM-DDTHH:mm:ss.SSSZ" }</code> (all or some fields)</p>
-                <pre>{ "_id": "...", "name": "...", "bio": "...", "birth": "YYYY-MM-DDTHH:mm:ss.SSSZ", "death": "YYYY-MM-DDTHH:mm:ss.SSSZ", "__v": 0 }</pre>
+                <pre>{ "_id": "...", "name": "...", "bio": "...", "birth": "...", "death": "...", "__v": 0 }</pre>
                 <p>Status Codes: 200 OK, 404 Not Found, 500 Internal Server Error</p>
             </section>
 
@@ -509,13 +511,13 @@
                 <p>Status Codes: 200 OK, 404 Not Found, 500 Internal Server Error</p>
             </section>
 
-            <section id="create-actor">
-                <h4>Create a new actor</h4>
+            <section id="create-new-actor">
+                <h4>Create new actor</h4>
                 <p><code>POST /actors</code></p>
                 <p>Creates a new actor in the database.</p>
                 <p>Request Body: <code>{ "name": "...", "bio": "...", "birth": "YYYY-MM-DDTHH:mm:ss.SSSZ", "death": "YYYY-MM-DDTHH:mm:ss.SSSZ" }</code></p>
-                <pre>{ "_id": "...", "name": "...", "bio": "...", "birth": "YYYY-MM-DDTHH:mm:ss.SSSZ", "death": "YYYY-MM-DDTHH:mm:ss.SSSZ", "__v": 0 }</pre>
-                <p>Status Codes: 201 Created, 500 Internal Server Error</p>
+                <pre>{ "_id": "...", "name": "...", "bio": "...", "birth": "...", "death": "...", "__v": 0 }</pre>
+                <p>Status Codes: 201 Created, 400 Bad Request, 500 Internal Server Error</p>
             </section>
 
             <section id="update-actor">
@@ -523,7 +525,7 @@
                 <p><code>PUT /actors/:actorId</code></p>
                 <p>Updates the information of an existing actor.</p>
                 <p>Request Body: <code>{ "name": "...", "bio": "...", "birth": "YYYY-MM-DDTHH:mm:ss.SSSZ", "death": "YYYY-MM-DDTHH:mm:ss.SSSZ" }</code> (all or some fields)</p>
-                <pre>{ "_id": "...", "name": "...", "bio": "...", "birth": "YYYY-MM-DDTHH:mm:ss.SSSZ", "death": "YYYY-MM-DDTHH:mm:ss.SSSZ", "__v": 0 }</pre>
+                <pre>{ "_id": "...", "name": "...", "bio": "...", "birth": "...", "death": "...", "__v": 0 }</pre>
                 <p>Status Codes: 200 OK, 404 Not Found, 500 Internal Server Error</p>
             </section>
 
@@ -539,19 +541,19 @@
                 <h4>(Admin) Get all users</h4>
                 <p><code>GET /admin/users</code></p>
                 <p>Returns a list of all user objects.</p>
-                <pre>[ { "_id": "...", "username": "...", "password": "...", "email": "...", "birthday": "...", "favoriteMovies": [], "__v": 0 }, ... ]</pre>
+                <pre>[ { "_id": "...", "username": "...", "password": "...", "email": "...", "birthday": "YYYY-MM-DDTHH:mm:ss.SSSZ", "favoriteMovies": [], "__v": 0 }, ... ]</pre>
                 <p>Status Codes: 200 OK, 500 Internal Server Error</p>
             </section>
 
-            <section id="admin-get-all-movies">
+            <section id="admin-get-all-movies-detailed">
                 <h4>(Admin) Get all movies</h4>
                 <p><code>GET /admin/movies</code></p>
-                <p>Returns a list of all movie objects with full details.</p>
-                <pre>[ { "_id": "...", "title": "...", "description": "...", "genre": { ... }, "director": { ... }, "actors": [...], "imagePath": "...", "featured": true, "__v": 0 }, ... ]</pre>
+                <p>Returns a list of all movie objects with detailed information.</p>
+                <pre>[ { "_id": "...", "title": "...", "description": "...", "genre": { "name": "...", "description": "..." }, "director": { "name": "...", "bio": "...", "birth": "...", "death": "..." }, "actors": ["..."], "imagePath": "...", "featured": true, "__v": 0 }, ... ]</pre>
                 <p>Status Codes: 200 OK, 500 Internal Server Error</p>
             </section>
 
-            <section id="admin-get-all-genres">
+            <section id="admin-get-all-genres-list">
                 <h4>(Admin) Get all genres</h4>
                 <p><code>GET /admin/genres</code></p>
                 <p>Returns a list of all genre objects.</p>
@@ -559,7 +561,7 @@
                 <p>Status Codes: 200 OK, 500 Internal Server Error</p>
             </section>
 
-            <section id="admin-get-all-directors">
+            <section id="admin-get-all-directors-list">
                 <h4>(Admin) Get all directors</h4>
                 <p><code>GET /admin/directors</code></p>
                 <p>Returns a list of all director objects.</p>
