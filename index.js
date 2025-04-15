@@ -41,13 +41,17 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("common"));
+app.use(bodyParser.urlencoded({ extended: true }));
+let auth = require('./auth')(app);
+const passport = require('passport');
+require('./passport');
 
 // Requests/endpoints
 app.get("/", (req, res) => {
     res.json({ message: "Welcome to the Movie API!" });
 });
 
-app.get("/movies", async (req, res) => {
+app.get("/movies", passport.authenticate('jwt', { session: false }), async (req, res) => {
     try {
         const movies = await Movies.find()
             .populate("genre")
