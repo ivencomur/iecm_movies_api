@@ -5,8 +5,6 @@ const bodyParser = require("body-parser");
 const uuid = require("uuid");
 const morgan = require("morgan");
 const path = require("path");
-const bcrypt = require("bcrypt"); // For password hashing
-const { validationResult, check } = require("express-validator"); // For validation
 
 // Define models
 const Models = require("./models.js");
@@ -41,6 +39,10 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("common"));
+app.use(bodyParser.urlencoded({ extended: true }));
+let auth = require('./auth')(app);
+const passport = require('passport');
+require('./passport');
 
 // Requests/endpoints
 app.get("/", (req, res) => {
