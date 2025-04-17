@@ -5,11 +5,7 @@ const bodyParser = require("body-parser");
 const uuid = require("uuid");
 const morgan = require("morgan");
 const path = require("path");
-const bcrypt = require("bcrypt"); // For password hashing
-const { validationResult, check } = require("express-validator"); // For validation
-
-// Define models
-const Models = require("./models.js");
+const { validationResult, check } = require("express-validator"); 
 const Movies = Models.Movie;
 const Users = Models.User;
 const Genres = Models.Genre;
@@ -52,18 +48,18 @@ app.get("/", (req, res) => {
 });
 
 app.get("/movies", passport.authenticate('jwt', { session: false }), async (req, res) => {
-    try {
-        const movies = await Movies.find()
+   await Movies.find()
             .populate("genre")
             .populate("director")
-            .populate("actors");
-        res.status(200).json(movies);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error: " + err);
-    }
-});
-
+            .populate("actors")
+            .then((movies) => {
+                res.status(200).json(movies);
+            })
+            .catch((error) => {
+                console.error(error);
+                res.status(500).send('Error: ' + error);
+              });
+          });
 app.get("/movies/title/:title", async (req, res) => {
     try {
         const movie = await Movies.findOne({
