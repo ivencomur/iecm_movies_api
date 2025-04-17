@@ -5,7 +5,18 @@ const bodyParser = require("body-parser");
 const uuid = require("uuid");
 const morgan = require("morgan");
 const path = require("path");
+const bcrypt = require("bcrypt");
 const { validationResult, check } = require("express-validator");
+
+// Define models
+let Models; 
+try {
+  Models = require("./models.js");
+} catch (error) {
+  console.error("Error requiring models.js:", error);
+  process.exit(1); 
+}
+
 const Movies = Models.Movie;
 const Users = Models.User;
 const Genres = Models.Genre;
@@ -44,7 +55,7 @@ require('./passport');
 
 // Requests/endpoints
 app.get("/", (req, res) => {
-    res.json({ message: "Welcome to the Movie API!" });
+    res.json({ message: "Welcome to the MovieMobs API!" });
 });
 
 app.get("/movies", passport.authenticate('jwt', { session: false }), async (req, res) => {
