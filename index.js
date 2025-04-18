@@ -276,92 +276,66 @@ app.post("/users",
         check('email', 'Valid email is required').isEmail()
     ],
     async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
+        // ... validation ...
         try {
-            const { username, password, email, birthday, firstname, lastname } = req.body;
-            const existingUser = await Users.findOne({ username });
-            if (existingUser) {
-                return res.status(400).json({ error: "Username already exists." });
-            }
-            const existingEmail = await Users.findOne({ email });
-            if (existingEmail) {
-                return res.status(400).json({ error: "Email already exists." });
-            }
-
-            const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
+            // ... other user data ...
+            const hashedPassword = await bcrypt.hash(password, 10);
             const newUser = new Users({
                 username,
-                password: hashedPassword,
+                password: hashedPassword, // Store the HASHED password
                 email,
-                birthday,
-                firstname,
-                lastname
+                // ...
             });
-            const savedUser = await newUser.save();
-            res
-                .status(201)
-                .json({
-                    _id: savedUser._id,
-                    username: savedUser.username,
-                    email: savedUser.email,
-                    birthday: savedUser.birthday,
-                    favoriteMovies: savedUser.favoriteMovies,
-                    firstname: savedUser.firstname,
-                    lastname: savedUser.lastname
-                });
+            // ...
         } catch (err) {
-            console.error(err);
-            res.status(500).send("Error: " + err);
+            // ...
         }
     });
 
-app.put("/users/:username",
+    app.put('/users/:username', passport.authenticate('jwt', { session: false }),
     [
-        check('username', 'Username is required').notEmpty(),
-        check('email', 'Valid email is required').isEmail()
+        check('email', 'Valid email is required').isEmail(),
+        check('username', 'Username is required').notEmpty()
+       
     ],
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
+
+        if (req.user.username !== req.params.username) {
+            return res.status(403).send('Permission denied: You can only update your own profile.'); 
+        }
+
         try {
-            const { password, email, birthday, firstname, lastname } = req.body;
+            const { username, password, email, birthday } = req.body; 
             const updateData = {};
-            if (password) {
-                const hashedPassword = await bcrypt.hash(password, 10);
-                updateData.password = hashedPassword;
-            }
+
+            if (username) updateData.username = username;
             if (email) updateData.email = email;
             if (birthday) updateData.birthday = birthday;
-            if (firstname) updateData.firstname = firstname;
-            if (lastname) updateData.lastname = lastname;
+
+            if (password) {
+                const hashedPassword = await bcrypt.hash(password, 10);
+                updateData.password = hashedPassword; 
+            }
 
             const updatedUser = await Users.findOneAndUpdate(
                 { username: req.params.username },
-                updateData,
+                { $set: updateData }, 
                 { new: true }
             );
+
             if (!updatedUser) {
-                return res.status(404).json({ error: "User not found." });
+                return res.status(404).send('User not found.'); 
             }
-            res
-                .status(200)
-                .json({
-                    _id: updatedUser._id,
-                    username: updatedUser.username,
-                    email: updatedUser.email,
-                    birthday: updatedUser.birthday,
-                    favoriteMovies: updatedUser.favoriteMovies,
-                    firstname: updatedUser.firstname,
-                    lastname: updatedUser.lastname
-                });
+
+            res.json(updatedUser);
+
         } catch (err) {
             console.error(err);
-            res.status(500).send("Error: " + err);
+            res.status(500).send('Server error: ' + err.message); 
         }
     });
 
