@@ -1,13 +1,16 @@
+// Import dependencies
 const mongoose = require("mongoose");
 const express = require("express");
 const bodyParser = require("body-parser");
+const uuid = require("uuid");
 const morgan = require("morgan");
 const path = require("path");
-const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
-const passport = require("passport");
-require("./passport");
+const { validationResult, check } = require("express-validator");
+const passport = require('passport');
+require('./passport');
 
+// Define models
 let Models;
 try {
   Models = require("./models.js");
@@ -22,12 +25,15 @@ const Genres = Models.Genre;
 const Directors = Models.Director;
 const Actors = Models.Actor;
 
+// Config
 require("dotenv").config();
 const PORT = process.env.PORT || 8080;
 const MONGO_URI = process.env.MONGO_URI;
 
+// Setup app
 const app = express();
 
+// Connect to db
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -39,33 +45,35 @@ db.once("open", function () {
   console.log("Connected to MongoDB");
 });
 
+// Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("common"));
 app.use(bodyParser.urlencoded({ extended: true }));
+let auth = require('./auth')(app);
 
-let auth = require("./auth")(app);
-const jwtAuth = passport.authenticate("jwt", { session: false });
 
+// Requests/endpoints
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the Movie API!" });
 });
 
-app.get("/movies", jwtAuth, async (req, res) => {
-  try {
-    const movies = await Movies.find()
-      .populate("genre")
-      .populate("director")
-      .populate("actors");
-    res.status(200).json(movies);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error: " + err);
-  }
+app.get("/movies", passport.authenticate('jwt', { session: false }), async (req, res) => {
+  await Movies.find()
+    .populate("genre")
+    .populate("director")
+    .populate("actors")
+    .then((movies) => {
+      res.status(200).json(movies);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send('Error: ' + error);
+    });
 });
 
-app.get("/movies/title/:title", jwtAuth, async (req, res) => {
+app.get("/movies/title/:title", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const movie = await Movies.findOne({
       title: { $regex: new RegExp(req.params.title, "i") },
@@ -83,16 +91,10 @@ app.get("/movies/title/:title", jwtAuth, async (req, res) => {
   }
 });
 
-app.get("/movies/genre/:genreName", jwtAuth, async (req, res) => {
+app.get("/movies/genre/:genreName", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const movies = await Movies.find({
-      genre: {
-        $in: [
-          await Genres.findOne({
-            name: { $regex: new RegExp(req.params.genreName, "i") },
-          }).select("_id"),
-        ],
-      },
+      genre: { $in: [await Genres.findOne({ name: { $regex: new RegExp(req.params.genreName, "i") } }).select('_id')] }
     })
       .populate("genre")
       .populate("director")
@@ -104,16 +106,10 @@ app.get("/movies/genre/:genreName", jwtAuth, async (req, res) => {
   }
 });
 
-app.get("/movies/director/:directorName", jwtAuth, async (req, res) => {
+app.get("/movies/director/:directorName", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const movies = await Movies.find({
-      director: {
-        $in: [
-          await Directors.findOne({
-            name: { $regex: new RegExp(req.params.directorName, "i") },
-          }).select("_id"),
-        ],
-      },
+      director: { $in: [await Directors.findOne({ name: { $regex: new RegExp(req.params.directorName, "i") } }).select('_id')] }
     })
       .populate("genre")
       .populate("director")
@@ -125,7 +121,7 @@ app.get("/movies/director/:directorName", jwtAuth, async (req, res) => {
   }
 });
 
-app.get("/movies/:movieId", jwtAuth, async (req, res) => {
+app.get("/movies/:movieId", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const movie = await Movies.findById(req.params.movieId)
       .populate("genre")
@@ -141,14 +137,13 @@ app.get("/movies/:movieId", jwtAuth, async (req, res) => {
   }
 });
 
-app.post(
-  "/movies",
-  jwtAuth,
+app.post("/movies",
+  passport.authenticate('jwt', { session: false }),
   [
-    check("title", "Title is required").notEmpty(),
-    check("description", "Description is required").notEmpty(),
-    check("genre", "Genre is required").notEmpty(),
-    check("director", "Director is required").notEmpty(),
+    check('title', 'Title is required').notEmpty(),
+    check('description', 'Description is required').notEmpty(),
+    check('genre', 'Genre is required').notEmpty(),
+    check('director', 'Director is required').notEmpty()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -156,8 +151,7 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
     try {
-      const { title, description, genre, director, actors, imagePath, featured } =
-        req.body;
+      const { title, description, genre, director, actors, imagePath, featured } = req.body;
 
       const genreDoc = await Genres.findOne({ name: genre });
       if (!genreDoc) {
@@ -192,17 +186,15 @@ app.post(
       console.error(err);
       res.status(500).send("Error: " + err);
     }
-  }
-);
+  });
 
-app.put(
-  "/movies/:movieId",
-  jwtAuth,
+app.put("/movies/:movieId",
+  passport.authenticate('jwt', { session: false }),
   [
-    check("title", "Title is required").notEmpty(),
-    check("description", "Description is required").notEmpty(),
-    check("genre", "Genre is required").notEmpty(),
-    check("director", "Director is required").notEmpty(),
+    check('title', 'Title is required').notEmpty(),
+    check('description', 'Description is required').notEmpty(),
+    check('genre', 'Genre is required').notEmpty(),
+    check('director', 'Director is required').notEmpty()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -210,8 +202,7 @@ app.put(
       return res.status(400).json({ errors: errors.array() });
     }
     try {
-      const { title, description, genre, director, actors, imagePath, featured } =
-        req.body;
+      const { title, description, genre, director, actors, imagePath, featured } = req.body;
       const updateData = {};
       if (title) updateData.title = title;
       if (description) updateData.description = description;
@@ -250,10 +241,9 @@ app.put(
       console.error(err);
       res.status(500).send("Error: " + err);
     }
-  }
-);
+  });
 
-app.delete("/movies/:movieId", jwtAuth, async (req, res) => {
+app.delete("/movies/:movieId", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const deletedMovie = await Movies.findByIdAndDelete(req.params.movieId);
     if (!deletedMovie) {
@@ -266,7 +256,7 @@ app.delete("/movies/:movieId", jwtAuth, async (req, res) => {
   }
 });
 
-app.get("/movies/:movieId/actors", jwtAuth, async (req, res) => {
+app.get("/movies/:movieId/actors", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const movie = await Movies.findById(req.params.movieId).populate("actors");
     if (!movie) {
@@ -274,69 +264,43 @@ app.get("/movies/:movieId/actors", jwtAuth, async (req, res) => {
     }
     res
       .status(200)
-      .json(movie.actors.map((actor) => ({ _id: actor._id, name: actor.name })));
+      .json(
+        movie.actors.map((actor) => ({ _id: actor._id, name: actor.name }))
+      );
   } catch (err) {
     console.error(err);
     res.status(500).send("Error: " + err);
   }
 });
 
-app.post(
-  "/users",
+app.post("/users",
   [
-    check("username", "Username is required").notEmpty(),
-    check("password", "Password is required").notEmpty(),
-    check("email", "Valid email is required").isEmail(),
+    check('username', 'Username is required').notEmpty(),
+    check('password', 'Password is required').notEmpty(),
+    check('email', 'Valid email is required').isEmail()
   ],
   async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+    // ... validation ...
     try {
-      const { username, password, email, birthday, firstname, lastname } =
-        req.body;
-      const existingUser = await Users.findOne({ username });
-      if (existingUser) {
-        return res.status(400).json({ error: "Username already exists." });
-      }
-      const existingEmail = await Users.findOne({ email });
-      if (existingEmail) {
-        return res.status(400).json({ error: "Email already exists." });
-      }
-
+      // ... other user data ...
       const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = new Users({
         username,
-        password: hashedPassword,
+        password: hashedPassword, // Store the HASHED password
         email,
-        birthday,
-        firstname,
-        lastname,
+        // ...
       });
-      const savedUser = await newUser.save();
-      res.status(201).json({
-        _id: savedUser._id,
-        username: savedUser.username,
-        email: savedUser.email,
-        birthday: savedUser.birthday,
-        favoriteMovies: savedUser.favoriteMovies,
-        firstname: savedUser.firstname,
-        lastname: savedUser.lastname,
-      });
+      // ...
     } catch (err) {
-      console.error(err);
-      res.status(500).send("Error: " + err);
+      // ...
     }
-  }
-);
+  });
 
-app.put(
-  "/users/:username",
-  jwtAuth,
+app.put('/users/:username', passport.authenticate('jwt', { session: false }),
   [
-    check("email", "Valid email is required").isEmail(),
-    check("username", "Username is required").notEmpty(),
+    check('email', 'Valid email is required').isEmail(),
+    check('username', 'Username is required').notEmpty()
+
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -345,9 +309,7 @@ app.put(
     }
 
     if (req.user.username !== req.params.username) {
-      return res
-        .status(403)
-        .send("Permission denied: You can only update your own profile.");
+      return res.status(403).send('Permission denied: You can only update your own profile.');
     }
 
     try {
@@ -370,70 +332,66 @@ app.put(
       );
 
       if (!updatedUser) {
-        return res.status(404).send("User not found.");
+        return res.status(404).send('User not found.');
       }
 
       res.json(updatedUser);
+
     } catch (err) {
       console.error(err);
-      res.status(500).send("Server error: " + err.message);
+      res.status(500).send('Server error: ' + err.message);
     }
-  }
-);
+  });
 
-app.post(
-  "/users/:username/favorites/:movieId",
-  jwtAuth,
-  async (req, res) => {
-    try {
-      const user = await Users.findOneAndUpdate(
-        { username: req.params.username },
-        { $addToSet: { favoriteMovies: req.params.movieId } },
-        { new: true }
-      ).populate("favoriteMovies");
-      if (!user) {
-        return res.status(404).json({ error: "User not found." });
-      }
-      res.status(200).json(
+app.post("/users/:username/favorites/:movieId", passport.authenticate('jwt', { session: false }), async (req, res) => {
+  try {
+    const user = await Users.findOneAndUpdate(
+      { username: req.params.username },
+      { $addToSet: { favoriteMovies: req.params.movieId } },
+      { new: true }
+    ).populate("favoriteMovies");
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+    res
+      .status(200)
+      .json(
         user.favoriteMovies.map((movie) => ({
           _id: movie._id,
           title: movie.title,
         }))
       );
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("Error: " + err);
-    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
   }
-);
+});
 
-app.delete(
-  "/users/:username/favorites/:movieId",
-  jwtAuth,
-  async (req, res) => {
-    try {
-      const user = await Users.findOneAndUpdate(
-        { username: req.params.username },
-        { $pull: { favoriteMovies: req.params.movieId } },
-        { new: true }
-      ).populate("favoriteMovies");
-      if (!user) {
-        return res.status(404).json({ error: "User not found." });
-      }
-      res.status(200).json(
+app.delete("/users/:username/favorites/:movieId", passport.authenticate('jwt', { session: false }), async (req, res) => {
+  try {
+    const user = await Users.findOneAndUpdate(
+      { username: req.params.username },
+      { $pull: { favoriteMovies: req.params.movieId } },
+      { new: true }
+    ).populate("favoriteMovies");
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+    res
+      .status(200)
+      .json(
         user.favoriteMovies.map((movie) => ({
           _id: movie._id,
           title: movie.title,
         }))
       );
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("Error: " + err);
-    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
   }
-);
+});
 
-app.delete("/users/:username", jwtAuth, async (req, res) => {
+app.delete("/users/:username", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const deletedUser = await Users.findOneAndDelete({
       username: req.params.username,
@@ -448,7 +406,7 @@ app.delete("/users/:username", jwtAuth, async (req, res) => {
   }
 });
 
-app.get("/genres", jwtAuth, async (req, res) => {
+app.get("/genres", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const genres = await Genres.find();
     res.status(200).json(genres);
@@ -458,7 +416,7 @@ app.get("/genres", jwtAuth, async (req, res) => {
   }
 });
 
-app.get("/genres/:name", jwtAuth, async (req, res) => {
+app.get("/genres/:name", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const genre = await Genres.findOne({
       name: { $regex: new RegExp(req.params.name, "i") },
@@ -473,12 +431,11 @@ app.get("/genres/:name", jwtAuth, async (req, res) => {
   }
 });
 
-app.post(
-  "/genres",
-  jwtAuth,
+app.post("/genres",
+  passport.authenticate('jwt', { session: false }),
   [
-    check("name", "Name is required").notEmpty(),
-    check("description", "Description is required").notEmpty(),
+    check('name', 'Name is required').notEmpty(),
+    check('description', 'Description is required').notEmpty()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -498,13 +455,13 @@ app.post(
       console.error(err);
       res.status(500).send("Error: " + err);
     }
-  }
-);
+  });
 
-app.put(
-  "/genres/:name",
-  jwtAuth,
-  [check("description", "Description is required").notEmpty()],
+app.put("/genres/:name",
+  passport.authenticate('jwt', { session: false }),
+  [
+    check('description', 'Description is required').notEmpty()
+  ],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -525,10 +482,9 @@ app.put(
       console.error(err);
       res.status(500).send("Error: " + err);
     }
-  }
-);
+  });
 
-app.delete("/genres/:name", jwtAuth, async (req, res) => {
+app.delete("/genres/:name", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const deletedGenre = await Genres.findOneAndDelete({
       name: req.params.name,
@@ -543,7 +499,7 @@ app.delete("/genres/:name", jwtAuth, async (req, res) => {
   }
 });
 
-app.get("/directors", jwtAuth, async (req, res) => {
+app.get("/directors", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const directors = await Directors.find();
     res.status(200).json(directors);
@@ -553,7 +509,7 @@ app.get("/directors", jwtAuth, async (req, res) => {
   }
 });
 
-app.get("/directors/name/:name", jwtAuth, async (req, res) => {
+app.get("/directors/name/:name", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const director = await Directors.findOne({
       name: { $regex: new RegExp(req.params.name, "i") },
@@ -568,7 +524,7 @@ app.get("/directors/name/:name", jwtAuth, async (req, res) => {
   }
 });
 
-app.get("/directors/:directorId", jwtAuth, async (req, res) => {
+app.get("/directors/:directorId", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const director = await Directors.findById(req.params.directorId);
     if (!director) {
@@ -581,13 +537,12 @@ app.get("/directors/:directorId", jwtAuth, async (req, res) => {
   }
 });
 
-app.post(
-  "/directors",
-  jwtAuth,
+app.post("/directors",
+  passport.authenticate('jwt', { session: false }),
   [
-    check("name", "Name is required").notEmpty(),
-    check("bio", "Bio is required").notEmpty(),
-    check("birth", "Birth date is required").notEmpty(),
+    check('name', 'Name is required').notEmpty(),
+    check('bio', 'Bio is required').notEmpty(),
+    check('birth', 'Birth date is required').notEmpty()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -607,16 +562,14 @@ app.post(
       console.error(err);
       res.status(500).send("Error: " + err);
     }
-  }
-);
+  });
 
-app.put(
-  "/directors/:directorId",
-  jwtAuth,
+app.put("/directors/:directorId",
+  passport.authenticate('jwt', { session: false }),
   [
-    check("name", "Name is required").notEmpty(),
-    check("bio", "Bio is required").notEmpty(),
-    check("birth", "Birth date is required").notEmpty(),
+    check('name', 'Name is required').notEmpty(),
+    check('bio', 'Bio is required').notEmpty(),
+    check('birth', 'Birth date is required').notEmpty()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -638,10 +591,9 @@ app.put(
       console.error(err);
       res.status(500).send("Error: " + err);
     }
-  }
-);
+  });
 
-app.delete("/directors/:directorId", jwtAuth, async (req, res) => {
+app.delete("/directors/:directorId", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const deletedDirector = await Directors.findByIdAndDelete(
       req.params.directorId
@@ -656,7 +608,7 @@ app.delete("/directors/:directorId", jwtAuth, async (req, res) => {
   }
 });
 
-app.get("/actors", jwtAuth, async (req, res) => {
+app.get("/actors", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const actors = await Actors.find();
     res.status(200).json(actors);
@@ -666,7 +618,7 @@ app.get("/actors", jwtAuth, async (req, res) => {
   }
 });
 
-app.get("/actors/name/:name", jwtAuth, async (req, res) => {
+app.get("/actors/name/:name", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const actor = await Actors.findOne({
       name: { $regex: new RegExp(req.params.name, "i") },
@@ -681,7 +633,7 @@ app.get("/actors/name/:name", jwtAuth, async (req, res) => {
   }
 });
 
-app.get("/actors/:actorId", jwtAuth, async (req, res) => {
+app.get("/actors/:actorId", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const actor = await Actors.findById(req.params.actorId);
     if (!actor) {
@@ -694,13 +646,12 @@ app.get("/actors/:actorId", jwtAuth, async (req, res) => {
   }
 });
 
-app.post(
-  "/actors",
-  jwtAuth,
+app.post("/actors",
+  passport.authenticate('jwt', { session: false }),
   [
-    check("name", "Name is required").notEmpty(),
-    check("bio", "Bio is required").notEmpty(),
-    check("birth", "Birth date is required").notEmpty(),
+    check('name', 'Name is required').notEmpty(),
+    check('bio', 'Bio is required').notEmpty(),
+    check('birth', 'Birth date is required').notEmpty()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -720,16 +671,14 @@ app.post(
       console.error(err);
       res.status(500).send("Error: " + err);
     }
-  }
-);
+  });
 
-app.put(
-  "/actors/:actorId",
-  jwtAuth,
+app.put("/actors/:actorId",
+  passport.authenticate('jwt', { session: false }),
   [
-    check("name", "Name is required").notEmpty(),
-    check("bio", "Bio is required").notEmpty(),
-    check("birth", "Birth date is required").notEmpty(),
+    check('name', 'Name is required').notEmpty(),
+    check('bio', 'Bio is required').notEmpty(),
+    check('birth', 'Birth date is required').notEmpty()
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -751,10 +700,9 @@ app.put(
       console.error(err);
       res.status(500).send("Error: " + err);
     }
-  }
-);
+  });
 
-app.delete("/actors/:actorId", jwtAuth, async (req, res) => {
+app.delete("/actors/:actorId", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const deletedActor = await Actors.findByIdAndDelete(req.params.actorId);
     if (!deletedActor) {
@@ -767,26 +715,28 @@ app.delete("/actors/:actorId", jwtAuth, async (req, res) => {
   }
 });
 
-app.get("/admin/users", jwtAuth, async (req, res) => {
+app.get("/admin/users", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const users = await Users.find();
-    res.status(200).json(
-      users.map((user) => ({
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        birthday: user.birthday,
-        firstname: user.firstname,
-        lastname: user.lastname,
-      }))
-    );
+    res
+      .status(200)
+      .json(
+        users.map((user) => ({
+          _id: user._id,
+          username: user.username,
+          email: user.email,
+          birthday: user.birthday,
+          firstname: user.firstname,
+          lastname: user.lastname
+        }))
+      );
   } catch (err) {
     console.error(err);
     res.status(500).send("Error: " + err);
   }
 });
 
-app.get("/admin/movies", jwtAuth, async (req, res) => {
+app.get("/admin/movies", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const movies = await Movies.find().populate("genre").populate("director");
     res.status(200).json(
@@ -806,7 +756,7 @@ app.get("/admin/movies", jwtAuth, async (req, res) => {
   }
 });
 
-app.get("/admin/genres", jwtAuth, async (req, res) => {
+app.get("/admin/genres", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const genres = await Genres.find();
     res.status(200).json(genres);
@@ -816,7 +766,7 @@ app.get("/admin/genres", jwtAuth, async (req, res) => {
   }
 });
 
-app.get("/admin/directors", jwtAuth, async (req, res) => {
+app.get("/admin/directors", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const directors = await Directors.find();
     res.status(200).json(directors);
@@ -826,7 +776,7 @@ app.get("/admin/directors", jwtAuth, async (req, res) => {
   }
 });
 
-app.get("/admin/actors", jwtAuth, async (req, res) => {
+app.get("/admin/actors", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const actors = await Actors.find();
     res.status(200).json(actors);
