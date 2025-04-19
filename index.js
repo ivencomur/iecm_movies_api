@@ -285,6 +285,13 @@ app.post("/users",
         }
         try {
             const { username, password, email, birthday, firstname, lastname } = req.body;
+
+            
+            const existingUser = await Users.findOne({ $or: [{ username: username }, { email: email }] });
+            if (existingUser) {
+              return res.status(400).json({ error: "Username or email already exists." });
+            }
+
             const hashedPassword = await bcrypt.hash(password, 10);
             const newUser = new Users({
                 username,
