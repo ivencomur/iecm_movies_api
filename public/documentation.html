@@ -65,6 +65,11 @@
                             </td>
                         </tr>
                         <tr>
+                            <td><span class="url">/</span></td>
+                            <td>GET</td>
+                            <td>Provides a welcome message.</td>
+                        </tr>
+                        <tr>
                             <td><span class="url">/movies</span></td>
                             <td>GET</td>
                             <td>Retrieves a list of all movies available.</td>
@@ -369,7 +374,8 @@
                     title, it will tell you.
                 </p>
                 <pre>
-{ "_id": "string (ObjectId)", "title": "string (required)", "description": "string (required)", "genre": { ... }, "director": { ... }, "actors": ["string (Actor Name)"], "imagePath": "string (optional - URL to movie poster)", "featured": "boolean (optional - indicates if movie is featured)", "__v": "number" }</pre>
+                    { "_id": "string (ObjectId)", "title": "string (required)", "description": "string (required)", "genre": { ... }, "director": { ... }, "actors": ["string (Actor Name)"], "imagePath": "string (optional - URL to movie poster)", "featured": "boolean (optional - indicates if movie is featured)", "__v": "number" }
+                </pre>
                 <p>
                     Status Codes: 200 OK (Here's the movie!), 404 Not Found (Sorry, we
                     couldn't find that movie!), 500 Internal Server Error (Oops,
@@ -386,7 +392,11 @@
                     list of movies that fit that category.
                 </p>
                 <pre>
-[ { "_id": "string (ObjectId)", "title": "string (required)", "description": "string (required)", "genre": { ... }, "director": { ... }, "actors": ["string (Actor Name)"], "imagePath": "string (optional - URL to movie poster)", "featured": "boolean (optional - indicates if movie is featured)", "__v": "number" }, ... ]</pre>
+                    [
+                        { "_id": "string (ObjectId)", "title": "string (required)", "description": "string (required)", "genre": { ... }, "director": { ... }, "actors": ["string (Actor Name)"], "imagePath": "string (optional - URL to movie poster)", "featured": "boolean (optional - indicates if movie is featured)", "__v": "number" },
+                        ...
+                    ]
+                </pre>
                 <p>
                     Status Codes: 200 OK (Here's the list of movies in that genre!), 500
                     Internal Server Error (Oops, something went wrong on our end!)
@@ -402,7 +412,11 @@
                     made by that director.
                 </p>
                 <pre>
-[ { "_id": "string (ObjectId)", "title": "string (required)", "description": "string (required)", "genre": { ... }, "director": { ... }, "actors": ["string (Actor Name)"], "imagePath": "string (optional - URL to movie poster)", "featured": "boolean (optional - indicates if movie is featured)", "__v": "number" }, ... ]</pre>
+                    [
+                        { "_id": "string (ObjectId)", "title": "string (required)", "description": "string (required)", "genre": { ... }, "director": { ... }, "actors": ["string (Actor Name)"], "imagePath": "string (optional - URL to movie poster)", "featured": "boolean (optional - indicates if movie is featured)", "__v": "number" },
+                        ...
+                    ]
+                </pre>
                 <p>
                     Status Codes: 200 OK (Here's the list of movies by that director!),
                     500 Internal Server Error (Oops, something went wrong on our end!)
@@ -419,7 +433,8 @@
                     that ID.
                 </p>
                 <pre>
-{ "_id": "string (ObjectId)", "title": "string (required)", "description": "string (required)", "genre": { ... }, "director": { ... }, "actors": ["string (Actor Name)"], "imagePath": "string (optional - URL to movie poster)", "featured": "boolean (optional - indicates if movie is featured)", "__v": "number" }</pre>
+                    { "_id": "string (ObjectId)", "title": "string (required)", "description": "string (required)", "genre": { ... }, "director": { ... }, "actors": ["string (Actor Name)"], "imagePath": "string (optional - URL to movie poster)", "featured": "boolean (optional - indicates if movie is featured)", "__v": "number" }
+                </pre>
                 <p>
                     Status Codes: 200 OK (Here's the movie!), 404 Not Found (Sorry, we
                     couldn't find a movie with that ID!), 500 Internal Server Error
@@ -450,10 +465,13 @@
                     </pre>
                 </p>
                 <pre>
-{ "_id": "string (ObjectId)", "title": "string (required)", "description": "string (required)", "genre": { ... }, "director": { ... }, "actors": ["string (Actor Name)"], "imagePath": "string (optional)", "featured": "boolean", "__v": "number" }</pre>
+                    { "_id": "string (ObjectId)", "title": "string (required)", "description": "string (required)", "genre": { ... }, "director": { ... }, "actors": ["string (Actor Name)"], "imagePath": "string (optional)", "featured": "boolean", "__v": "number" }
+                </pre>
                 <p>
-                    Status Codes: 201 Created (The movie was successfully added!), 500
-                    Internal Server Error (Oops, something went wrong on our end!)
+                    Status Codes: 201 Created (The movie was successfully added!), 400
+                    Bad Request (Oops, something was wrong with the information you
+                    provided!), 500 Internal Server Error (Oops, something went wrong on
+                    our end!)
                 </p>
             </section>
 
@@ -481,7 +499,8 @@
                     </pre>
                 </p>
                 <pre>
-{ "_id": "string (ObjectId)", "title": "string (required)", "description": "string (required)", "genre": { ... }, "director": { ... }, "actors": ["string (Actor Name)"], "imagePath": "string (optional)", "featured": "boolean", "__v": "number" }</pre>
+                    { "_id": "string (ObjectId)", "title": "string (required)", "description": "string (required)", "genre": { ... }, "director": { ... }, "actors": ["string (Actor Name)"], "imagePath": "string (optional)", "featured": "boolean", "__v": "number" }
+                </pre>
                 <p>
                     Status Codes: 200 OK (The movie information was updated!), 404 Not
                     Found (We couldn't find a movie with that ID!), 500 Internal Server
@@ -514,13 +533,13 @@
                     ID to get this list.
                 </p>
                 <pre>
-[
-    {
-        "_id": "string (ObjectId)",
-        "name": "string (Actor Name)"
-    },
-    ...
-]
+                    [
+                        {
+                            "_id": "string (ObjectId)",
+                            "name": "string (Actor Name)"
+                        },
+                        ...
+                    ]
                 </pre>
                 <p>
                     Status Codes: 200 OK (Here's the list of actors!), 404 Not Found (We
@@ -551,7 +570,11 @@
                     </pre>
                 </p>
                 <pre>
-{ "_id": "string (ObjectId)", "username": "string (required)", "email": "string (required)", "birthday": "date (ISO 8601, optional, e.g., 'YYYY-MM-DD')", "favoriteMovies": ["string (list of movie ObjectIds - movies the user has marked as favorites)"], "__v": "number" }</pre>
+                    { "_id": "string (ObjectId)", "username": "string (required)", "email": "string (required)", "birthday": "date (ISO 8601, optional, e.g., 'YYYY-MM-DD')", "favoriteMovies": ["string (list of movie ObjectIds - movies the user has marked as favorites)"], "__v": "number" }
+                </pre>
+                <p>
+                    Note: The password is <strong>never</strong> returned in responses for security reasons.
+                </p>
                 <p>
                     Status Codes: 201 Created (Welcome! Your account was created
                     successfully!), 400 Bad Request (Oops, something was wrong with the
@@ -582,7 +605,11 @@
                     </pre>
                 </p>
                 <pre>
-{ "_id": "string (ObjectId)", "username": "string", "email": "string", "birthday": "date (ISO 8601, optional, e.g., 'YYYY-MM-DD')", "favoriteMovies": ["string (list of movie ObjectIds - movies the user has marked as favorites)"], "__v": "number" }</pre>
+                    { "_id": "string (ObjectId)", "username": "string", "email": "string", "birthday": "date (ISO 8601, optional, e.g., 'YYYY-MM-DD')", "favoriteMovies": ["string (list of movie ObjectIds - movies the user has marked as favorites)"], "__v": "number" }
+                </pre>
+                <p>
+                    Note: The password is <strong>never</strong> returned in responses for security reasons.
+                </p>
                 <p>
                     Status Codes: 200 OK (Your information was updated!), 404 Not Found
                     (We couldn't find a user with that username!), 500 Internal Server
@@ -599,13 +626,13 @@
                     to add it to your list.
                 </p>
                 <pre>
-[
-    {
-        "_id": "string (ObjectId)",
-        "title": "string (Movie Title)"
-    },
-    ...
-]
+                    [
+                        {
+                            "_id": "string (ObjectId)",
+                            "title": "string (Movie Title)"
+                        },
+                        ...
+                    ]
                 </pre>
                 <p>
                     Status Codes: 200 OK (The movie was added to your favorites!), 404
@@ -623,13 +650,13 @@
                     it.
                 </p>
                 <pre>
-[
-    {
-        "_id": "string (ObjectId)",
-        "title": "string (Movie Title)"
-    },
-    ...
-]
+                    [
+                        {
+                            "_id": "string (ObjectId)",
+                            "title": "string (Movie Title)"
+                        },
+                        ...
+                    ]
                 </pre>
                 <p>
                     Status Codes: 200 OK (The movie was removed from your favorites!),
@@ -662,7 +689,16 @@
                     "Drama," or "Sci-Fi."
                 </p>
                 <pre>
-[ { "_id": "string (ObjectId)", "name": "string (required - the genre's name, e.g., 'Action')", "description": "string (required - a description of the genre)", "__v": "number" }, ... ]</pre>
+                    [
+                        {
+                            "_id": "string (ObjectId)",
+                            "name": "string (required - the genre's name, e.g., 'Action')",
+                            "description": "string (required - a description of the genre)",
+                            "__v": "number"
+                        },
+                        ...
+                    ]
+                </pre>
                 <p>
                     Status Codes: 200 OK (Here's the list of genres!), 500 Internal
                     Server Error (Oops, something went wrong on our end!)
@@ -678,7 +714,13 @@
                     name, and it gives you back the description.
                 </p>
                 <pre>
-{ "_id": "string (ObjectId)", "name": "string (required - the genre's name, e.g., 'Action')", "description": "string (required - a description of the genre)", "__v": "number" }</pre>
+                    {
+                        "_id": "string (ObjectId)",
+                        "name": "string (required - the genre's name, e.g., 'Action')",
+                        "description": "string (required - a description of the genre)",
+                        "__v": "number"
+                    }
+                </pre>
                 <p>
                     Status Codes: 200 OK (Here's the genre information!), 404 Not Found
                     (Sorry, we couldn't find that genre!), 500 Internal Server Error
@@ -698,7 +740,13 @@
                     Request Body: <code>{ "name": "string (required)", "description": "string (required)" }</code>
                 </p>
                 <pre>
-{ "_id": "string (ObjectId)", "name": "string (required - the genre's name, e.g., 'Action')", "description": "string (required - a description of the genre)", "__v": "number" }</pre>
+                    {
+                        "_id": "string (ObjectId)",
+                        "name": "string (required - the genre's name, e.g., 'Action')",
+                        "description": "string (required - a description of the genre)",
+                        "__v": "number"
+                    }
+                </pre>
                 <p>
                     Status Codes: 201 Created (The genre was successfully added!), 400
                     Bad Request (Oops, something was wrong with the information you
@@ -717,7 +765,13 @@
                 </p>
                 <p>Request Body: <code>{ "description": "string (required)" }</code></p>
                 <pre>
-{ "_id": "string (ObjectId)", "name": "string (required - the genre's name, e.g., 'Action')", "description": "string (required - a description of the genre)", "__v": "number" }</pre>
+                    {
+                        "_id": "string (ObjectId)",
+                        "name": "string (required - the genre's name, e.g., 'Action')",
+                        "description": "string (required - a description of the genre)",
+                        "__v": "number"
+                    }
+                </pre>
                 <p>
                     Status Codes: 200 OK (The genre description was updated!), 404 Not
                     Found (We couldn't find that genre!), 400 Bad Request (Oops,
@@ -750,7 +804,18 @@
                     directed movies in the library's collection.
                 </p>
                 <pre>
-[ { "_id": "string (ObjectId)", "name": "string (required - the director's name)", "bio": "string (required - the director's biography)", "birth": "date (ISO 8601 format, required - director's birthdate, e.g., '1970-12-01')", "death": "date (ISO 8601 format, optional - director's date of death, e.g., '2023-06-15', if applicable)", "__v": "number" }, ... ]</pre>
+                    [
+                        {
+                            "_id": "string (ObjectId)",
+                            "name": "string (required - the director's name)",
+                            "bio": "string (required - the director's biography)",
+                            "birth": "date (ISO 8601 format, required - director's birthdate, e.g., '1970-12-01')",
+                            "death": "date (ISO 8601 format, optional - director's date of death, e.g., '2023-06-15', if applicable)",
+                            "__v": "number"
+                        },
+                        ...
+                    ]
+                </pre>
                 <p>
                     Status Codes: 200 OK (Here's the list of directors!), 500 Internal
                     Server Error (Oops, something went wrong on our end!)
@@ -766,403 +831,478 @@
                     provide the director's name, and it gives you back the details.
                 </p>
                 <pre>
-                  { "_id": "string (ObjectId)", "name": "string (required - the director's name)", "bio": "string (required - the director's biography)", "birth": "date (ISO 8601 format, required - director's birthdate, e.g., '1970-12-01')", "death": "date (ISO 8601 format, optional - director's date of death, e.g., '2023-06-15', if applicable)", "__v": "number" }</pre>
-                  <p>
-                      Status Codes: 200 OK (Here's the director's information!), 404 Not
-                      Found (Sorry, we couldn't find that director!), 500 Internal Server
-                      Error (Oops, something went wrong on our end!)
-                  </p>
-              </section>
-  
-              <section id="get-director-by-id">
-                  <h4>Get director by ID</h4>
-                  <p><code>GET /directors/:directorId</code></p>
-                  <p>
-                      This endpoint is like asking for information about a director using
-                      their unique identification number. Each director has their own
-                      special ID, and this endpoint gives you the director's details based
-                      on that ID.
-                  </p>
-                  <pre>
-  { "_id": "string (ObjectId)", "name": "string (required - the director's name)", "bio": "string (required - the director's biography)", "birth": "date (ISO 8601 format, required - director's birthdate, e.g., '1970-12-01')", "death": "date (ISO 8601 format, optional - director's date of death, e.g., '2023-06-15', if applicable)", "__v": "number" }</pre>
-                  <p>
-                      Status Codes: 200 OK (Here's the director's information!), 404 Not
-                      Found (Sorry, we couldn't find a director with that ID!), 500
-                      Internal Server Error (Oops, something went wrong on our end!)
-                  </p>
-              </section>
-  
-              <section id="create-new-director">
-                  <h4>Create new director</h4>
-                  <p><code>POST /directors</code></p>
-                  <p>
-                      This endpoint is like adding a new director to the library's
-                      database. You need to provide the director's details in a specific
-                      format, such as their name, biography, and date of birth.
-                  </p>
-                  <p>
-                      Request Body:
-                      <code>{ "name": "string (required)", "bio": "string (required)", "birth": "date (ISO 8601 format, required)", "death": "date (ISO 8601 format, optional)" }</code>
-                  </p>
-                  <pre>
-  { "_id": "string (ObjectId)", "name": "string (required - the director's name)", "bio": "string (required - the director's biography)", "birth": "date (ISO 8601 format, required - director's birthdate, e.g., '1970-12-01')", "death": "date (ISO 8601 format, optional - director's date of death, e.g., '2023-06-15', if applicable)", "__v": "number" }</pre>
-                  <p>
-                      Status Codes: 201 Created (The director was successfully added!),
-                      400 Bad Request (Oops, something was wrong with the information you
-                      provided!), 500 Internal Server Error (Oops, something went wrong on
-                      our end!)
-                  </p>
-              </section>
-  
-              <section id="update-director">
-                  <h4>Update director info by ID</h4>
-                  <p><code>PUT /directors/:directorId</code></p>
-                  <p>
-                      This endpoint is like correcting or updating the information about a
-                      director in the library's database. You use the director's unique ID
-                      to specify which director you want to update, and then provide the
-                      new or changed details.
-                  </p>
-                  <p>
-                      Request Body:
-                      <code>{ "name": "string (required)", "bio": "string (required)", "birth": "date (ISO 8601 format, required)", "death": "date (ISO 8601 format, optional)" }</code>
-                      (all fields required)
-                  </p>
-                  <pre>
-  { "_id": "string (ObjectId)", "name": "string (required - the director's name)", "bio": "string (required - the director's biography)", "birth": "date (ISO 8601 format, required - director's birthdate, e.g., '1970-12-01')", "death": "date (ISO 8601 format, optional - director's date of death, e.g., '2023-06-15', if applicable)", "__v": "number" }</pre>
-                  <p>
-                      Status Codes: 200 OK (The director's information was updated!), 404
-                      Not Found (We couldn't find a director with that ID!), 400 Bad
-                      Request (Oops, something was wrong with the information you
-                      provided!), 500 Internal Server Error (Oops, something went wrong on
-                      our end!)
-                  </p>
-              </section>
-  
-              <section id="delete-director">
-                  <h4>Delete a director by ID</h4>
-                  <p><code>DELETE /directors/:directorId</code></p>
-                  <p>
-                      This endpoint is like removing a director from the library's
-                      database. You use the director's unique ID to specify which director
-                      should be removed.
-                  </p>
-                  <pre>Director deleted successfully.</pre>
-                  <p>
-                      Status Codes: 200 OK (The director was deleted!), 404 Not Found (We
-                      couldn't find a director with that ID!), 500 Internal Server Error
-                      (Oops, something went wrong on our end!)
-                  </p>
-              </section>
-  
-              <section id="get-all-actors">
-                  <h4>Get all actors</h4>
-                  <p><code>GET /actors</code></p>
-                  <p>
-                      This endpoint is like asking for a list of all the actors in the
-                      library's database.
-                  </p>
-                  <pre>
-  [ { "_id": "string (ObjectId)", "name": "string (required - the actor's name)", "bio": "string (required - the actor's biography)", "birth": "date (ISO 8601 format, required - actor's birthdate, e.g., '1965-08-10')", "death": "date (ISO 8601 format, optional - actor's date of death, e.g., '2024-03-22', if applicable)", "pictureUrl": "string (optional - a link to the actor's picture)", "__v": "number" }, ... ]</pre>
-                  <p>
-                      Status Codes: 200 OK (Here's the list of actors!), 500 Internal
-                      Server Error (Oops, something went wrong on our end!)
-                  </p>
-              </section>
-  
-              <section id="get-actor-by-name">
-                  <h4>Get actor by name</h4>
-                  <p><code>GET /actors/name/:name</code></p>
-                  <p>
-                      This endpoint is like asking for detailed information about a
-                      specific actor, such as their biography or date of birth. You
-                      provide the actor's name, and it gives you back the details.
-                  </p>
-                  <pre>
-  { "_id": "string (ObjectId)", "name": "string (required - the actor's name)", "bio": "string (required - the actor's biography)", "birth": "date (ISO 8601 format, required - actor's birthdate, e.g., '1965-08-10')", "death": "date (ISO 8601 format, optional - actor's date of death, e.g., '2024-03-22', if applicable)", "pictureUrl": "string (optional - a link to the actor's picture)", "__v": "number" }</pre>
-                  <p>
-                      Status Codes: 200 OK (Here's the actor's information!), 404 Not
-                      Found (Sorry, we couldn't find that actor!), 500 Internal Server
-                      Error (Oops, something went wrong on our end!)
-                  </p>
-              </section>
-  
-              <section id="get-actor-by-id">
-                  <h4>Get actor by ID</h4>
-                  <p><code>GET /actors/:actorId</code></p>
-                  <p>
-                      This endpoint is like asking for information about an actor using
-                      their unique identification number. Each actor has their own special
-                      ID, and this endpoint gives you the actor's details based on that
-                      ID.
-                  </p>
-                  <pre>
-  { "_id": "string (ObjectId)", "name": "string (required - the actor's name)", "bio": "string (required - the actor's biography)", "birth": "date (ISO 8601 format, required - actor's birthdate, e.g., '1965-08-10')", "death": "date (ISO 8601 format, optional - actor's date of death, e.g., '2024-03-22', if applicable)", "pictureUrl": "string (optional - a link to the actor's picture)", "__v": "number" }</pre>
-                  <p>
-                      Status Codes: 200 OK (Here's the actor's information!), 404 Not
-                      Found (Sorry, we couldn't find an actor with that ID!), 500 Internal
-                      Server Error (Oops, something went wrong on our end!)
-                  </p>
-              </section>
-              <section id="create-new-actor">
-                  <h4>Create new actor</h4>
-                  <p><code>POST /actors</code></p>
-                  <p>
-                      This endpoint is like adding a new actor to the library's database.
-                      You need to provide the actor's details in a specific format, such as
-                      their name, biography, and date of birth.
-                  </p>
-                  <p>
-                      Request Body:
-                      <code>{ "name": "string (required)", "bio": "string (required)", "birth": "date (ISO 8601 format, required)", "death": "date (ISO 8601 format, optional)", "pictureUrl": "string (optional)" }</code>
-                  </p>
-                  <pre>
-  { "_id": "string (ObjectId)", "name": "string (required - the actor's name)", "bio": "string (required - the actor's biography)", "birth": "date (ISO 8601 format, required - actor's birthdate, e.g., '1965-08-10')", "death": "date (ISO 8601 format, optional - actor's date of death, e.g., '2024-03-22', if applicable)", "pictureUrl": "string (optional - a link to the actor's picture)", "__v": "number" }</pre>
-                  <p>
-                      Status Codes: 201 Created (The actor was successfully added!), 400 Bad
-                      Request (Oops, something was wrong with the information you
-                      provided!), 500 Internal Server Error (Oops, something went wrong on
-                      our end!)
-                  </p>
-              </section>
-  
-              <section id="update-actor">
-                  <h4>Update actor info by ID</h4>
-                  <p><code>PUT /actors/:actorId</code></p>
-                  <p>
-                      This endpoint is like correcting or updating the information about an
-                      actor in the library's database. You use the actor's unique ID to
-                      specify which actor you want to update, and then provide the new or
-                      changed details.
-                  </p>
-                  <p>
-                      Request Body:
-                      <code>{ "name": "string (required)", "bio": "string (required)", "birth": "date (ISO 8601 format, required)", "death": "date (ISO 8601 format, optional)", "pictureUrl": "string (optional)" }</code>
-                      (all fields required)
-                  </p>
-                  <pre>
-  { "_id": "string (ObjectId)", "name": "string (required - the actor's name)", "bio": "string (required - the actor's biography)", "birth": "date (ISO 8601 format, required - actor's birthdate, e.g., '1965-08-10')", "death": "date (ISO 8601 format, optional - actor's date of death, e.g., '2024-03-22', if applicable)", "pictureUrl": "string (optional - a link to the actor's picture)", "__v": "number" }</pre>
-                  <p>
-                      Status Codes: 200 OK (The actor's information was updated!), 404 Not
-                      Found (We couldn't find an actor with that ID!), 400 Bad Request
-                      (Oops, something was wrong with the information you provided!), 500
-                      Internal Server Error (Oops, something went wrong on our end!)
-                  </p>
-              </section>
-  
-              <section id="delete-actor">
-                  <h4>Delete an actor by ID</h4>
-                  <p><code>DELETE /actors/:actorId</code></p>
-                  <p>
-                      This endpoint is like removing an actor from the library's database.
-                      You use the actor's unique ID to specify which actor should be
-                      removed.
-                  </p>
-                  <pre>Actor deleted successfully.</pre>
-                  <p>
-                      Status Codes: 200 OK (The actor was deleted!), 404 Not Found (We
-                      couldn't find an actor with that ID!), 500 Internal Server Error
-                      (Oops, something went wrong on our end!)
-                  </p>
-              </section>
-  
-              <section id="admin-get-all-users">
-                  <h4>(Admin) Get all users</h4>
-                  <p><code>GET /admin/users</code></p>
-                  <p>
-                      This endpoint is for administrators only. It allows them to retrieve
-                      a list of all user accounts in the application.
-                  </p>
-                  <pre>
-  [ { "_id": "string (ObjectId)", "username": "string (required - the user's login name)", "email": "string (required - the user's email address)", "birthday": "date (ISO 8601 format, optional - user's birthday, e.g., '1985-05-20')", "favoriteMovies": ["string (list of movie ObjectIds - movies the user has marked as favorites)"], "firstname": "string (optional)", "lastname": "string (optional)", "__v": "number" }, ... ]</pre>
-                  <p>
-                      Status Codes: 200 OK (Here's the list of users!), 500 Internal
-                      Server Error (Oops, something went wrong on our end!)
-                  </p>
-              </section>
-  
-              <section id="admin-get-all-movies-detailed">
-                  <h4>(Admin) Get all movies</h4>
-                  <p><code>GET /admin/movies</code></p>
-                  <p>
-                      This endpoint is for administrators only. It allows them to retrieve
-                      a list of all movies with detailed information, including genre and
-                      director details.
-                  </p>
-                  <pre>
-  [ { "_id": "string (ObjectId)", "title": "string (required)", "description": "string (required)", "genre": { "name": "string (the movie's genre, e.g., 'Comedy', 'Drama')", "description": "string (a description of the genre)" }, "director": { "name": "string (the director's name)", "bio": "string (the director's biography)", "birth": "date (ISO 8601 format, optional - director's birthdate, e.g., '1970-12-01')", "death": "date (ISO 8601 format, optional - director's date of death, e.g., '2023-06-15', if applicable)" }, "actors": ["string (Actor Name)"], "imagePath": "string (optional - a link to the movie's poster image)", "featured": "boolean (optional - whether the movie is featured or not)", "__v": "number" }, ... ]</pre>
-                  <p>
-                      Status Codes: 200 OK (Here's the list of movies!), 500 Internal
-                      Server Error (Oops, something went wrong on our end!)
-                  </p>
-              </section>
-  
-              <section id="admin-get-all-genres-list">
-                  <h4>(Admin) Get all genres</h4>
-                  <p><code>GET /admin/genres</code></p>
-                  <p>
-                      This endpoint is for administrators only. It allows them to retrieve
-                      a list of all genres.
-                  </p>
-                  <pre>
-  [ { "_id": "string (ObjectId)", "name": "string (required - the genre's name, e.g., 'Action')", "description": "string (required - a description of the genre)", "__v": "number" }, ... ]</pre>
-                  <p>
-                      Status Codes: 200 OK (Here's the list of genres!), 500 Internal
-                      Server Error (Oops, something went wrong on our end!)
-                  </p>
-              </section>
-  
-              <section id="admin-get-all-directors-list">
-                  <h4>(Admin) Get all directors</h4>
-                  <p><code>GET /admin/directors</code></p>
-                  <p>
-                      This endpoint is for administrators only. It allows them to retrieve
-                      a list of all directors.
-                  </p>
-                  <pre>
-  [ { "_id": "string (ObjectId)", "name": "string (required - the director's name)", "bio": "string (required - the director's biography)", "birth": "date (ISO 8601 format, required - director's birthdate, e.g., '1970-12-01')", "death": "date (ISO 8601 format, optional - director's date of death, e.g., '2023-06-15', if applicable)", "__v": "number" }, ... ]</pre>
-                  <p>
-                      Status Codes: 200 OK (Here's the list of directors!), 500 Internal
-                      Server Error (Oops, something went wrong on our end!)
-                  </p>
-              </section>
-  
-              <section id="admin-get-all-actors">
-                  <h4>(Admin) Get all actors</h4>
-                  <p><code>GET /admin/actors</code></p>
-                  <p>
-                      This endpoint is for administrators only. It allows them to retrieve
-                      a list of all actors.
-                  </p>
-                  <pre>
-  [ { "_id": "string (ObjectId)", "name": "string (required - the actor's name)", "bio": "string (required - the actor's biography)", "birth": "date (ISO 8601 format, required - actor's birthdate, e.g., '1965-08-10')", "death": "date (ISO 8601 format, optional - actor's date of death, e.g., '2024-03-22', if applicable)", "pictureUrl": "string (optional - a link to the actor's picture)", "__v": "number" }, ... ]</pre>
-                  <p>
-                      Status Codes: 200 OK (Here's the list of actors!), 500 Internal
-                      Server Error (Oops, something went wrong on our end!)
-                  </p>
-              </section>
-  
-              <section id="welcome-endpoint">
-                  <h4>Get welcome message</h4>
-                  <p><code>GET /</code></p>
-                  <p>
-                      This endpoint provides a basic welcome message to confirm that the API is running.
-                  </p>
-                  <pre>
-  {
-      "message": "Welcome to the Movie API!"
-  }
-                  </pre>
-                  <p>
-                      Status Codes: 200 OK (The API is up and running!)
-                  </p>
-              </section>
-          </section>
-  
-          <section id="data-objects">
-              <h3>Data Objects</h3>
-  
-              <section id="movie-object">
-                  <h4>Movie Object</h4>
-                  <pre>
-                          {
-                              "_id": "string (ObjectId)",
-                              "title": "string (required)",
-                              "description": "string (required)",
-                              "genre": {
-                                  "name": "string",
-                                  "description": "string"
-                              },
-                              "director": {
-                                  "name": "string",
-                                  "bio": "string",
-                                  "birth": "date (ISO 8601, e.g., 'YYYY-MM-DD')",
-                                  "death": "date (ISO 8601, optional)"
-                              },
-                              "actors": [
-                                  "string (Actor Name)"
-                              ],
-                              "imagePath": "string (optional - URL to movie poster)",
-                              "featured": "boolean (optional - indicates if movie is featured)",
-                              "__v": "number"
-                          }
-                      </pre>
-              </section>
-  
-              <section id="user-object">
-                  <h4>User Object</h4>
-                  <pre>
-                          {
-                              "_id": "string (ObjectId)",
-                              "username": "string (required)",
-                              "email": "string (required)",
-                              "birthday": "date (ISO 8601, optional, e.g., 'YYYY-MM-DD')",
-                              "favoriteMovies": [
-                                  "string (Movie ObjectId)"
-                              ],
-                              "firstname": "string (optional)",
-                              "lastname": "string (optional)",
-                              "__v": "number"
-                          }
-                      </pre>
-                  <p>
-                      Note: The password is <strong>never</strong> returned in responses for security reasons.
-                  </p>
-              </section>
-  
-              <section id="genre-object">
-                  <h4>Genre Object</h4>
-                  <pre>
-                          {
-                              "_id": "string (ObjectId)",
-                              "name": "string (required)",
-                              "description": "string (required)",
-                              "__v": "number"
-                          }
-                      </pre>
-              </section>
-  
-              <section id="director-object">
-                  <h4>Director Object</h4>
-                  <pre>
-                          {
-                              "_id": "string (ObjectId)",
-                              "name": "string (required)",
-                              "bio": "string (required)",
-                              "birth": "date (ISO 8601 format, optional - director's birthdate, e.g., '1970-12-01')",
-                              "death": "date (ISO 8601 format, optional - director's date of death, e.g., '2023-06-15', if applicable)",
-                              "__v": "number"
-                          }
-                      </pre>
-              </section>
-  
-              <section id="actor-object">
-                  <h4>Actor Object</h4>
-                  <pre>
-                          {
-                              "_id": "string (ObjectId)",
-                              "name": "string (required)",
-                              "bio": "string (required)",
-                              "birth": "date (ISO 8601 format, optional - actor's birthdate, e.g., '1965-08-10')",
-                              "death": "date (ISO 8601 format, optional - actor's date of death, e.g., '2024-03-22', if applicable)",
-                              "pictureUrl": "string (optional - a link to the actor's picture)",
-                              "__v": "number"
-                          }
-                      </pre>
-              </section>
-          </section>
-      </main>
-  
-      <footer class="bg-light py-3 mt-5">
-          <div class="container text-center">
-              <p>&copy; 2025 MOVIEMOBS. All rights reserved.</p>
-          </div>
-      </footer>
-  
-      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  
-  </body>
-  
-  </html>
+                    {
+                        "_id": "string (ObjectId)",
+                        "name": "string (required - the director's name)",
+                        "bio": "string (required - the director's biography)",
+                        "birth": "date (ISO 8601 format, required - director's birthdate, e.g., '1970-12-01')",
+                        "death": "date (ISO 8601 format, optional - director's date of death, e.g., '2023-06-15', if applicable)",
+                        "__v": "number"
+                    }
+                </pre>
+                <p>
+                    Status Codes: 200 OK (Here's the director's information!), 404 Not
+                    Found (Sorry, we couldn't find that director!), 500 Internal Server
+                    Error (Oops, something went wrong on our end!)
+                </p>
+            </section>
+
+            <section id="get-director-by-id">
+                <h4>Get director by ID</h4>
+                <p><code>GET /directors/:directorId</code></p>
+                <p>
+                    This endpoint is like asking for information about a director using
+                    their unique identification number. Each director has their own
+                    special ID, and this endpoint gives you the director's details based
+                    on that ID.
+                </p>
+                <pre>
+                    {
+                        "_id": "string (ObjectId)",
+                        "name": "string (required - the director's name)", "__v": "number"
+                    }
+                </pre>
+                <p>
+                    Status Codes: 201 Created (The director was successfully added!),
+                    404 Not Found (We couldn't find a director with that ID!), 400 Bad
+                    Request (Oops, something was wrong with the information you
+                    provided!), 500 Internal Server Error (Oops, something went wrong on
+                    our end!)
+                </p>
+            </section>
+
+            <section id="delete-director">
+                <h4>Delete a director by ID</h4>
+                <p><code>DELETE /directors/:directorId</code></p>
+                <p>
+                    This endpoint is like removing a director from the library's
+                    database. You use the director's unique ID to specify which director
+                    should be removed.
+                </p>
+                <pre>Director deleted successfully.</pre>
+                <p>
+                    Status Codes: 200 OK (The director was deleted!), 404 Not Found (We
+                    couldn't find a director with that ID!), 500 Internal Server Error
+                    (Oops, something went wrong on our end!)
+                </p>
+            </section>
+
+            <section id="get-all-actors">
+                <h4>Get all actors</h4>
+                <p><code>GET /actors</code></p>
+                <p>
+                    This endpoint is like asking for a list of all the actors in the
+                    library's database.
+                </p>
+                <pre>
+                    [
+                        {
+                            "_id": "string (ObjectId)",
+                            "name": "string (required - the actor's name)",
+                            "bio": "string (required - the actor's biography)",
+                            "birth": "date (ISO 8601 format, optional - actor's birthdate, e.g., '1965-08-10')",
+                            "death": "date (ISO 8601 format, optional - actor's date of death, e.g., '2024-03-22', if applicable)",
+                            "pictureUrl": "string (optional - a link to the actor's picture)",
+                            "__v": "number"
+                        },
+                        ...
+                    ]
+                </pre>
+                <p>
+                    Status Codes: 200 OK (Here's the list of actors!), 500 Internal
+                    Server Error (Oops, something went wrong on our end!)
+                </p>
+            </section>
+
+            <section id="get-actor-by-name">
+                <h4>Get actor by name</h4>
+                <p><code>GET /actors/name/:name</code></p>
+                <p>
+                    This endpoint is like asking for detailed information about a
+                    specific actor, such as their biography or date of birth. You
+                    provide the actor's name, and it gives you back the details.
+                </p>
+                <pre>
+                    {
+                        "_id": "string (ObjectId)",
+                        "name": "string (required - the actor's name)",
+                        "bio": "string (required - the actor's biography)",
+                        "birth": "date (ISO 8601 format, optional - actor's birthdate, e.g., '1965-08-10')",
+                        "death": "date (ISO 8601 format, optional - actor's date of death, e.g., '2024-03-22', if applicable)",
+                        "pictureUrl": "string (optional - a link to the actor's picture)",
+                        "__v": "number"
+                    }
+                </pre>
+                <p>
+                    Status Codes: 200 OK (Here's the actor's information!), 404 Not
+                    Found (Sorry, we couldn't find that actor!), 500 Internal Server
+                    Error (Oops, something went wrong on our end!)
+                </p>
+            </section>
+
+            <section id="get-actor-by-id">
+                <h4>Get actor by ID</h4>
+                <p><code>GET /actors/:actorId</code></p>
+                <p>
+                    This endpoint is like asking for information about an actor using
+                    their unique identification number. Each actor has their own special
+                    ID, and this endpoint gives you the actor's details based on that
+                    ID.
+                </p>
+                <pre>
+                    {
+                        "_id": "string (ObjectId)",
+                        "name": "string (required - the actor's name)",
+                        "bio": "string (required - the actor's biography)",
+                        "birth": "date (ISO 8601 format, optional - actor's birthdate, e.g., '1965-08-10')",
+                        "death": "date (ISO 8601 format, optional - actor's date of death, e.g., '2024-03-22', if applicable)",
+                        "pictureUrl": "string (optional - a link to the actor's picture)",
+                        "__v": "number"
+                    }
+                </pre>
+                <p>
+                    Status Codes: 200 OK (Here's the actor's information!), 404 Not
+                    Found (Sorry, we couldn't find an actor with that ID!), 500 Internal
+                    Server Error (Oops, something went wrong on our end!)
+                </p>
+            </section>
+            <section id="create-new-actor">
+                <h4>Create new actor</h4>
+                <p><code>POST /actors</code></p>
+                <p>
+                    This endpoint is like adding a new actor to the library's database.
+                    You need to provide the actor's details in a specific format, such as
+                    their name, biography, and date of birth.
+                </p>
+                <p>
+                    Request Body:
+                    <code>{ "name": "string (required)", "bio": "string (required)", "birth": "date (ISO 8601 format, required)", "death": "date (ISO 8601 format, optional)", "pictureUrl": "string (optional)" }</code>
+                </p>
+                <pre>
+                    {
+                        "_id": "string (ObjectId)",
+                        "name": "string (required - the actor's name)",
+                        "bio": "string (required - the actor's biography)",
+                        "birth": "date (ISO 8601 format, optional - actor's birthdate, e.g., '1965-08-10')",
+                        "death": "date (ISO 8601 format, optional - actor's date of death, e.g., '2024-03-22', if applicable)",
+                        "pictureUrl": "string (optional - a link to the actor's picture)",
+                        "__v": "number"
+                    }
+                </pre>
+                <p>
+                    Status Codes: 201 Created (The actor was successfully added!), 400 Bad
+                    Request (Oops, something was wrong with the information you
+                    provided!), 500 Internal Server Error (Oops, something went wrong on
+                    our end!)
+                </p>
+            </section>
+
+            <section id="update-actor">
+                <h4>Update actor info by ID</h4>
+                <p><code>PUT /actors/:actorId</code></p>
+                <p>
+                    This endpoint is like correcting or updating the information about an
+                    actor in the library's database. You use the actor's unique ID to
+                    specify which actor you want to update, and then provide the new or
+                    changed details.
+                </p>
+                <p>
+                    Request Body:
+                    <code>{ "name": "string (required)", "bio": "string (required)", "birth": "date (ISO 8601 format, required)", "death": "date (ISO 8601 format, optional)", "pictureUrl": "string (optional)" }</code>
+                    (all fields required)
+                </p>
+                <pre>
+                    {
+                        "_id": "string (ObjectId)",
+                        "name": "string (required - the actor's name)",
+                        "bio": "string (required - the actor's biography)",
+                        "birth": "date (ISO 8601 format, optional - actor's birthdate, e.g., '1965-08-10')",
+                        "death": "date (ISO 8601 format, optional - actor's date of death, e.g., '2024-03-22', if applicable)",
+                        "pictureUrl": "string (optional - a link to the actor's picture)",
+                        "__v": "number"
+                    }
+                </pre>
+                <p>
+                    Status Codes: 200 OK (The actor's information was updated!), 404 Not
+                    Found (We couldn't find an actor with that ID!), 400 Bad Request
+                    (Oops, something was wrong with the information you provided!), 500
+                    Internal Server Error (Oops, something went wrong on our end!)
+                </p>
+            </section>
+
+            <section id="delete-actor">
+                <h4>Delete an actor by ID</h4>
+                <p><code>DELETE /actors/:actorId</code></p>
+                <p>
+                    This endpoint is like removing an actor from the library's database.
+                    You use the actor's unique ID to specify which actor should be
+                    removed.
+                </p>
+                <pre>Actor deleted successfully.</pre>
+                <p>
+                    Status Codes: 200 OK (The actor was deleted!), 404 Not Found (We
+                    couldn't find an actor with that ID!), 500 Internal Server Error
+                    (Oops, something went wrong on our end!)
+                </p>
+            </section>
+
+            <section id="admin-get-all-users">
+                <h4>(Admin) Get all users</h4>
+                <p><code>GET /admin/users</code></p>
+                <p>
+                    This endpoint is for administrators only. It allows them to retrieve
+                    a list of all user accounts in the application.
+                </p>
+                <pre>
+                    [
+                        {
+                            "_id": "string (ObjectId)",
+                            "username": "string (required - the user's login name)",
+                            "email": "string (required - the user's email address)",
+                            "birthday": "date (ISO 8601 format, optional - user's birthday, e.g., '1985-05-20')",
+                            "favoriteMovies": ["string (list of movie ObjectIds - movies the user has marked as favorites)"],
+                            "firstname": "string (optional)",
+                            "lastname": "string (optional)",
+                            "__v": "number"
+                        },
+                        ...
+                    ]
+                </pre>
+                <p>
+                    Status Codes: 200 OK (Here's the list of users!), 500 Internal
+                    Server Error (Oops, something went wrong on our end!)
+                </p>
+            </section>
+
+            <section id="admin-get-all-movies-detailed">
+                <h4>(Admin) Get all movies</h4>
+                <p><code>GET /admin/movies</code></p>
+                <p>
+                    This endpoint is for administrators only. It allows them to retrieve
+                    a list of all movies with detailed information, including genre and
+                    director details.
+                </p>
+                <pre>
+                    [
+                        {
+                            "_id": "string (ObjectId)",
+                            "title": "string (required)",
+                            "description": "string (required)",
+                            "genre": { "name": "string (the movie's genre, e.g., 'Comedy', 'Drama')", "description": "string (a description of the genre)" },
+                            "director": { "name": "string (the director's name)", "bio": "string (the director's biography)", "birth": "date (ISO 8601 format, optional - director's birthdate, e.g., '1970-12-01')", "death": "date (ISO 8601 format, optional - director's date of death, e.g., '2023-06-15', if applicable)" },
+                            "actors": ["string (Actor Name)"],
+                            "imagePath": "string (optional - a link to the movie's poster image)",
+                            "featured": "boolean (optional - whether the movie is featured or not)",
+                            "__v": "number"
+                        },
+                        ...
+                    ]
+                </pre>
+                <p>
+                    Status Codes: 200 OK (Here's the list of movies!), 500 Internal
+                    Server Error (Oops, something went wrong on our end!)
+                </p>
+            </section>
+
+            <section id="admin-get-all-genres-list">
+                <h4>(Admin) Get all genres</h4>
+                <p><code>GET /admin/genres</code></p>
+                <p>
+                    This endpoint is for administrators only. It allows them to retrieve
+                    a list of all genres.
+                </p>
+                <pre>
+                    [
+                        {
+                            "_id": "string (ObjectId)",
+                            "name": "string (required - the genre's name, e.g., 'Action')",
+                            "description": "string (required - a description of the genre)",
+                            "__v": "number"
+                        },
+                        ...
+                    ]
+                </pre>
+                <p>
+                    Status Codes: 200 OK (Here's the list of genres!), 500 Internal
+                    Server Error (Oops, something went wrong on our end!)
+                </p>
+            </section>
+
+            <section id="admin-get-all-directors-list">
+                <h4>(Admin) Get all directors</h4>
+                <p><code>GET /admin/directors</code></p>
+                <p>
+                    This endpoint is for administrators only. It allows them to retrieve
+                    a list of all directors.
+                </p>
+                <pre>
+                    [
+                        {
+                            "_id": "string (ObjectId)",
+                            "name": "string (required - the director's name)",
+                            "bio": "string (required - the director's biography)",
+                            "birth": "date (ISO 8601 format, optional - director's birthdate, e.g., '1970-12-01')",
+                            "death": "date (ISO 8601 format, optional - director's date of death, e.g., '2023-06-15', if applicable)",
+                            "__v": "number"
+                        },
+                        ...
+                    ]
+                </pre>
+                <p>
+                    Status Codes: 200 OK (Here's the list of directors!), 500 Internal
+                    Server Error (Oops, something went wrong on our end!)
+                </p>
+            </section>
+
+            <section id="admin-get-all-actors">
+                <h4>(Admin) Get all actors</h4>
+                <p><code>GET /admin/actors</code></p>
+                <p>
+                    This endpoint is for administrators only. It allows them to retrieve
+                    a list of all actors.
+                </p>
+                <pre>
+                    [
+                        {
+                            "_id": "string (ObjectId)",
+                            "name": "string (required - the actor's name)",
+                            "bio": "string (required - the actor's biography)",
+                            "birth": "date (ISO 8601 format, optional - actor's birthdate, e.g., '1965-08-10')",
+                            "death": "date (ISO 8601 format, optional - actor's date of death, e.g., '2024-03-22', if applicable)",
+                            "pictureUrl": "string (optional - a link to the actor's picture)",
+                            "__v": "number"
+                        },
+                        ...
+                    ]
+                </pre>
+                <p>
+                    Status Codes: 200 OK (Here's the list of actors!), 500 Internal
+                    Server Error (Oops, something went wrong on our end!)
+                </p>
+            </section>
+
+            <section id="welcome-endpoint">
+                <h4>Get welcome message</h4>
+                <p><code>GET /</code></p>
+                <p>
+                    This endpoint provides a basic welcome message to confirm that the API is running.
+                </p>
+                <pre>
+                    {
+                        "message": "Welcome to the Movie API!"
+                    }
+                </pre>
+                <p>
+                    Status Codes: 200 OK (The API is up and running!)
+                </p>
+            </section>
+        </section>
+
+        <section id="data-objects">
+            <h3>Data Objects</h3>
+
+            <section id="movie-object">
+                <h4>Movie Object</h4>
+                <pre>
+                    {
+                        "_id": "string (ObjectId)",
+                        "title": "string (required)",
+                        "description": "string (required)",
+                        "genre": {
+                            "name": "string",
+                            "description": "string"
+                        },
+                        "director": {
+                            "name": "string",
+                            "bio": "string",
+                            "birth": "date (ISO 8601, e.g., 'YYYY-MM-DD')",
+                            "death": "date (ISO 8601, optional)"
+                        },
+                        "actors": [
+                            "string (Actor Name)"
+                        ],
+                        "imagePath": "string (optional - URL to movie poster)",
+                        "featured": "boolean (optional - indicates if movie is featured)",
+                        "__v": "number"
+                    }
+                </pre>
+            </section>
+
+            <section id="user-object">
+                <h4>User Object</h4>
+                <pre>
+                    {
+                        "_id": "string (ObjectId)",
+                        "username": "string (required)",
+                        "password": "string (required, hashed)",
+                        "email": "string (required)",
+                        "birthday": "date (ISO 8601, optional, e.g., 'YYYY-MM-DD')",
+                        "favoriteMovies": [
+                            "string (Movie ObjectId)"
+                        ],
+                        "firstname": "string (optional)",
+                        "lastname": "string (optional)",
+                        "__v": "number"
+                    }
+                </pre>
+                <p>
+                    Note: The password is <strong>never</strong> returned in responses for security reasons. It is stored in the database as a hashed value.
+                </p>
+            </section>
+
+            <section id="genre-object">
+                <h4>Genre Object</h4>
+                <pre>
+                    {
+                        "_id": "string (ObjectId)",
+                        "name": "string (required)",
+                        "description": "string (required)",
+                        "__v": "number"
+                    }
+                </pre>
+            </section>
+
+            <section id="director-object">
+                <h4>Director Object</h4>
+                <pre>
+                    {
+                        "_id": "string (ObjectId)",
+                        "name": "string (required)",
+                        "bio": "string (required)",
+                        "birth": "date (ISO 8601 format, optional - director's birthdate, e.g., '1970-12-01')",
+                        "death": "date (ISO 8601 format, optional - director's date of death, e.g., '2023-06-15', if applicable)",
+                        "__v": "number"
+                    }
+                </pre>
+            </section>
+
+            <section id="actor-object">
+                <h4>Actor Object</h4>
+                <pre>
+                    {
+                        "_id": "string (ObjectId)",
+                        "name": "string (required)",
+                        "bio": "string (required)",
+                        "birth": "date (ISO 8601 format, optional - actor's birthdate, e.g., '1965-08-10')",
+                        "death": "date (ISO 8601 format, optional - actor's date of death, e.g., '2024-03-22', if applicable)",
+                        "pictureUrl": "string (optional - a link to the actor's picture)",
+                        "__v": "number"
+                    }
+                </pre>
+            </section>
+        </section>
+    </main>
+
+    <footer class="bg-light py-3 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2025 MOVIEMOBS. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
