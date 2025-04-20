@@ -18,20 +18,24 @@ let generateJWTToken = (user) => {
 
 module.exports = (router) => {
   router.post('/login', (req, res) => {
+    console.log("auth.js: /login - Request received");
+    console.log("auth.js:   Request body:", JSON.stringify(req.body));  // Log the whole body
     passport.authenticate('local', { session: false }, (error, user, info) => {
+      console.log("auth.js:   Passport callback - error:", error);
+      console.log("auth.js:   Passport callback - user:", user);
+      console.log("auth.js:   Passport callback - info:", info);
+
       if (error || !user) {
-        return res.status(400).json({
-          message: 'Something is not right',
-          user: user
-        });
+        return res.status(400).json({ message: 'Something is not right', user: false });
       }
       req.login(user, { session: false }, (error) => {
         if (error) {
           res.send(error);
         }
         let token = generateJWTToken(user.toJSON());
+        console.log("auth.js:   Login successful, token generated");
         return res.json({ user, token });
       });
     })(req, res);
   });
-}
+};
