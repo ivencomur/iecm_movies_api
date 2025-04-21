@@ -1,10 +1,9 @@
-const jwtSecret = 'your_jwt_secret';
+const jwtSecret = 'your_jwt_secret'; // Should match the secret in passport.js
 
 const jwt = require('jsonwebtoken'),
   passport = require('passport');
 
 require('./passport');
-
 
 let generateJWTToken = (user) => {
   return jwt.sign(user, jwtSecret, {
@@ -14,23 +13,18 @@ let generateJWTToken = (user) => {
   });
 }
 
-
-
 module.exports = (router) => {
   router.post('/login', (req, res) => {
-    console.log(req);
     passport.authenticate('local', { session: false }, (error, user, info) => {
       if (error || !user) {
-        return res.status(400).json
-        ({ message: error, user: user });
+        return res.status(400).json({ message: error, user: user });
       }
       req.login(user, { session: false }, (error) => {
         if (error) {
           res.send(error);
         }
         let token = generateJWTToken(user.toJSON());
-        console.log("auth.js:   Login successful, token generated");
-        return res.json({ user, token });
+        return res.json({ user: user.toJSON(), token: token }); // Ensure user is also lowercase
       });
     })(req, res);
   });
