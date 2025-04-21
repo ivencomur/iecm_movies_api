@@ -34,8 +34,6 @@ const app = express();
 
 // Connect to db
 mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
 });
 
 const db = mongoose.connection;
