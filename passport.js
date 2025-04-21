@@ -15,12 +15,14 @@ const passport = require('passport'),
        passwordField: 'password', // Lowercase
      },
      async (username, password, callback) => {
-       try {
-         const user = await Users.findOne({ username: username });
+      console.log("passpor.js: Attempting to find user with username = ");
+      await Users.findOne({ username: username });
+      .then(async (user) => {
          if (!user) {
+          console.log("passport.js: User not found");
            return callback(null, false, { message: 'Incorrect username.' });
          }
-         const passwordMatch = await bcrypt.compare(password, user.password);
+         conso;
          if (!passwordMatch) {
            return callback(null, false, { message: 'Incorrect password.' });
          }
