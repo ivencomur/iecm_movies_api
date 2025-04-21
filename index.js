@@ -260,11 +260,11 @@ app.get("/movies/:movieId/actors", passport.authenticate('jwt', { session: false
     if (!movie) {
       return res.status(404).json({ error: "Movie not found." });
     }
-    res
-      .status(200)
-      .json(
-        movie.actors.map((actor) => ({ _id: actor._id, name: actor.name }))
-      );
+    // Consistent return format for actors (array of objects)
+    res.status(200).json(movie.actors.map(actor => ({
+      _id: actor._id,
+      name: actor.name
+    })));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to get movie cast", message: err.message });
@@ -361,14 +361,11 @@ app.post("/users/:username/favorites/:movieId", passport.authenticate('jwt', { s
     if (!user) {
       return res.status(404).json({ error: "User not found." });
     }
-    res
-      .status(200)
-      .json(
-        user.favoriteMovies.map((movie) => ({
-          _id: movie._id,
-          title: movie.title,
-        }))
-      );
+    // Consistent return format for favorite movies (array of objects)
+    res.status(200).json(user.favoriteMovies.map(movie => ({
+      _id: movie._id,
+      title: movie.title,
+    })));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to add movie to favorites", message: err.message });
@@ -385,14 +382,11 @@ app.delete("/users/:username/favorites/:movieId", passport.authenticate('jwt', {
     if (!user) {
       return res.status(404).json({ error: "User not found." });
     }
-    res
-      .status(200)
-      .json(
-        user.favoriteMovies.map((movie) => ({
-          _id: movie._id,
-          title: movie.title,
-        }))
-      );
+    // Consistent return format for favorite movies (array of objects)
+    res.status(200).json(user.favoriteMovies.map(movie => ({
+      _id: movie._id,
+      title: movie.title,
+    })));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to remove movie from favorites", message: err.message });
@@ -622,10 +616,18 @@ app.delete("/directors/:directorId", passport.authenticate('jwt', { session: fal
 app.get("/actors", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const actors = await Actors.find();
-    res.status(200).json(actors);
+    // Consistent return format (array of objects)
+    res.status(200).json(actors.map(actor => ({
+      _id: actor._id,
+      name: actor.name,
+      bio: actor.bio,
+      birth: actor.birth,
+      death: actor.death,
+      pictureUrl: actor.pictureUrl
+    })));
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error: " + err);
+    res.status(500).json({ error: "Failed to retrieve actors", message: err.message });
   }
 });
 
@@ -637,10 +639,18 @@ app.get("/actors/name/:name", passport.authenticate('jwt', { session: false }), 
     if (!actor) {
       return res.status(404).json({ error: "Actor not found." });
     }
-    res.status(200).json(actor);
+    // Consistent return format (single object)
+    res.status(200).json({
+      _id: actor._id,
+      name: actor.name,
+      bio: actor.bio,
+      birth: actor.birth,
+      death: actor.death,
+      pictureUrl: actor.pictureUrl
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error: " + err);
+    res.status(500).json({ error: "Failed to retrieve actor by name", message: err.message });
   }
 });
 
@@ -650,10 +660,18 @@ app.get("/actors/:actorId", passport.authenticate('jwt', { session: false }), as
     if (!actor) {
       return res.status(404).json({ error: "Actor not found." });
     }
-    res.status(200).json(actor);
+    // Consistent return format (single object)
+    res.status(200).json({
+      _id: actor._id,
+      name: actor.name,
+      bio: actor.bio,
+      birth: actor.birth,
+      death: actor.death,
+      pictureUrl: actor.pictureUrl
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error: " + err);
+    res.status(500).json({ error: "Failed to retrieve actor by ID", message: err.message });
   }
 });
 
@@ -675,12 +693,20 @@ app.post("/actors",
       if (existingActor) {
         return res.status(400).json({ error: "Actor name already exists." });
       }
-      const newActor = new Actors({ name, bio, birth, death, picture Url });
+      const newActor = new Actors({ name, bio, birth, death, pictureUrl });
       const savedActor = await newActor.save();
-      res.status(201).json(savedActor);
+      // Consistent return format (single object)
+      res.status(201).json({
+        _id: savedActor._id,
+        name: savedActor.name,
+        bio: savedActor.bio,
+        birth: savedActor.birth,
+        death: savedActor.death,
+        pictureUrl: savedActor.pictureUrl
+      });
     } catch (err) {
       console.error(err);
-      res.status(500).send("Error: " + err);
+      res.status(500).json({ error: "Failed to create actor", message: err.message });
     }
   });
 
@@ -706,10 +732,18 @@ app.put("/actors/:actorId",
       if (!updatedActor) {
         return res.status(404).json({ error: "Actor not found." });
       }
-      res.status(200).json(updatedActor);
+      // Consistent return format (single object)
+      res.status(200).json({
+        _id: updatedActor._id,
+        name: updatedActor.name,
+        bio: updatedActor.bio,
+        birth: updatedActor.birth,
+        death: updatedActor.death,
+        pictureUrl: updatedActor.pictureUrl
+      });
     } catch (err) {
       console.error(err);
-      res.status(500).send("Error: " + err);
+      res.status(500).json({ error: "Failed to update actor", message: err.message });
     }
   });
 
@@ -719,51 +753,48 @@ app.delete("/actors/:actorId", passport.authenticate('jwt', { session: false }),
     if (!deletedActor) {
       return res.status(404).json({ error: "Actor not found." });
     }
-    res.status(200).send("Actor deleted successfully.");
+    res.status(200).json({ message: "Actor deleted successfully." });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error: " + err);
+    res.status(500).json({ error: "Failed to delete actor", message: err.message });
   }
 });
 
+// *** ADMIN ENDPOINTS (JWT Protected) ***
 app.get("/admin/users", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const users = await Users.find();
-    res
-      .status(200)
-      .json(
-        users.map((user) => ({
-          _id: user._id,
-          username: user.username,
-          email: user.email,
-          birthday: user.birthday,
-          firstname: user.firstname,
-          lastname: user.lastname
-        }))
-      );
+    // Consistent return format (array of objects)
+    res.status(200).json(users.map(user => ({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      birthday: user.birthday,
+      firstname: user.firstname,
+      lastname: user.lastname
+    })));
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error: " + err);
+    res.status(500).json({ error: "Failed to retrieve users", message: err.message });
   }
 });
 
 app.get("/admin/movies", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const movies = await Movies.find().populate("genre").populate("director");
-    res.status(200).json(
-      movies.map((movie) => ({
-        _id: movie._id,
-        title: movie.title,
-        description: movie.description,
-        genre: movie.genre ? { name: movie.genre.name } : null,
-        director: movie.director ? { name: movie.director.name } : null,
-        imagePath: movie.imagePath,
-        featured: movie.featured,
-      }))
-    );
+    // Consistent return format (array of objects)
+    res.status(200).json(movies.map(movie => ({
+      _id: movie._id,
+      title: movie.title,
+      description: movie.description,
+      genre: movie.genre ? { name: movie.genre.name } : null,
+      director: movie.director ? { name: movie.director.name } : null,
+      imagePath: movie.imagePath,
+      featured: movie.featured,
+    })));
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error: " + err);
+    res.status(500).json({ error: "Failed to retrieve movies", message: err.message });
   }
 });
 
@@ -773,7 +804,7 @@ app.get("/admin/genres", passport.authenticate('jwt', { session: false }), async
     res.status(200).json(genres);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error: " + err);
+    res.status(500).json({ error: "Failed to retrieve genres", message: err.message });
   }
 });
 
@@ -783,17 +814,25 @@ app.get("/admin/directors", passport.authenticate('jwt', { session: false }), as
     res.status(200).json(directors);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error: " + err);
+    res.status(500).json({ error: "Failed to retrieve directors", message: err.message });
   }
 });
 
 app.get("/admin/actors", passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const actors = await Actors.find();
-    res.status(200).json(actors);
+    // Consistent return format (array of objects)
+    res.status(200).json(actors.map(actor => ({
+      _id: actor._id,
+      name: actor.name,
+      bio: actor.bio,
+      birth: actor.birth,
+      death: actor.death,
+      pictureUrl: actor.pictureUrl
+    })));
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error: " + err);
+    res.status(500).json({ error: "Failed to retrieve actors", message: err.message });
   }
 });
 
