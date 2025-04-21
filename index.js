@@ -675,7 +675,7 @@ app.post("/actors",
       if (existingActor) {
         return res.status(400).json({ error: "Actor name already exists." });
       }
-      const newActor = new Actors({ name, bio, birth, death, pictureUrl });
+      const newActor = new Actors({ name, bio, birth, death, picture Url });
       const savedActor = await newActor.save();
       res.status(201).json(savedActor);
     } catch (err) {
