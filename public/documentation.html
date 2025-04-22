@@ -1,329 +1,479 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovieMobs API Documentation</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
-    <style>
-        body { font-family: sans-serif; line-height: 1.6; padding: 20px; } h1, h2, h3 { color: #333; }
-        h2 { border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 30px;} h3 { margin-top: 20px; }
-        code { background-color: #f4f4f4; padding: 2px 5px; border-radius: 3px; font-family: monospace; }
-        pre { background-color: #f4f4f4; padding: 10px; border-radius: 3px; overflow-x: auto; }
-        ul { margin-left: 20px; } li { margin-bottom: 5px; }
-        .endpoint { border: 1px solid #eee; padding: 15px; margin-bottom: 20px; border-radius: 5px; } .endpoint h3 { margin-top: 0; }
-        .method-get { color: blue; font-weight: bold;} .method-post { color: green; font-weight: bold;}
-        .method-put { color: orange; font-weight: bold;} .method-delete { color: red; font-weight: bold;}
-        .required { color: darkred; font-style: italic; } .auth-jwt { color: darkviolet; font-weight: bold; }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <title>THE MOVIEMOBS - API Documentation</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Moderustic:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.production.css" />
+     <style>
+        /* Optional basic styles for clarity if external CSS is missing */
+        /* These might be overridden by your external CSS */
+        body { font-family: "Moderustic", sans-serif; line-height: 1.6; padding: 15px; color: #333; }
+        h1, h2, h3, h4 { font-weight: bold; margin-top: 1.5em; margin-bottom: 0.5em; }
+        h1.header__title, h4.header__title { font-size: 2rem; color: #b42a2a; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); text-align: center; margin-bottom: 1em; }
+        h2 { font-size: 1.8rem; color: #048673; border-bottom: 1px solid #eee; padding-bottom: 0.3em; }
+        h3 { font-size: 1.5rem; color: #155da0; }
+        code { background-color: #f0f0f0; padding: 0.2em 0.4em; border-radius: 3px; font-family: monospace; font-size: 0.9em; }
+        pre code { display: block; background-color: #f0f0f0; padding: 1em; border-radius: 4px; white-space: pre-wrap; word-wrap: break-word; }
+        ul { list-style-type: disc; margin-left: 20px; }
+        li { margin-bottom: 0.5em; }
+        .table thead th { background-color: #155da0; color: white; } /* Example Bootstrap table header styling */
+        .profile { max-width: 1200px; } /* Ensure container isn't too wide */
+        .auth-jwt { color: darkviolet; font-weight: bold; }
         .auth-public { color: darkseagreen; font-weight: bold; }
+        .required { color: darkred; font-style: italic; }
+        .method-get { color: blue; font-weight: bold;}
+        .method-post { color: green; font-weight: bold;}
+        .method-put { color: orange; font-weight: bold;}
+        .method-delete { color: red; font-weight: bold;}
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <header></header>
+    <main class="profile container">
+      <h4 class="header__title text-center">
+        MovieMobs API Documentation
+      </h4>
+      <p>Here you will find the documentation for the MovieMobs API.</p>
+      <p>Base URL: <code>https://iecm-movies-app-6966360ed90e.herokuapp.com/</code> (or <code>http://localhost:8080</code> for local)</p>
 
-    <h1>MovieMobs API Documentation</h1>
-    <p>Welcome to the documentation for the MovieMobs REST API.</p>
-    <p>Base URL: <code>https://iecm-movies-app-6966360ed90e.herokuapp.com/</code> (or <code>http://localhost:8080</code> for local testing)</p>
+      <h2 id="summary">Summary Table</h2>
+      <table class="table table-bordered table-striped table-hover">
+          <thead class="thead-dark">
+          <tr>
+            <th>Endpoint Description</th>
+            <th>URL Path</th>
+            <th>HTTP Method</th>
+            <th>Authentication</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Login User</td><td>/login</td><td><span class="method-post">POST</span></td><td><span class="auth-public">Public</span></td></tr>
+          <tr><td>Register New User</td><td>/users</td><td><span class="method-post">POST</span></td><td><span class="auth-public">Public</span></td></tr>
+          <tr><td>Get User Profile</td><td>/users/:username</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Update User Profile</td><td>/users/:username</td><td><span class="method-put">PUT</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Add Favorite Movie</td><td>/users/:username/favorites/:movieId</td><td><span class="method-post">POST</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Remove Favorite Movie</td><td>/users/:username/favorites/:movieId</td><td><span class="method-delete">DELETE</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Deregister User</td><td>/users/:username</td><td><span class="method-delete">DELETE</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get All Movies</td><td>/movies</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get Movie by ID</td><td>/movies/:movieId</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get Movie by Title</td><td>/movies/title/:title</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get Movies by Genre Name</td><td>/movies/genre/:genreName</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get Movies by Director Name</td><td>/movies/director/:directorName</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Add New Movie</td><td>/movies</td><td><span class="method-post">POST</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Update Movie</td><td>/movies/:movieId</td><td><span class="method-put">PUT</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Delete Movie</td><td>/movies/:movieId</td><td><span class="method-delete">DELETE</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get Movie Actors</td><td>/movies/:movieId/actors</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get All Genres</td><td>/genres</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get Genre by Name</td><td>/genres/:name</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Add New Genre</td><td>/genres</td><td><span class="method-post">POST</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Update Genre</td><td>/genres/:name</td><td><span class="method-put">PUT</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Delete Genre</td><td>/genres/:name</td><td><span class="method-delete">DELETE</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get All Directors</td><td>/directors</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get Director by Name</td><td>/directors/name/:name</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+           <tr><td>Get Director by ID</td><td>/directors/:directorId</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Add New Director</td><td>/directors</td><td><span class="method-post">POST</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Update Director</td><td>/directors/:directorId</td><td><span class="method-put">PUT</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Delete Director</td><td>/directors/:directorId</td><td><span class="method-delete">DELETE</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get All Actors</td><td>/actors</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get Actors by Name</td><td>/actors/name/:name</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get Actor by ID</td><td>/actors/:actorId</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Add New Actor</td><td>/actors</td><td><span class="method-post">POST</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Update Actor</td><td>/actors/:actorId</td><td><span class="method-put">PUT</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Delete Actor</td><td>/actors/:actorId</td><td><span class="method-delete">DELETE</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get All Users (Admin)</td><td>/admin/users</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get All Movies (Admin)</td><td>/admin/movies</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get All Genres (Admin)</td><td>/admin/genres</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get All Directors (Admin)</td><td>/admin/directors</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+          <tr><td>Get All Actors (Admin)</td><td>/admin/actors</td><td><span class="method-get">GET</span></td><td><span class="auth-jwt">JWT</span></td></tr>
+        </tbody>
+      </table>
 
-    <h2>Authentication</h2>
-    <p>Most endpoints require authentication using a JSON Web Token (JWT). To obtain a token, you must first register a user (if you haven't already) and then log in via the <code>/login</code> endpoint.</p>
-    <p>Once you have a token, include it in the <code>Authorization</code> header for all protected requests:</p>
-    <pre><code>Authorization: Bearer [YOUR_JWT_TOKEN]</code></pre>
-    <p><strong>Important:</strong> The JWT signing and verification process relies on a secret key (<code>JWT_SECRET</code>) configured on the server using environment variables.</p>
+      <h2 id="authentication">Authentication</h2>
+      <p>Most endpoints require authentication using a JSON Web Token (JWT). Obtain a token via <code>POST /login</code>.</p>
+      <p>Include the token in the <code>Authorization</code> header for protected requests: <code>Authorization: Bearer [YOUR_JWT_TOKEN]</code></p>
+      <p>The JWT signing/verification relies on a <code>JWT_SECRET</code> environment variable configured on the server.</p>
 
-    <div class="endpoint">
-        <h3><span class="method-post">POST</span> /login</h3>
-        <p>Authenticates a user and returns user data along with a JWT.</p>
-        <p><strong>Authentication:</strong> <span class="auth-public">Public</span></p>
-        <strong>Request Body:</strong>
-        <ul><li><code>username</code> (<span class="required">Required</span>, String)</li><li><code>password</code> (<span class="required">Required</span>, String)</li></ul>
-        <pre><code>{ "username": "testuser", "password": "password123" }</code></pre>
-        <strong>Success Response (200 OK):</strong>
-        <p>Returns an object containing user details (excluding password) and the JWT.</p>
-        <pre><code>{ "user": { "_id": "...", "username": "...", ... }, "token": "eyJ..." }</code></pre>
-        <strong>Error Responses:</strong> 401 (invalid credentials), 500
-    </div>
+      <h3><span class="method-post">POST</span> /login</h3>
+      <p>Authenticates a user and returns user data along with a JWT.</p>
+      <ul>
+          <li><strong>Authentication:</strong> <span class="auth-public">Public</span></li>
+          <li><strong>Request Body:</strong> JSON object with <code>username</code> (String, Required) and <code>password</code> (String, Required).</li>
+          <li><strong>Success Response (200 OK):</strong> JSON object: <code>{ "user": { ...user details... }, "token": "eyJ..." }</code></li>
+          <li><strong>Error Responses:</strong> 401 (Invalid credentials), 500</li>
+      </ul>
 
-    <h2>User Endpoints</h2>
-    <div class="endpoint">
-        <h3><span class="method-post">POST</span> /users</h3>
-        <p>Registers a new user account.</p>
-        <p><strong>Authentication:</strong> <span class="auth-public">Public</span></p>
-        <strong>Request Body:</strong>
+      <h2 id="users">User Endpoints</h2>
+      <h3><span class="method-post">POST</span> /users</h3>
+      <p>Registers a new user account.</p>
+      <ul>
+          <li><strong>Authentication:</strong> <span class="auth-public">Public</span></li>
+          <li><strong>Request Body:</strong> JSON object:
+              <ul>
+                  <li><code>username</code> (<span class="required">Required</span>, String): Min 5 alphanumeric chars.</li>
+                  <li><code>password</code> (<span class="required">Required</span>, String): Min 8 chars.</li>
+                  <li><code>email</code> (<span class="required">Required</span>, String): Valid email format.</li>
+                  <li><code>birthday</code> (Optional, String): "YYYY-MM-DD".</li>
+                  <li><code>firstname</code> (Optional, String)</li>
+                  <li><code>lastname</code> (Optional, String)</li>
+              </ul>
+          </li>
+          <li><strong>Success Response (201 Created):</strong> JSON object of the new user (excluding password).</li>
+          <li><strong>Error Responses:</strong> 400 (validation, duplicate), 500</li>
+      </ul>
+
+      <h3><span class="method-get">GET</span> /users/:username</h3>
+      <p>Retrieves a user's profile information by username.</p>
+      <ul>
+          <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (User must match <code>:username</code>).</li>
+          <li><strong>URL Parameters:</strong> <code>:username</code> (Required, String).</li>
+          <li><strong>Success Response (200 OK):</strong> JSON user object (no password) with populated <code>favoriteMovies</code> array.</li>
+          <li><strong>Error Responses:</strong> 401, 403, 404, 500</li>
+      </ul>
+
+      <h3><span class="method-put">PUT</span> /users/:username</h3>
+      <p>Updates a user's profile information.</p>
+       <ul>
+          <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (User must match <code>:username</code>).</li>
+          <li><strong>URL Parameters:</strong> <code>:username</code> (Required, String).</li>
+          <li><strong>Request Body:</strong> JSON object with optional fields to update: <code>username</code> (String, Min 5 alphanumeric), <code>email</code> (String, valid format), <code>birthday</code> (String, "YYYY-MM-DD"), <code>firstname</code> (String), <code>lastname</code> (String).</li>
+          <li><strong>Success Response (200 OK):</strong> JSON object of the updated user (excluding password).</li>
+          <li><strong>Error Responses:</strong> 400 (validation, duplicate, no fields), 401, 403, 404, 500</li>
+      </ul>
+
+      <h3><span class="method-post">POST</span> /users/:username/favorites/:movieId</h3>
+      <p>Adds a movie to the user's list of favorite movies.</p>
+      <ul>
+          <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (User must match <code>:username</code>).</li>
+          <li><strong>URL Parameters:</strong> <code>:username</code> (Required, String), <code>:movieId</code> (Required, ObjectId String).</li>
+          <li><strong>Success Response (200 OK):</strong> JSON user object with updated, populated <code>favoriteMovies</code>.</li>
+          <li><strong>Error Responses:</strong> 400 (Invalid ID), 401, 403, 404 (User or Movie), 500</li>
+      </ul>
+
+      <h3><span class="method-delete">DELETE</span> /users/:username/favorites/:movieId</h3>
+      <p>Removes a movie from the user's list of favorite movies.</p>
+      <ul>
+          <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (User must match <code>:username</code>).</li>
+          <li><strong>URL Parameters:</strong> <code>:username</code> (Required, String), <code>:movieId</code> (Required, ObjectId String).</li>
+          <li><strong>Success Response (200 OK):</strong> JSON user object with updated, populated <code>favoriteMovies</code>.</li>
+          <li><strong>Error Responses:</strong> 400 (Invalid ID), 401, 403, 404 (User), 500</li>
+      </ul>
+
+      <h3><span class="method-delete">DELETE</span> /users/:username</h3>
+      <p>Deregisters a user account.</p>
+      <ul>
+          <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (User must match <code>:username</code>).</li>
+          <li><strong>URL Parameters:</strong> <code>:username</code> (Required, String).</li>
+          <li><strong>Success Response (200 OK):</strong> JSON: <code>{ "message": "User account '...' deleted successfully." }</code></li>
+          <li><strong>Error Responses:</strong> 401, 403, 404, 500</li>
+      </ul>
+
+      <h2 id="movies">Movie Endpoints</h2>
+      <h3><span class="method-get">GET</span> /movies</h3>
+      <p>Retrieves a list of all movies.</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>Success Response (200 OK):</strong> JSON array of movie objects (populated limited fields).</li>
+           <li><strong>Error Responses:</strong> 401, 500</li>
+      </ul>
+
+      <h3><span class="method-get">GET</span> /movies/:movieId</h3>
+      <p>Retrieves details for a single movie by its ID.</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>URL Parameters:</strong> <code>:movieId</code> (Required, ObjectId String).</li>
+           <li><strong>Success Response (200 OK):</strong> JSON object of the movie, fully populated.</li>
+           <li><strong>Error Responses:</strong> 400 (Invalid ID), 401, 404, 500</li>
+      </ul>
+
+      <h3><span class="method-get">GET</span> /movies/title/:title</h3>
+      <p>Retrieves details for a movie by its title (case-insensitive, exact match).</p>
+       <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>URL Parameters:</strong> <code>:title</code> (Required, String).</li>
+           <li><strong>Success Response (200 OK):</strong> JSON object of the movie, fully populated.</li>
+           <li><strong>Error Responses:</strong> 401, 404, 500</li>
+      </ul>
+
+       <h3><span class="method-get">GET</span> /movies/genre/:genreName</h3>
+      <p>Retrieves movies belonging to a specific genre (case-insensitive, exact match).</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>URL Parameters:</strong> <code>:genreName</code> (Required, String).</li>
+           <li><strong>Success Response (200 OK):</strong> JSON array of movie objects (populated limited fields).</li>
+           <li><strong>Error Responses:</strong> 401, 404 (Genre), 500</li>
+      </ul>
+
+      <h3><span class="method-get">GET</span> /movies/director/:directorName</h3>
+      <p>Retrieves movies directed by a specific director (case-insensitive, exact match).</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>URL Parameters:</strong> <code>:directorName</code> (Required, String).</li>
+           <li><strong>Success Response (200 OK):</strong> JSON array of movie objects (populated limited fields).</li>
+           <li><strong>Error Responses:</strong> 401, 404 (Director), 500</li>
+      </ul>
+
+       <h3><span class="method-post">POST</span> /movies</h3>
+      <p>Adds a new movie to the database.</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>Request Body:</strong> JSON object: <code>title</code>(Req), <code>description</code>(Req), <code>genre</code>(Req, Name), <code>director</code>(Req, Name), <code>actors</code>(Opt, Array[Name]), <code>imagePath</code>(Opt, URL), <code>featured</code>(Opt, Bool), <code>releaseYear</code>(Opt, Num), <code>rating</code>(Opt, Num).</li>
+           <li><strong>Success Response (201 Created):</strong> JSON object of the new movie, fully populated.</li>
+           <li><strong>Error Responses:</strong> 400 (validation, exists, ref not found), 401, 500</li>
+      </ul>
+
+      <h3><span class="method-put">PUT</span> /movies/:movieId</h3>
+      <p>Updates an existing movie's details.</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>URL Parameters:</strong> <code>:movieId</code> (Required, ObjectId String).</li>
+           <li><strong>Request Body:</strong> JSON object with optional fields to update (matching POST format).</li>
+           <li><strong>Success Response (200 OK):</strong> JSON object of the updated movie, fully populated.</li>
+           <li><strong>Error Responses:</strong> 400 (validation, Invalid ID, ref not found, no fields), 401, 404, 500</li>
+      </ul>
+
+      <h3><span class="method-delete">DELETE</span> /movies/:movieId</h3>
+      <p>Deletes a movie from the database.</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>URL Parameters:</strong> <code>:movieId</code> (Required, ObjectId String).</li>
+           <li><strong>Success Response (200 OK):</strong> JSON: <code>{ "message": "Movie '...' deleted successfully." }</code></li>
+           <li><strong>Error Responses:</strong> 400 (Invalid ID), 401, 404, 500</li>
+      </ul>
+
+      <h3><span class="method-get">GET</span> /movies/:movieId/actors</h3>
+      <p>Retrieves the list of actors for a specific movie.</p>
+       <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>URL Parameters:</strong> <code>:movieId</code> (Required, ObjectId String).</li>
+           <li><strong>Success Response (200 OK):</strong> JSON array of actor objects.</li>
+           <li><strong>Error Responses:</strong> 400 (Invalid ID), 401, 404 (Movie), 500</li>
+      </ul>
+
+      <h2 id="genres">Genre Endpoints</h2>
+      <h3><span class="method-get">GET</span> /genres</h3>
+      <p>Retrieves a list of all genres.</p>
+      <ul>
+          <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+          <li><strong>Success Response (200 OK):</strong> JSON array of genre objects.</li>
+          <li><strong>Error Responses:</strong> 401, 500</li>
+      </ul>
+
+      <h3><span class="method-get">GET</span> /genres/:name</h3>
+      <p>Retrieves details for a genre by name.</p>
+      <ul>
+          <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+          <li><strong>URL Parameters:</strong> <code>:name</code> (Required, String).</li>
+          <li><strong>Success Response (200 OK):</strong> JSON object of the genre.</li>
+          <li><strong>Error Responses:</strong> 401, 404, 500</li>
+      </ul>
+
+       <h3><span class="method-post">POST</span> /genres</h3>
+      <p>Adds a new genre.</p>
+      <ul>
+          <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+          <li><strong>Request Body:</strong> JSON: <code>name</code> (Required, String), <code>description</code> (Required, String).</li>
+          <li><strong>Success Response (201 Created):</strong> JSON object of the new genre.</li>
+          <li><strong>Error Responses:</strong> 400 (validation, duplicate), 401, 500</li>
+      </ul>
+
+       <h3><span class="method-put">PUT</span> /genres/:name</h3>
+      <p>Updates a genre's description.</p>
+      <ul>
+          <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+          <li><strong>URL Parameters:</strong> <code>:name</code> (Required, String).</li>
+          <li><strong>Request Body:</strong> JSON: <code>description</code> (Required, String).</li>
+          <li><strong>Success Response (200 OK):</strong> JSON object of the updated genre.</li>
+          <li><strong>Error Responses:</strong> 400 (validation), 401, 404, 500</li>
+      </ul>
+
+       <h3><span class="method-delete">DELETE</span> /genres/:name</h3>
+      <p>Deletes a genre. Fails if in use.</p>
+      <ul>
+          <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+          <li><strong>URL Parameters:</strong> <code>:name</code> (Required, String).</li>
+          <li><strong>Success Response (200 OK):</strong> JSON: <code>{ "message": "Genre '...' deleted." }</code></li>
+          <li><strong>Error Responses:</strong> 400 (in use), 401, 404, 500</li>
+      </ul>
+
+      <h2 id="directors">Director Endpoints</h2>
+      <h3><span class="method-get">GET</span> /directors</h3>
+      <p>Retrieves a list of all directors.</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>Success Response (200 OK):</strong> JSON array of director objects.</li>
+           <li><strong>Error Responses:</strong> 401, 500</li>
+      </ul>
+
+       <h3><span class="method-get">GET</span> /directors/name/:name</h3>
+      <p>Retrieves directors by name (partial match). Returns array.</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>URL Parameters:</strong> <code>:name</code> (Required, String).</li>
+           <li><strong>Success Response (200 OK):</strong> JSON array of matching director objects.</li>
+           <li><strong>Error Responses:</strong> 401, 404, 500</li>
+      </ul>
+
+       <h3><span class="method-get">GET</span> /directors/:directorId</h3>
+        <p>Retrieves details for a single director by ID.</p>
         <ul>
-            <li><code>username</code> (<span class="required">Required</span>, String): Min 5 alphanumeric.</li><li><code>password</code> (<span class="required">Required</span>, String): Min 8 chars.</li>
-            <li><code>email</code> (<span class="required">Required</span>, String): Valid email format.</li><li><code>birthday</code> (Optional, String): "YYYY-MM-DD".</li>
-            <li><code>firstname</code> (Optional, String)</li><li><code>lastname</code> (Optional, String)</li>
+            <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+            <li><strong>URL Parameters:</strong> <code>:directorId</code> (Required, ObjectId String).</li>
+            <li><strong>Success Response (200 OK):</strong> JSON object of the director.</li>
+            <li><strong>Error Responses:</strong> 400 (Invalid ID), 401, 404, 500</li>
         </ul>
-        <pre><code>{ "username": "newuser", "password": "password123", "email": "new@example.com", ... }</code></pre>
-        <strong>Success Response (201 Created):</strong> Returns new user object (no password).
-        <pre><code>{ "_id": "...", "username": "newuser", ... }</code></pre>
-        <strong>Error Responses:</strong> 400 (validation, duplicate), 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-get">GET</span> /users/:username</h3>
-        <p>Retrieves a user's profile information by username.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (User must match <code>:username</code>).</p>
-        <strong>URL Parameters:</strong> <code>:username</code> (Required)
-        <strong>Success Response (200 OK):</strong> Returns user object (no password) with populated favorites.
-        <pre><code>{ "_id": "...", "username": "...", "favoriteMovies": [ { "_id": "...", "title": "..." } ] }</code></pre>
-        <strong>Error Responses:</strong> 401, 403, 404, 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-put">PUT</span> /users/:username</h3>
-        <p>Updates a user's profile information.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (User must match <code>:username</code>).</p>
-        <strong>URL Parameters:</strong> <code>:username</code> (Required)
-        <strong>Request Body:</strong> (Optional fields: <code>username</code>, <code>email</code>, <code>birthday</code>, <code>firstname</code>, <code>lastname</code>)
-        <pre><code>{ "email": "updated@example.com" }</code></pre>
-        <strong>Success Response (200 OK):</strong> Returns updated user object (no password).
-        <pre><code>{ "_id": "...", "username": "...", ... }</code></pre>
-        <strong>Error Responses:</strong> 400 (validation, duplicate, no fields), 401, 403, 404, 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-post">POST</span> /users/:username/favorites/:movieId</h3>
-        <p>Adds a movie to the user's list of favorite movies.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (User must match <code>:username</code>).</p>
-        <strong>URL Parameters:</strong> <code>:username</code> (Required), <code>:movieId</code> (Required, ObjectId)
-        <strong>Success Response (200 OK):</strong> Returns updated user object with populated favorites.
-        <pre><code>{ "_id": "...", "username": "...", "favoriteMovies": [ ... ] }</code></pre>
-        <strong>Error Responses:</strong> 400 (Invalid ID), 401, 403, 404 (User or Movie), 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-delete">DELETE</span> /users/:username/favorites/:movieId</h3>
-        <p>Removes a movie from the user's list of favorite movies.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (User must match <code>:username</code>).</p>
-        <strong>URL Parameters:</strong> <code>:username</code> (Required), <code>:movieId</code> (Required, ObjectId)
-        <strong>Success Response (200 OK):</strong> Returns updated user object with populated favorites.
-        <pre><code>{ "_id": "...", "username": "...", "favoriteMovies": [ ... ] }</code></pre>
-         <strong>Error Responses:</strong> 400 (Invalid ID), 401, 403, 404 (User), 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-delete">DELETE</span> /users/:username</h3>
-        <p>Deregisters a user account.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (User must match <code>:username</code>).</p>
-        <strong>URL Parameters:</strong> <code>:username</code> (Required)
-        <strong>Success Response (200 OK):</strong> <pre><code>{ "message": "User account \"...\" deleted successfully." }</code></pre>
-        <strong>Error Responses:</strong> 401, 403, 404, 500
-    </div>
 
-    <h2>Movie Endpoints</h2>
-    <div class="endpoint">
-        <h3><span class="method-get">GET</span> /movies</h3>
-        <p>Retrieves a list of all movies.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>Success Response (200 OK):</strong> Returns array of movie objects (populated, limited fields).
-        <pre><code>[ { "_id": "...", "title": "...", "genre": {...}, "director": {...}, "actors": [{...}], ... } ]</code></pre>
-        <strong>Error Responses:</strong> 401, 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-get">GET</span> /movies/:movieId</h3>
-        <p>Retrieves details for a single movie by its ID.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong> <code>:movieId</code> (Required, ObjectId)
-        <strong>Success Response (200 OK):</strong> Returns single movie object, fully populated.
-        <pre><code>{ "_id": "...", "title": "...", /* full details */ }</code></pre>
-        <strong>Error Responses:</strong> 400 (Invalid ID), 401, 404, 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-get">GET</span> /movies/title/:title</h3>
-        <p>Retrieves details for a movie by its title (case-insensitive, exact match).</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong> <code>:title</code> (Required)
-         <strong>Success Response (200 OK):</strong> Returns single movie object, fully populated.
-         <pre><code>{ /* ... movie details ... */ }</code></pre>
-        <strong>Error Responses:</strong> 401, 404, 500
-    </div>
-     <div class="endpoint">
-        <h3><span class="method-get">GET</span> /movies/genre/:genreName</h3>
-        <p>Retrieves movies belonging to a specific genre (case-insensitive, exact match).</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong> <code>:genreName</code> (Required)
-         <strong>Success Response (200 OK):</strong> Returns array of movie objects (populated, limited fields).
-         <pre><code>[ { /* ... movie details ... */ } ]</code></pre>
-        <strong>Error Responses:</strong> 401, 404 (Genre), 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-get">GET</span> /movies/director/:directorName</h3>
-        <p>Retrieves movies directed by a specific director (case-insensitive, exact match).</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong> <code>:directorName</code> (Required)
-        <strong>Success Response (200 OK):</strong> Returns array of movie objects (populated, limited fields).
-         <pre><code>[ { /* ... movie details ... */ } ]</code></pre>
-        <strong>Error Responses:</strong> 401, 404 (Director), 500
-    </div>
-     <div class="endpoint">
-        <h3><span class="method-post">POST</span> /movies</h3>
-        <p>Adds a new movie to the database (consider admin-only).</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>Request Body:</strong> <code>title</code>(Req), <code>description</code>(Req), <code>genre</code>(Req, Name), <code>director</code>(Req, Name), <code>actors</code>(Opt, Array[Name]), <code>imagePath</code>(Opt, URL), <code>featured</code>(Opt, Bool), <code>releaseYear</code>(Opt, Num), <code>rating</code>(Opt, Num)
-        <pre><code>{ "title": "...", ... }</code></pre>
-        <strong>Success Response (201 Created):</strong> Returns new movie object, fully populated.
-         <pre><code>{ /* ... movie details ... */ }</code></pre>
-        <strong>Error Responses:</strong> 400 (validation, exists, ref not found), 401, 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-put">PUT</span> /movies/:movieId</h3>
-        <p>Updates an existing movie's details (consider admin-only).</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-         <strong>URL Parameters:</strong> <code>:movieId</code> (Required, ObjectId)
-        <strong>Request Body:</strong> (Optional fields matching POST /movies)
-        <pre><code>{ "description": "Updated.", ... }</code></pre>
-        <strong>Success Response (200 OK):</strong> Returns updated movie object, fully populated.
-         <pre><code>{ /* ... updated movie details ... */ }</code></pre>
-        <strong>Error Responses:</strong> 400 (validation, Invalid ID, ref not found, no fields), 401, 404, 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-delete">DELETE</span> /movies/:movieId</h3>
-        <p>Deletes a movie from the database (consider admin-only).</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-         <strong>URL Parameters:</strong> <code>:movieId</code> (Required, ObjectId)
-        <strong>Success Response (200 OK):</strong> <pre><code>{ "message": "Movie \"...\" deleted." }</code></pre>
-        <strong>Error Responses:</strong> 400 (Invalid ID), 401, 404, 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-get">GET</span> /movies/:movieId/actors</h3>
-        <p>Retrieves the list of actors for a specific movie.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong> <code>:movieId</code> (Required, ObjectId)
-        <strong>Success Response (200 OK):</strong> Returns array of actor objects.
-        <pre><code>[ { "_id": "...", "name": "...", ... } ]</code></pre>
-        <strong>Error Responses:</strong> 400 (Invalid ID), 401, 404 (Movie), 500
-    </div>
+      <h3><span class="method-post">POST</span> /directors</h3>
+      <p>Adds a new director.</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>Request Body:</strong> JSON: <code>name</code>(Req), <code>bio</code>(Req), <code>birth</code>(Req, Date String "YYYY-MM-DD"), <code>death</code>(Opt, Date String "YYYY-MM-DD").</li>
+           <li><strong>Success Response (201 Created):</strong> JSON object of the new director.</li>
+           <li><strong>Error Responses:</strong> 400(validation, duplicate), 401, 500</li>
+      </ul>
 
-    <h2>Genre Endpoints</h2>
-    <p>Endpoints for managing movie genres. CRUD might be admin-only.</p>
-    <div class="endpoint">
-        <h3><span class="method-get">GET</span> /genres</h3>
-        <p>Retrieves a list of all genres.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>Success Response (200 OK):</strong> Returns array of genre objects. <pre><code>[ { "_id": "...", "name": "...", ... } ]</code></pre> <strong>Error Responses:</strong> 401, 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-get">GET</span> /genres/:name</h3>
-        <p>Retrieves details for a genre by name.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong> <code>:name</code> (Req) <strong>Success:</strong> Returns genre object. <pre><code>{ "_id": "...", ... }</code></pre> <strong>Errors:</strong> 401, 404, 500
-    </div>
-     <div class="endpoint">
-        <h3><span class="method-post">POST</span> /genres</h3>
-        <p>Adds a new genre.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>Request Body:</strong> <code>name</code>(Req), <code>description</code>(Req) <pre><code>{ "name": "...", ... }</code></pre>
-        <strong>Success:</strong> Returns new genre object. <pre><code>{ "_id": "...", ... }</code></pre> <strong>Errors:</strong> 400(validation, duplicate), 401, 500
-    </div>
-     <div class="endpoint">
-        <h3><span class="method-put">PUT</span> /genres/:name</h3>
-        <p>Updates a genre's description.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong> <code>:name</code> (Req) <strong>Request Body:</strong> <code>description</code>(Req) <pre><code>{ "description": "..." }</code></pre>
-        <strong>Success:</strong> Returns updated genre object. <pre><code>{ "_id": "...", ... }</code></pre> <strong>Errors:</strong> 400(validation), 401, 404, 500
-    </div>
-     <div class="endpoint">
-        <h3><span class="method-delete">DELETE</span> /genres/:name</h3>
-        <p>Deletes a genre. Fails if in use.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong> <code>:name</code> (Req) <strong>Success:</strong> <pre><code>{ "message": "Genre deleted." }</code></pre> <strong>Errors:</strong> 400(in use), 401, 404, 500
-    </div>
+       <h3><span class="method-put">PUT</span> /directors/:directorId</h3>
+      <p>Updates a director's details.</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>URL Parameters:</strong> <code>:directorId</code> (Required, ObjectId String).</li>
+           <li><strong>Request Body:</strong> JSON object with optional fields: <code>name</code>, <code>bio</code>, <code>birth</code>, <code>death</code>.</li>
+           <li><strong>Success Response (200 OK):</strong> JSON object of the updated director.</li>
+           <li><strong>Error Responses:</strong> 400(validation, Invalid ID, name conflict, no fields), 401, 404, 500</li>
+      </ul>
 
-    <h2>Director Endpoints</h2>
-    <p>Endpoints for managing movie directors. CRUD might be admin-only.</p>
-    <div class="endpoint">
-        <h3><span class="method-get">GET</span> /directors</h3>
-        <p>Retrieves a list of all directors.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>Success:</strong> Returns array of director objects. <pre><code>[ { "_id": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 500
-    </div>
-     <div class="endpoint">
-        <h3><span class="method-get">GET</span> /directors/name/:name</h3>
-        <p>Retrieves directors by name (partial match). Returns array.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong> <code>:name</code> (Req) <strong>Success:</strong> Returns array of matching directors. <pre><code>[ { "_id": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 404, 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-post">POST</span> /directors</h3>
-        <p>Adds a new director.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>Request Body:</strong> <code>name</code>(Req), <code>bio</code>(Req), <code>birth</code>(Req, Date), <code>death</code>(Opt, Date) <pre><code>{ "name": "...", ... }</code></pre>
-        <strong>Success:</strong> Returns new director object. <pre><code>{ "_id": "...", ... }</code></pre> <strong>Errors:</strong> 400(validation, duplicate), 401, 500
-    </div>
-     <div class="endpoint">
-        <h3><span class="method-put">PUT</span> /directors/:directorId</h3>
-        <p>Updates a director's details.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-         <strong>URL Parameters:</strong> <code>:directorId</code> (Req, ObjectId) <strong>Request Body:</strong> (Optional: <code>name</code>, <code>bio</code>, <code>birth</code>, <code>death</code>) <pre><code>{ "bio": "..." }</code></pre>
-        <strong>Success:</strong> Returns updated director object. <pre><code>{ "_id": "...", ... }</code></pre> <strong>Errors:</strong> 400(validation, Invalid ID, name conflict, no fields), 401, 404, 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-delete">DELETE</span> /directors/:directorId</h3>
-        <p>Deletes a director. Fails if assigned.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-         <strong>URL Parameters:</strong> <code>:directorId</code> (Req, ObjectId) <strong>Success:</strong> <pre><code>{ "message": "Director deleted." }</code></pre> <strong>Errors:</strong> 400(Invalid ID, in use), 401, 404, 500
-    </div>
+      <h3><span class="method-delete">DELETE</span> /directors/:directorId</h3>
+      <p>Deletes a director. Fails if assigned.</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>URL Parameters:</strong> <code>:directorId</code> (Required, ObjectId String).</li>
+           <li><strong>Success Response (200 OK):</strong> JSON: <code>{ "message": "Director '...' deleted." }</code></li>
+           <li><strong>Error Responses:</strong> 400(Invalid ID, in use), 401, 404, 500</li>
+      </ul>
 
-    <h2>Actor Endpoints</h2>
-    <p>Endpoints for managing movie actors. CRUD might be admin-only.</p>
-    <div class="endpoint">
-        <h3><span class="method-get">GET</span> /actors</h3>
-        <p>Retrieves a list of all actors.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>Success:</strong> Returns array of actor objects. <pre><code>[ { "_id": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 500
-    </div>
-     <div class="endpoint">
-        <h3><span class="method-get">GET</span> /actors/name/:name</h3>
-        <p>Retrieves actors by name (partial match). Returns array.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong> <code>:name</code> (Req) <strong>Success:</strong> Returns array of matching actors. <pre><code>[ { "_id": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 404, 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-get">GET</span> /actors/:actorId</h3>
-        <p>Retrieves details for a single actor by ID.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong> <code>:actorId</code> (Req, ObjectId) <strong>Success:</strong> Returns single actor object. <pre><code>{ "_id": "...", ... }</code></pre> <strong>Errors:</strong> 400(Invalid ID), 401, 404, 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-post">POST</span> /actors</h3>
-        <p>Adds a new actor.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>Request Body:</strong> <code>name</code>(Req), <code>bio</code>(Req), <code>birth</code>(Req, Date), <code>death</code>(Opt, Date), <code>pictureUrl</code>(Opt, URL) <pre><code>{ "name": "...", ... }</code></pre>
-        <strong>Success:</strong> Returns new actor object. <pre><code>{ "_id": "...", ... }</code></pre> <strong>Errors:</strong> 400(validation, duplicate), 401, 500
-    </div>
-     <div class="endpoint">
-        <h3><span class="method-put">PUT</span> /actors/:actorId</h3>
-        <p>Updates an actor's details.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-         <strong>URL Parameters:</strong> <code>:actorId</code> (Req, ObjectId) <strong>Request Body:</strong> (Optional: <code>name</code>, <code>bio</code>, <code>birth</code>, <code>death</code>, <code>pictureUrl</code>) <pre><code>{ "bio": "..." }</code></pre>
-        <strong>Success:</strong> Returns updated actor object. <pre><code>{ "_id": "...", ... }</code></pre> <strong>Errors:</strong> 400(validation, Invalid ID, name conflict, no fields), 401, 404, 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-delete">DELETE</span> /actors/:actorId</h3>
-        <p>Deletes an actor. Fails if assigned.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-         <strong>URL Parameters:</strong> <code>:actorId</code> (Req, ObjectId) <strong>Success:</strong> <pre><code>{ "message": "Actor deleted." }</code></pre> <strong>Errors:</strong> 400(Invalid ID, in use), 401, 404, 500
-    </div>
+      <h2 id="actors">Actor Endpoints</h2>
+      <h3><span class="method-get">GET</span> /actors</h3>
+      <p>Retrieves a list of all actors.</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>Success Response (200 OK):</strong> JSON array of actor objects.</li>
+           <li><strong>Error Responses:</strong> 401, 500</li>
+      </ul>
 
-    <h2>Admin Endpoints</h2>
-    <p>These endpoints provide access to potentially sensitive lists and might require specific 'admin' role authorization in a full implementation.</p>
-    <div class="endpoint">
-        <h3><span class="method-get">GET</span> /admin/users</h3>
-        <p>Retrieves a list of all registered users (excluding passwords).</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (Admin role likely required).</p>
-        <strong>Success:</strong> Returns array of user objects. <pre><code>[ { "_id": "...", "username": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 403, 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-get">GET</span> /admin/movies</h3>
-        <p>Retrieves a list of all movies with basic populated info.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (Admin role likely required).</p>
-        <strong>Success:</strong> Returns array of movie objects. <pre><code>[ { "_id": "...", "title": "...", "genre": { "name": "..." }, ... } ]</code></pre> <strong>Errors:</strong> 401, 403, 500
-    </div>
-     <div class="endpoint">
-        <h3><span class="method-get">GET</span> /admin/genres</h3>
-        <p>Retrieves a list of all genres.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (Admin role likely required).</p>
-        <strong>Success:</strong> Returns array of genre objects. <pre><code>[ { "_id": "...", "name": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 403, 500
-    </div>
-     <div class="endpoint">
-        <h3><span class="method-get">GET</span> /admin/directors</h3>
-        <p>Retrieves a list of all directors.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (Admin role likely required).</p>
-        <strong>Success:</strong> Returns array of director objects. <pre><code>[ { "_id": "...", "name": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 403, 500
-    </div>
-    <div class="endpoint">
-        <h3><span class="method-get">GET</span> /admin/actors</h3>
-        <p>Retrieves a list of all actors.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (Admin role likely required).</p>
-        <strong>Success:</strong> Returns array of actor objects. <pre><code>[ { "_id": "...", "name": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 403, 500
-    </div>
+       <h3><span class="method-get">GET</span> /actors/name/:name</h3>
+      <p>Retrieves actors by name (partial match). Returns array.</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>URL Parameters:</strong> <code>:name</code> (Required, String).</li>
+           <li><strong>Success Response (200 OK):</strong> JSON array of matching actor objects.</li>
+           <li><strong>Error Responses:</strong> 401, 404, 500</li>
+      </ul>
 
-    <h2 id="data-objects">Data Models</h2>
-    <div><h3>Movie Model Schema</h3><ul><li><code>_id</code></li><li><code>title</code>(Req)</li><li><code>description</code>(Req)</li><li><code>genre</code>(Req, Ref)</li><li><code>director</code>(Req, Ref)</li><li><code>actors</code>(Array[Ref])</li><li><code>imagePath</code></li><li><code>featured</code></li><li><code>releaseYear</code></li><li><code>rating</code></li></ul></div>
-    <div><h3>User Model Schema</h3><ul><li><code>_id</code></li><li><code>username</code>(Req, Unique)</li><li><code>password</code>(Req, Hash)</li><li><code>email</code>(Req, Unique)</li><li><code>birthday</code></li><li><code>firstname</code></li><li><code>lastname</code></li><li><code>favoriteMovies</code>(Array[Ref])</li></ul></div>
-    <div><h3>Genre Model Schema</h3><ul><li><code>_id</code></li><li><code>name</code>(Req, Unique)</li><li><code>description</code>(Req)</li></ul></div>
-    <div><h3>Director Model Schema</h3><ul><li><code>_id</code></li><li><code>name</code>(Req, Unique)</li><li><code>bio</code>(Req)</li><li><code>birth</code>(Req)</li><li><code>death</code>(Nullable)</li></ul></div>
-    <div><h3>Actor Model Schema</h3><ul><li><code>_id</code></li><li><code>name</code>(Req, Unique)</li><li><code>bio</code>(Req)</li><li><code>birth</code>(Req)</li><li><code>death</code>(Nullable)</li><li><code>pictureUrl</code>(Nullable)</li></ul></div>
+      <h3><span class="method-get">GET</span> /actors/:actorId</h3>
+      <p>Retrieves details for a single actor by ID.</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>URL Parameters:</strong> <code>:actorId</code> (Required, ObjectId String).</li>
+           <li><strong>Success Response (200 OK):</strong> JSON object of the actor.</li>
+           <li><strong>Error Responses:</strong> 400(Invalid ID), 401, 404, 500</li>
+      </ul>
 
-    <h2>Error Responses</h2>
-    <p>Common HTTP status codes:</p><ul><li><code>200 OK</code></li><li><code>201 Created</code></li><li><code>400 Bad Request</code></li><li><code>401 Unauthorized</code></li><li><code>403 Forbidden</code></li><li><code>404 Not Found</code></li><li><code>500 Internal Server Error</code></li></ul>
-    <p>Error format:</p><pre><code>{ "error": "Descriptive error message here" }</code></pre>
-    <p>Validation error format:</p><pre><code>{ "errors": [ { "type": "field", /*...*/ "msg": "..." } ] }</code></pre>
+      <h3><span class="method-post">POST</span> /actors</h3>
+      <p>Adds a new actor.</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>Request Body:</strong> JSON: <code>name</code>(Req), <code>bio</code>(Req), <code>birth</code>(Req, Date String "YYYY-MM-DD"), <code>death</code>(Opt, Date String "YYYY-MM-DD"), <code>pictureUrl</code>(Opt, URL String).</li>
+           <li><strong>Success Response (201 Created):</strong> JSON object of the new actor.</li>
+           <li><strong>Error Responses:</strong> 400(validation, duplicate), 401, 500</li>
+      </ul>
 
-</body>
+       <h3><span class="method-put">PUT</span> /actors/:actorId</h3>
+      <p>Updates an actor's details.</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>URL Parameters:</strong> <code>:actorId</code> (Required, ObjectId String).</li>
+           <li><strong>Request Body:</strong> JSON object with optional fields: <code>name</code>, <code>bio</code>, <code>birth</code>, <code>death</code>, <code>pictureUrl</code>.</li>
+           <li><strong>Success Response (200 OK):</strong> JSON object of the updated actor.</li>
+           <li><strong>Error Responses:</strong> 400(validation, Invalid ID, name conflict, no fields), 401, 404, 500</li>
+      </ul>
+
+      <h3><span class="method-delete">DELETE</span> /actors/:actorId</h3>
+      <p>Deletes an actor. Fails if assigned.</p>
+      <ul>
+           <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></li>
+           <li><strong>URL Parameters:</strong> <code>:actorId</code> (Required, ObjectId String).</li>
+           <li><strong>Success Response (200 OK):</strong> JSON: <code>{ "message": "Actor '...' deleted." }</code></li>
+           <li><strong>Error Responses:</strong> 400(Invalid ID, in use), 401, 404, 500</li>
+      </ul>
+
+      <h2 id="admin">Admin Endpoints</h2>
+      <p>These endpoints provide access to potentially sensitive lists and might require specific 'admin' role authorization in a full implementation (Admin check currently bypassed for testing).</p>
+      <h3><span class="method-get">GET</span> /admin/users</h3>
+      <p>Retrieves a list of all registered users (excluding passwords).</p>
+      <ul>
+          <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (Admin role likely required).</li>
+          <li><strong>Success Response (200 OK):</strong> JSON array of user objects.</li>
+          <li><strong>Error Responses:</strong> 401, 403, 500</li>
+      </ul>
+
+      <h3><span class="method-get">GET</span> /admin/movies</h3>
+      <p>Retrieves a list of all movies with basic populated info.</p>
+      <ul>
+          <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (Admin role likely required).</li>
+          <li><strong>Success Response (200 OK):</strong> JSON array of movie objects.</li>
+          <li><strong>Error Responses:</strong> 401, 403, 500</li>
+      </ul>
+
+       <h3><span class="method-get">GET</span> /admin/genres</h3>
+      <p>Retrieves a list of all genres.</p>
+      <ul>
+          <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (Admin role likely required).</li>
+          <li><strong>Success Response (200 OK):</strong> JSON array of genre objects.</li>
+          <li><strong>Error Responses:</strong> 401, 403, 500</li>
+      </ul>
+
+       <h3><span class="method-get">GET</span> /admin/directors</h3>
+      <p>Retrieves a list of all directors.</p>
+      <ul>
+          <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (Admin role likely required).</li>
+          <li><strong>Success Response (200 OK):</strong> JSON array of director objects.</li>
+          <li><strong>Error Responses:</strong> 401, 403, 500</li>
+      </ul>
+
+      <h3><span class="method-get">GET</span> /admin/actors</h3>
+      <p>Retrieves a list of all actors.</p>
+      <ul>
+          <li><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (Admin role likely required).</li>
+          <li><strong>Success Response (200 OK):</strong> JSON array of actor objects.</li>
+          <li><strong>Error Responses:</strong> 401, 403, 500</li>
+      </ul>
+
+      <h2 id="data-models">Data Models</h2>
+      <div><h3>Movie Model Schema</h3><ul><li><code>_id</code></li><li><code>title</code>(Req)</li><li><code>description</code>(Req)</li><li><code>genre</code>(Req, Ref)</li><li><code>director</code>(Req, Ref)</li><li><code>actors</code>(Array[Ref])</li><li><code>imagePath</code></li><li><code>featured</code></li><li><code>releaseYear</code></li><li><code>rating</code></li></ul></div>
+      <div><h3>User Model Schema</h3><ul><li><code>_id</code></li><li><code>username</code>(Req, Unique)</li><li><code>password</code>(Req, Hash)</li><li><code>email</code>(Req, Unique)</li><li><code>birthday</code></li><li><code>firstname</code></li><li><code>lastname</code></li><li><code>favoriteMovies</code>(Array[Ref])</li></ul></div>
+      <div><h3>Genre Model Schema</h3><ul><li><code>_id</code></li><li><code>name</code>(Req, Unique)</li><li><code>description</code>(Req)</li></ul></div>
+      <div><h3>Director Model Schema</h3><ul><li><code>_id</code></li><li><code>name</code>(Req, Unique)</li><li><code>bio</code>(Req)</li><li><code>birth</code>(Req)</li><li><code>death</code>(Nullable)</li></ul></div>
+      <div><h3>Actor Model Schema</h3><ul><li><code>_id</code></li><li><code>name</code>(Req, Unique)</li><li><code>bio</code>(Req)</li><li><code>birth</code>(Req)</li><li><code>death</code>(Nullable)</li><li><code>pictureUrl</code>(Nullable)</li></ul></div>
+
+      <h2 id="error-responses">Error Responses</h2>
+      <p>Common HTTP status codes:</p><ul><li><code>200 OK</code></li><li><code>201 Created</code></li><li><code>400 Bad Request</code></li><li><code>401 Unauthorized</code></li><li><code>403 Forbidden</code></li><li><code>404 Not Found</code></li><li><code>500 Internal Server Error</code></li></ul>
+      <p>Error format:</p><pre><code>{ "error": "Descriptive error message here" }</code></pre>
+      <p>Validation error format:</p><pre><code>{ "errors": [ { "type": "field", /*...*/ "msg": "..." } ] }</code></pre>
+
+    </main>
+    <footer></footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@"></script>
+    <script src="index.js"></script>
+  </body>
 </html>
