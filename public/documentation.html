@@ -6,72 +6,39 @@
     <title>MovieMobs API Documentation</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
     <style>
-        /* Basic styles if styles.css is missing or for better structure */
-        body { font-family: sans-serif; line-height: 1.6; padding: 20px; }
-        h1, h2, h3 { color: #333; }
-        h2 { border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 30px;}
-        h3 { margin-top: 20px; }
+        body { font-family: sans-serif; line-height: 1.6; padding: 20px; } h1, h2, h3 { color: #333; }
+        h2 { border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 30px;} h3 { margin-top: 20px; }
         code { background-color: #f4f4f4; padding: 2px 5px; border-radius: 3px; font-family: monospace; }
         pre { background-color: #f4f4f4; padding: 10px; border-radius: 3px; overflow-x: auto; }
-        ul { margin-left: 20px; }
-        li { margin-bottom: 5px; }
-        .endpoint { border: 1px solid #eee; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
-        .endpoint h3 { margin-top: 0; }
-        .method-get { color: blue; font-weight: bold;}
-        .method-post { color: green; font-weight: bold;}
-        .method-put { color: orange; font-weight: bold;}
-        .method-delete { color: red; font-weight: bold;}
-        .required { color: darkred; font-style: italic; }
-        .auth-jwt { color: darkviolet; font-weight: bold; }
+        ul { margin-left: 20px; } li { margin-bottom: 5px; }
+        .endpoint { border: 1px solid #eee; padding: 15px; margin-bottom: 20px; border-radius: 5px; } .endpoint h3 { margin-top: 0; }
+        .method-get { color: blue; font-weight: bold;} .method-post { color: green; font-weight: bold;}
+        .method-put { color: orange; font-weight: bold;} .method-delete { color: red; font-weight: bold;}
+        .required { color: darkred; font-style: italic; } .auth-jwt { color: darkviolet; font-weight: bold; }
         .auth-public { color: darkseagreen; font-weight: bold; }
     </style>
 </head>
 <body>
-
     <h1>MovieMobs API Documentation</h1>
     <p>Welcome to the documentation for the MovieMobs REST API.</p>
     <p>Base URL: <code>[Your Deployed API Base URL]</code> (e.g., https://your-app-name.herokuapp.com or http://localhost:8080)</p>
-
     <h2>Authentication</h2>
     <p>Most endpoints require authentication using a JSON Web Token (JWT). To obtain a token, you must first register a user (if you haven't already) and then log in via the <code>/login</code> endpoint.</p>
     <p>Once you have a token, include it in the <code>Authorization</code> header for all protected requests:</p>
     <pre><code>Authorization: Bearer [YOUR_JWT_TOKEN]</code></pre>
-    <p><strong>Important:</strong> The JWT signing and verification process relies on a secret key. This key must be set as an environment variable named <code>JWT_SECRET</code> on the server where the API is running.</p>
-
+    <p><strong>Important:</strong> The JWT signing and verification process relies on a secret key (<code>JWT_SECRET</code>) configured on the server using environment variables.</p>
     <div class="endpoint">
         <h3><span class="method-post">POST</span> /login</h3>
         <p>Authenticates a user and returns user data along with a JWT.</p>
         <p><strong>Authentication:</strong> <span class="auth-public">Public</span></p>
         <strong>Request Body:</strong>
-        <ul>
-            <li><code>username</code> (<span class="required">Required</span>, String): The user's registered username.</li>
-            <li><code>password</code> (<span class="required">Required</span>, String): The user's password.</li>
-        </ul>
-        <pre><code>{
-    "username": "testuser",
-    "password": "password123"
-}</code></pre>
+        <ul><li><code>username</code> (<span class="required">Required</span>, String)</li><li><code>password</code> (<span class="required">Required</span>, String)</li></ul>
+        <pre><code>{ "username": "testuser", "password": "password123" }</code></pre>
         <strong>Success Response (200 OK):</strong>
         <p>Returns an object containing user details (excluding password) and the JWT.</p>
-        <pre><code>{
-    "user": {
-        "_id": "60d...",
-        "username": "testuser",
-        "email": "test@example.com",
-        "birthday": "1990-01-01T00:00:00.000Z",
-        "firstname": "Test",
-        "lastname": "User",
-        "favoriteMovies": []
-    },
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>401 Unauthorized</code>: Incorrect username or password (check message for details).</li>
-            <li><code>500 Internal Server Error</code>: Server issue during login.</li>
-        </ul>
+        <pre><code>{ "user": { "_id": "...", "username": "...", ... }, "token": "eyJ..." }</code></pre>
+        <strong>Error Responses:</strong> 401 (invalid credentials), 500
     </div>
-
     <h2>User Endpoints</h2>
     <div class="endpoint">
         <h3><span class="method-post">POST</span> /users</h3>
@@ -79,1018 +46,272 @@
         <p><strong>Authentication:</strong> <span class="auth-public">Public</span></p>
         <strong>Request Body:</strong>
         <ul>
-            <li><code>username</code> (<span class="required">Required</span>, String): Min 5 alphanumeric characters.</li>
-            <li><code>password</code> (<span class="required">Required</span>, String): Min 8 characters.</li>
-            <li><code>email</code> (<span class="required">Required</span>, String): Must be a valid email format.</li>
-            <li><code>birthday</code> (Optional, String): ISO 8601 date format (e.g., "YYYY-MM-DD").</li>
-            <li><code>firstname</code> (Optional, String): User's first name.</li>
-            <li><code>lastname</code> (Optional, String): User's last name.</li>
+            <li><code>username</code> (<span class="required">Required</span>, String): Min 5 alphanumeric.</li><li><code>password</code> (<span class="required">Required</span>, String): Min 8 chars.</li>
+            <li><code>email</code> (<span class="required">Required</span>, String): Valid email format.</li><li><code>birthday</code> (Optional, String): "YYYY-MM-DD".</li>
+            <li><code>firstname</code> (Optional, String)</li><li><code>lastname</code> (Optional, String)</li>
         </ul>
-        <pre><code>{
-    "username": "newuser",
-    "password": "password123",
-    "email": "new@example.com",
-    "birthday": "1995-05-15",
-    "firstname": "New",
-    "lastname": "User"
-}</code></pre>
-        <strong>Success Response (201 Created):</strong>
-        <p>Returns the newly created user object (excluding the password).</p>
-        <pre><code>{
-    "_id": "60d...",
-    "username": "newuser",
-    "email": "new@example.com",
-    "birthday": "1995-05-15T00:00:00.000Z",
-    "firstname": "New",
-    "lastname": "User",
-    "favoriteMovies": []
-}</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>400 Bad Request</code>: Validation errors (e.g., username too short, invalid email) or username/email already exists.</li>
-            <li><code>500 Internal Server Error</code>: Server issue during registration.</li>
-        </ul>
+        <pre><code>{ "username": "newuser", "password": "password123", "email": "new@example.com", ... }</code></pre>
+        <strong>Success Response (201 Created):</strong> Returns new user object (no password).
+        <pre><code>{ "_id": "...", "username": "newuser", ... }</code></pre>
+        <strong>Error Responses:</strong> 400 (validation, duplicate), 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-get">GET</span> /users/:username</h3>
         <p>Retrieves a user's profile information by username.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (User must match <code>:username</code> or be an admin).</p>
-        <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:username</code> (<span class="required">Required</span>, String): The username of the user to retrieve.</li>
-        </ul>
-        <strong>Success Response (200 OK):</strong>
-        <p>Returns the user object (excluding password) with populated favorite movies.</p>
-        <pre><code>{
-    "_id": "60d...",
-    "username": "testuser",
-    "email": "test@example.com",
-    "birthday": "1990-01-01T00:00:00.000Z",
-    "firstname": "Test",
-    "lastname": "User",
-    "favoriteMovies": [
-        { "_id": "movie...", "title": "Inception", /* other movie fields potentially */ }
-        // ... other favorite movies
-    ]
-}</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>403 Forbidden</code>: Authenticated user does not match <code>:username</code>.</li>
-            <li><code>404 Not Found</code>: User with the specified username not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (User must match <code>:username</code>).</p>
+        <strong>URL Parameters:</strong> <code>:username</code> (Required)
+        <strong>Success Response (200 OK):</strong> Returns user object (no password) with populated favorites.
+        <pre><code>{ "_id": "...", "username": "...", "favoriteMovies": [ { "_id": "...", "title": "..." } ] }</code></pre>
+        <strong>Error Responses:</strong> 401, 403, 404, 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-put">PUT</span> /users/:username</h3>
         <p>Updates a user's profile information.</p>
         <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (User must match <code>:username</code>).</p>
-        <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:username</code> (<span class="required">Required</span>, String): The username of the user to update.</li>
-        </ul>
-        <strong>Request Body:</strong> (Include only fields to be updated)
-        <ul>
-            <li><code>username</code> (Optional, String): New username (Min 5 alphanumeric).</li>
-            <li><code>email</code> (Optional, String): New email (must be valid format).</li>
-            <li><code>birthday</code> (Optional, String): New birthday (ISO 8601 format).</li>
-            <li><code>firstname</code> (Optional, String): New first name.</li>
-            <li><code>lastname</code> (Optional, String): New last name.</li>
-            <li><em>Note: Password updates require a separate, dedicated endpoint (not implemented here).</em></li>
-        </ul>
-        <pre><code>{
-    "email": "updated.email@example.com",
-    "firstname": "UpdatedFirstName"
-}</code></pre>
-        <strong>Success Response (200 OK):</strong>
-        <p>Returns the updated user object (excluding password).</p>
-        <pre><code>{
-    "_id": "60d...",
-    "username": "testuser", // Or new username if changed
-    "email": "updated.email@example.com",
-    "birthday": "1990-01-01T00:00:00.000Z",
-    "firstname": "UpdatedFirstName",
-    "lastname": "User",
-    "favoriteMovies": [] // Example
-}</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>400 Bad Request</code>: Validation errors or if new username/email is already taken by another user.</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>403 Forbidden</code>: Authenticated user does not match <code>:username</code>.</li>
-            <li><code>404 Not Found</code>: User with the specified username not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <strong>URL Parameters:</strong> <code>:username</code> (Required)
+        <strong>Request Body:</strong> (Optional fields: <code>username</code>, <code>email</code>, <code>birthday</code>, <code>firstname</code>, <code>lastname</code>)
+        <pre><code>{ "email": "updated@example.com" }</code></pre>
+        <strong>Success Response (200 OK):</strong> Returns updated user object (no password).
+        <pre><code>{ "_id": "...", "username": "...", ... }</code></pre>
+        <strong>Error Responses:</strong> 400 (validation, duplicate, no fields), 401, 403, 404, 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-post">POST</span> /users/:username/favorites/:movieId</h3>
         <p>Adds a movie to the user's list of favorite movies.</p>
         <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (User must match <code>:username</code>).</p>
-        <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:username</code> (<span class="required">Required</span>, String): The username of the user.</li>
-            <li><code>:movieId</code> (<span class="required">Required</span>, String): The MongoDB ObjectId of the movie to add.</li>
-        </ul>
-        <strong>Success Response (200 OK):</strong>
-        <p>Returns the updated user object with the populated list of favorite movies.</p>
-        <pre><code>{
-    "_id": "60d...",
-    "username": "testuser",
-    // ... other user fields
-    "favoriteMovies": [
-        { "_id": "movie_id_1...", "title": "Existing Favorite Movie", /* etc */ },
-        { "_id": "movieId...", "title": "Newly Added Movie", /* etc */ }
-    ]
-}</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>400 Bad Request</code>: Invalid Movie ID format.</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>403 Forbidden</code>: Authenticated user does not match <code>:username</code>.</li>
-            <li><code>404 Not Found</code>: User or Movie not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <strong>URL Parameters:</strong> <code>:username</code> (Required), <code>:movieId</code> (Required, ObjectId)
+        <strong>Success Response (200 OK):</strong> Returns updated user object with populated favorites.
+        <pre><code>{ "_id": "...", "username": "...", "favoriteMovies": [ ... ] }</code></pre>
+        <strong>Error Responses:</strong> 400 (Invalid ID), 401, 403, 404 (User or Movie), 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-delete">DELETE</span> /users/:username/favorites/:movieId</h3>
         <p>Removes a movie from the user's list of favorite movies.</p>
         <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (User must match <code>:username</code>).</p>
-        <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:username</code> (<span class="required">Required</span>, String): The username of the user.</li>
-            <li><code>:movieId</code> (<span class="required">Required</span>, String): The MongoDB ObjectId of the movie to remove.</li>
-        </ul>
-        <strong>Success Response (200 OK):</strong>
-        <p>Returns the updated user object with the populated list of favorite movies.</p>
-        <pre><code>{
-    "_id": "60d...",
-    "username": "testuser",
-    // ... other user fields
-    "favoriteMovies": [
-        { "_id": "movie_id_1...", "title": "Remaining Favorite Movie", /* etc */ }
-    ]
-}</code></pre>
-         <strong>Error Responses:</strong>
-        <ul>
-            <li><code>400 Bad Request</code>: Invalid Movie ID format.</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>403 Forbidden</code>: Authenticated user does not match <code>:username</code>.</li>
-            <li><code>404 Not Found</code>: User not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <strong>URL Parameters:</strong> <code>:username</code> (Required), <code>:movieId</code> (Required, ObjectId)
+        <strong>Success Response (200 OK):</strong> Returns updated user object with populated favorites.
+        <pre><code>{ "_id": "...", "username": "...", "favoriteMovies": [ ... ] }</code></pre>
+         <strong>Error Responses:</strong> 400 (Invalid ID), 401, 403, 404 (User), 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-delete">DELETE</span> /users/:username</h3>
         <p>Deregisters a user account.</p>
         <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (User must match <code>:username</code>).</p>
-        <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:username</code> (<span class="required">Required</span>, String): The username of the user to delete.</li>
-        </ul>
-        <strong>Success Response (200 OK):</strong>
-        <pre><code>{
-    "message": "User account \"testuser\" deleted successfully."
-}</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>403 Forbidden</code>: Authenticated user does not match <code>:username</code>.</li>
-            <li><code>404 Not Found</code>: User with the specified username not found (or already deleted).</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <strong>URL Parameters:</strong> <code>:username</code> (Required)
+        <strong>Success Response (200 OK):</strong> <pre><code>{ "message": "User account \"...\" deleted successfully." }</code></pre>
+        <strong>Error Responses:</strong> 401, 403, 404, 500
     </div>
-
     <h2>Movie Endpoints</h2>
     <div class="endpoint">
         <h3><span class="method-get">GET</span> /movies</h3>
         <p>Retrieves a list of all movies.</p>
         <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>Success Response (200 OK):</strong>
-        <p>Returns an array of movie objects, with Genre, Director, and Actors populated (showing limited fields for brevity).</p>
-        <pre><code>[
-    {
-        "_id": "movie1...",
-        "title": "Inception",
-        "description": "A thief who steals information by entering people's dreams...",
-        "genre": { "_id": "genre1...", "name": "Sci-Fi", "description": "..." },
-        "director": { "_id": "director1...", "name": "Christopher Nolan", "bio": "..." },
-        "actors": [
-             { "_id": "actor1...", "name": "Leonardo DiCaprio" },
-             { "_id": "actor2...", "name": "Joseph Gordon-Levitt" }
-        ],
-        "imagePath": "url/to/image.jpg",
-        "featured": true,
-        "releaseYear": 2010,
-        "rating": 8.8
-    },
-    // ... more movies
-]</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <strong>Success Response (200 OK):</strong> Returns array of movie objects (populated, limited fields).
+        <pre><code>[ { "_id": "...", "title": "...", "genre": {...}, "director": {...}, "actors": [{...}], ... } ]</code></pre>
+        <strong>Error Responses:</strong> 401, 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-get">GET</span> /movies/:movieId</h3>
         <p>Retrieves details for a single movie by its ID.</p>
         <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:movieId</code> (<span class="required">Required</span>, String): The MongoDB ObjectId of the movie.</li>
-        </ul>
-        <strong>Success Response (200 OK):</strong>
-        <p>Returns a single movie object, fully populated.</p>
-        <pre><code>{
-    "_id": "movie1...",
-    "title": "Inception",
-    "description": "A thief who steals information by entering people's dreams...",
-    "genre": { "_id": "genre1...", "name": "Sci-Fi", "description": "..." },
-    "director": { "_id": "director1...", "name": "Christopher Nolan", "bio": "...", "birth": "...", "death": null },
-    "actors": [
-        { "_id": "actor1...", "name": "Leonardo DiCaprio", "bio": "...", "birth": "...", "death": null, "pictureUrl": "..." },
-        { "_id": "actor2...", "name": "Joseph Gordon-Levitt", /* ... */ }
-    ],
-    "imagePath": "url/to/image.jpg",
-    "featured": true,
-    "releaseYear": 2010,
-    "rating": 8.8
-}</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>400 Bad Request</code>: Invalid Movie ID format.</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>404 Not Found</code>: Movie with the specified ID not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <strong>URL Parameters:</strong> <code>:movieId</code> (Required, ObjectId)
+        <strong>Success Response (200 OK):</strong> Returns single movie object, fully populated.
+        <pre><code>{ "_id": "...", "title": "...", /* full details */ }</code></pre>
+        <strong>Error Responses:</strong> 400 (Invalid ID), 401, 404, 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-get">GET</span> /movies/title/:title</h3>
-        <p>Retrieves details for a single movie by its title (case-insensitive, exact match).</p>
+        <p>Retrieves details for a movie by its title (case-insensitive, exact match).</p>
         <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:title</code> (<span class="required">Required</span>, String): The exact title of the movie (URL-encoded if necessary).</li>
-        </ul>
-         <strong>Success Response (200 OK):</strong>
-        <p>Returns a single movie object, fully populated.</p>
-         <pre><code>{
-    "_id": "movie1...",
-    "title": "Inception",
-    // ... (similar structure as GET /movies/:movieId)
-}</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>404 Not Found</code>: Movie with the specified title not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <strong>URL Parameters:</strong> <code>:title</code> (Required)
+         <strong>Success Response (200 OK):</strong> Returns single movie object, fully populated.
+         <pre><code>{ /* ... movie details ... */ }</code></pre>
+        <strong>Error Responses:</strong> 401, 404, 500
     </div>
-
      <div class="endpoint">
         <h3><span class="method-get">GET</span> /movies/genre/:genreName</h3>
-        <p>Retrieves all movies belonging to a specific genre (case-insensitive, exact match).</p>
+        <p>Retrieves movies belonging to a specific genre (case-insensitive, exact match).</p>
         <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:genreName</code> (<span class="required">Required</span>, String): The name of the genre.</li>
-        </ul>
-         <strong>Success Response (200 OK):</strong>
-        <p>Returns an array of movie objects matching the genre, populated with limited fields.</p>
-         <pre><code>[
-    {
-        "_id": "movie1...",
-        "title": "Inception",
-        "genre": { "_id": "genre1...", "name": "Sci-Fi" },
-        "director": { "_id": "director1...", "name": "Christopher Nolan" },
-        "actors": [ { "_id": "actor1...", "name": "Leonardo DiCaprio" }, /* ... */ ],
-        "imagePath": "url/to/image.jpg",
-        "featured": true,
-        "releaseYear": 2010,
-        "rating": 8.8
-    },
-    // ... other movies in the same genre
-]</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>404 Not Found</code>: Genre with the specified name not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <strong>URL Parameters:</strong> <code>:genreName</code> (Required)
+         <strong>Success Response (200 OK):</strong> Returns array of movie objects (populated, limited fields).
+         <pre><code>[ { /* ... movie details ... */ } ]</code></pre>
+        <strong>Error Responses:</strong> 401, 404 (Genre), 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-get">GET</span> /movies/director/:directorName</h3>
-        <p>Retrieves all movies directed by a specific director (case-insensitive, exact match).</p>
+        <p>Retrieves movies directed by a specific director (case-insensitive, exact match).</p>
         <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:directorName</code> (<span class="required">Required</span>, String): The name of the director.</li>
-        </ul>
-        <strong>Success Response (200 OK):</strong>
-        <p>Returns an array of movie objects matching the director, populated with limited fields.</p>
-         <pre><code>[
-    {
-        "_id": "movie1...",
-        "title": "Inception",
-        "genre": { "_id": "genre1...", "name": "Sci-Fi" },
-        "director": { "_id": "director1...", "name": "Christopher Nolan" },
-        "actors": [ { "_id": "actor1...", "name": "Leonardo DiCaprio" }, /* ... */ ],
-        "imagePath": "url/to/image.jpg",
-        "featured": true,
-        "releaseYear": 2010,
-        "rating": 8.8
-    },
-    // ... other movies by the same director
-]</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>404 Not Found</code>: Director with the specified name not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <strong>URL Parameters:</strong> <code>:directorName</code> (Required)
+        <strong>Success Response (200 OK):</strong> Returns array of movie objects (populated, limited fields).
+         <pre><code>[ { /* ... movie details ... */ } ]</code></pre>
+        <strong>Error Responses:</strong> 401, 404 (Director), 500
     </div>
-
      <div class="endpoint">
         <h3><span class="method-post">POST</span> /movies</h3>
         <p>Adds a new movie to the database (consider admin-only).</p>
         <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>Request Body:</strong>
-        <ul>
-            <li><code>title</code> (<span class="required">Required</span>, String): Movie title.</li>
-            <li><code>description</code> (<span class="required">Required</span>, String): Movie description.</li>
-            <li><code>genre</code> (<span class="required">Required</span>, String): Name of an existing genre.</li>
-            <li><code>director</code> (<span class="required">Required</span>, String): Name of an existing director.</li>
-            <li><code>actors</code> (Optional, Array of Strings): Array of existing actor names.</li>
-            <li><code>imagePath</code> (Optional, String): URL to the movie poster/image.</li>
-            <li><code>featured</code> (Optional, Boolean): Whether the movie is featured.</li>
-            <li><code>releaseYear</code> (Optional, Number): Year of release.</li>
-            <li><code>rating</code> (Optional, Number): Rating (0-10).</li>
-        </ul>
-        <pre><code>{
-    "title": "The Dark Knight",
-    "description": "When the menace known as the Joker wreaks havoc...",
-    "genre": "Action",
-    "director": "Christopher Nolan",
-    "actors": ["Christian Bale", "Heath Ledger", "Aaron Eckhart"],
-    "imagePath": "url/to/dark_knight.jpg",
-    "featured": true,
-    "releaseYear": 2008,
-    "rating": 9.0
-}</code></pre>
-        <strong>Success Response (201 Created):</strong>
-        <p>Returns the newly created movie object, fully populated.</p>
-         <pre><code>{
-    "_id": "movie_new...",
-    "title": "The Dark Knight",
-    // ... other fields populated
-}</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-             <li><code>400 Bad Request</code>: Validation errors, movie title already exists, or specified Genre/Director/Actor(s) not found.</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <strong>Request Body:</strong> <code>title</code>(Req), <code>description</code>(Req), <code>genre</code>(Req, Name), <code>director</code>(Req, Name), <code>actors</code>(Opt, Array[Name]), <code>imagePath</code>(Opt, URL), <code>featured</code>(Opt, Bool), <code>releaseYear</code>(Opt, Num), <code>rating</code>(Opt, Num)
+        <pre><code>{ "title": "...", ... }</code></pre>
+        <strong>Success Response (201 Created):</strong> Returns new movie object, fully populated.
+         <pre><code>{ /* ... movie details ... */ }</code></pre>
+        <strong>Error Responses:</strong> 400 (validation, exists, ref not found), 401, 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-put">PUT</span> /movies/:movieId</h3>
         <p>Updates an existing movie's details (consider admin-only).</p>
         <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-         <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:movieId</code> (<span class="required">Required</span>, String): The MongoDB ObjectId of the movie to update.</li>
-        </ul>
-        <strong>Request Body:</strong> (Include only fields to be updated)
-        <ul>
-            <li><code>title</code> (Optional, String): Movie title.</li>
-            <li><code>description</code> (Optional, String): Movie description.</li>
-            <li><code>genre</code> (Optional, String): Name of an existing genre.</li>
-            <li><code>director</code> (Optional, String): Name of an existing director.</li>
-            <li><code>actors</code> (Optional, Array of Strings): Array of existing actor names (replaces entire existing actor list for the movie).</li>
-            <li><code>imagePath</code> (Optional, String): URL to the movie poster/image.</li>
-            <li><code>featured</code> (Optional, Boolean): Whether the movie is featured.</li>
-            <li><code>releaseYear</code> (Optional, Number): Year of release.</li>
-            <li><code>rating</code> (Optional, Number): Rating (0-10).</li>
-        </ul>
-        <pre><code>{
-    "description": "An updated description.",
-    "featured": false,
-    "rating": 9.1
-}</code></pre>
-        <strong>Success Response (200 OK):</strong>
-        <p>Returns the updated movie object, fully populated.</p>
-         <pre><code>{
-    "_id": "movie1...", // Same ID as updated movie
-    "title": "Inception",
-    "description": "An updated description.",
-    "featured": false,
-    "rating": 9.1,
-     // ... other fields populated
-}</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-             <li><code>400 Bad Request</code>: Validation errors, Invalid Movie ID, specified Genre/Director/Actor(s) not found, or no valid fields provided.</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>404 Not Found</code>: Movie with the specified ID not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+         <strong>URL Parameters:</strong> <code>:movieId</code> (Required, ObjectId)
+        <strong>Request Body:</strong> (Optional fields matching POST /movies)
+        <pre><code>{ "description": "Updated.", ... }</code></pre>
+        <strong>Success Response (200 OK):</strong> Returns updated movie object, fully populated.
+         <pre><code>{ /* ... updated movie details ... */ }</code></pre>
+        <strong>Error Responses:</strong> 400 (validation, Invalid ID, ref not found, no fields), 401, 404, 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-delete">DELETE</span> /movies/:movieId</h3>
         <p>Deletes a movie from the database (consider admin-only).</p>
         <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-         <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:movieId</code> (<span class="required">Required</span>, String): The MongoDB ObjectId of the movie to delete.</li>
-        </ul>
-        <strong>Success Response (200 OK):</strong>
-        <pre><code>{
-    "message": "Movie \"Inception\" deleted successfully."
-}</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>400 Bad Request</code>: Invalid Movie ID format.</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>404 Not Found</code>: Movie with the specified ID not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+         <strong>URL Parameters:</strong> <code>:movieId</code> (Required, ObjectId)
+        <strong>Success Response (200 OK):</strong> <pre><code>{ "message": "Movie \"...\" deleted." }</code></pre>
+        <strong>Error Responses:</strong> 400 (Invalid ID), 401, 404, 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-get">GET</span> /movies/:movieId/actors</h3>
         <p>Retrieves the list of actors for a specific movie.</p>
         <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:movieId</code> (<span class="required">Required</span>, String): The MongoDB ObjectId of the movie.</li>
-        </ul>
-        <strong>Success Response (200 OK):</strong>
-        <p>Returns an array of actor objects associated with the movie.</p>
-        <pre><code>[
-    {
-        "_id": "actor1...",
-        "name": "Leonardo DiCaprio",
-        "bio": "...",
-        "birth": "...",
-        "death": null,
-        "pictureUrl": "..."
-    },
-    // ... other actors in the movie
-]</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>400 Bad Request</code>: Invalid Movie ID format.</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>404 Not Found</code>: Movie with the specified ID not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <strong>URL Parameters:</strong> <code>:movieId</code> (Required, ObjectId)
+        <strong>Success Response (200 OK):</strong> Returns array of actor objects.
+        <pre><code>[ { "_id": "...", "name": "...", ... } ]</code></pre>
+        <strong>Error Responses:</strong> 400 (Invalid ID), 401, 404 (Movie), 500
     </div>
-
     <h2>Genre Endpoints</h2>
-    <p>Endpoints for managing movie genres. CRUD operations might be restricted to admin users in a production environment.</p>
-
+    <p>Endpoints for managing movie genres. CRUD might be admin-only.</p>
     <div class="endpoint">
         <h3><span class="method-get">GET</span> /genres</h3>
-        <p>Retrieves a list of all movie genres.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>Success Response (200 OK):</strong>
-        <p>Returns an array of genre objects.</p>
-        <pre><code>[
-    {
-        "_id": "genre1...",
-        "name": "Sci-Fi",
-        "description": "Science fiction is a genre..."
-    },
-    {
-        "_id": "genre2...",
-        "name": "Action",
-        "description": "Action film is a film genre..."
-    }
-    // ... more genres
-]</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p>Retrieves a list of all genres.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
+        <strong>Success Response (200 OK):</strong> Returns array of genre objects. <pre><code>[ { "_id": "...", "name": "...", ... } ]</code></pre> <strong>Error Responses:</strong> 401, 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-get">GET</span> /genres/:name</h3>
-        <p>Retrieves details for a single genre by its name (case-insensitive, exact match).</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:name</code> (<span class="required">Required</span>, String): The name of the genre.</li>
-        </ul>
-         <strong>Success Response (200 OK):</strong>
-        <p>Returns a single genre object.</p>
-        <pre><code>{
-    "_id": "genre1...",
-    "name": "Sci-Fi",
-    "description": "Science fiction is a genre..."
-}</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>404 Not Found</code>: Genre with the specified name not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p>Retrieves details for a genre by name.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
+        <strong>URL Parameters:</strong> <code>:name</code> (Req) <strong>Success:</strong> Returns genre object. <pre><code>{ "_id": "...", ... }</code></pre> <strong>Errors:</strong> 401, 404, 500
     </div>
-
      <div class="endpoint">
         <h3><span class="method-post">POST</span> /genres</h3>
-        <p>Adds a new genre (consider admin-only).</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>Request Body:</strong>
-        <ul>
-            <li><code>name</code> (<span class="required">Required</span>, String): Genre name.</li>
-            <li><code>description</code> (<span class="required">Required</span>, String): Genre description.</li>
-        </ul>
-        <pre><code>{
-    "name": "Thriller",
-    "description": "A genre characterized by suspense..."
-}</code></pre>
-        <strong>Success Response (201 Created):</strong>
-        <p>Returns the newly created genre object.</p>
-         <pre><code>{
-    "_id": "genre_new...",
-    "name": "Thriller",
-    "description": "A genre characterized by suspense..."
-}</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-             <li><code>400 Bad Request</code>: Validation errors or genre name already exists.</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p>Adds a new genre.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
+        <strong>Request Body:</strong> <code>name</code>(Req), <code>description</code>(Req) <pre><code>{ "name": "...", ... }</code></pre>
+        <strong>Success:</strong> Returns new genre object. <pre><code>{ "_id": "...", ... }</code></pre> <strong>Errors:</strong> 400(validation, duplicate), 401, 500
     </div>
-
      <div class="endpoint">
         <h3><span class="method-put">PUT</span> /genres/:name</h3>
-        <p>Updates a genre's description (consider admin-only).</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:name</code> (<span class="required">Required</span>, String): The current name of the genre to update.</li>
-        </ul>
-        <strong>Request Body:</strong>
-        <ul>
-            <li><code>description</code> (<span class="required">Required</span>, String): The new description for the genre.</li>
-             </ul>
-        <pre><code>{
-    "description": "An updated description for the Thriller genre."
-}</code></pre>
-        <strong>Success Response (200 OK):</strong>
-        <p>Returns the updated genre object.</p>
-         <pre><code>{
-    "_id": "genre_thriller...",
-    "name": "Thriller", // Or new name if updated
-    "description": "An updated description for the Thriller genre."
-}</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>400 Bad Request</code>: Validation errors.</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>404 Not Found</code>: Genre with the specified name not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p>Updates a genre's description.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
+        <strong>URL Parameters:</strong> <code>:name</code> (Req) <strong>Request Body:</strong> <code>description</code>(Req) <pre><code>{ "description": "..." }</code></pre>
+        <strong>Success:</strong> Returns updated genre object. <pre><code>{ "_id": "...", ... }</code></pre> <strong>Errors:</strong> 400(validation), 401, 404, 500
     </div>
-
      <div class="endpoint">
         <h3><span class="method-delete">DELETE</span> /genres/:name</h3>
-        <p>Deletes a genre (consider admin-only). Fails if genre is in use by movies.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:name</code> (<span class="required">Required</span>, String): The name of the genre to delete.</li>
-        </ul>
-        <strong>Success Response (200 OK):</strong>
-        <pre><code>{
-    "message": "Genre \"Thriller\" deleted successfully."
-}</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>400 Bad Request</code>: Genre is currently assigned to one or more movies.</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>404 Not Found</code>: Genre with the specified name not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p>Deletes a genre. Fails if in use.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
+        <strong>URL Parameters:</strong> <code>:name</code> (Req) <strong>Success:</strong> <pre><code>{ "message": "Genre deleted." }</code></pre> <strong>Errors:</strong> 400(in use), 401, 404, 500
     </div>
-
-
     <h2>Director Endpoints</h2>
-    <p>Endpoints for managing movie directors. CRUD operations might be restricted to admin users.</p>
-
+    <p>Endpoints for managing movie directors. CRUD might be admin-only.</p>
     <div class="endpoint">
         <h3><span class="method-get">GET</span> /directors</h3>
-        <p>Retrieves a list of all movie directors.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>Success Response (200 OK):</strong>
-        <p>Returns an array of director objects.</p>
-        <pre><code>[
-    {
-        "_id": "director1...",
-        "name": "Christopher Nolan",
-        "bio": "British-American film director...",
-        "birth": "1970-07-30T00:00:00.000Z",
-        "death": null
-    },
-    // ... more directors
-]</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p>Retrieves a list of all directors.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
+        <strong>Success:</strong> Returns array of director objects. <pre><code>[ { "_id": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 500
     </div>
-
      <div class="endpoint">
         <h3><span class="method-get">GET</span> /directors/name/:name</h3>
-        <p>Retrieves details for directors by name (case-insensitive, partial match). Returns an array.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:name</code> (<span class="required">Required</span>, String): The name (or partial name) of the director.</li>
-        </ul>
-         <strong>Success Response (200 OK):</strong>
-        <p>Returns an array of matching director objects.</p>
-        <pre><code>[
-    {
-        "_id": "director1...",
-        "name": "Christopher Nolan",
-         // ... other fields
-    }
-    // Potentially other directors if partial match used
-]</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>404 Not Found</code>: No directors found matching the specified name.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p>Retrieves directors by name (partial match). Returns array.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
+        <strong>URL Parameters:</strong> <code>:name</code> (Req) <strong>Success:</strong> Returns array of matching directors. <pre><code>[ { "_id": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 404, 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-post">POST</span> /directors</h3>
-        <p>Adds a new director (consider admin-only).</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>Request Body:</strong>
-        <ul>
-            <li><code>name</code> (<span class="required">Required</span>, String): Director's full name.</li>
-            <li><code>bio</code> (<span class="required">Required</span>, String): Biography text.</li>
-            <li><code>birth</code> (<span class="required">Required</span>, String): Birth date (ISO 8601 format).</li>
-            <li><code>death</code> (Optional, String): Death date (ISO 8601 format), or null/omit if alive.</li>
-        </ul>
-         <pre><code>{
-    "name": "Quentin Tarantino",
-    "bio": "American film director, screenwriter...",
-    "birth": "1963-03-27",
-    "death": null
-}</code></pre>
-        <strong>Success Response (201 Created):</strong>
-        <p>Returns the newly created director object.</p>
-         <pre><code>{
-    "_id": "director_new...",
-    "name": "Quentin Tarantino",
-    // ... other fields
-}</code></pre>
-         <strong>Error Responses:</strong>
-        <ul>
-             <li><code>400 Bad Request</code>: Validation errors or director name already exists (duplicate).</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p>Adds a new director.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
+        <strong>Request Body:</strong> <code>name</code>(Req), <code>bio</code>(Req), <code>birth</code>(Req, Date), <code>death</code>(Opt, Date) <pre><code>{ "name": "...", ... }</code></pre>
+        <strong>Success:</strong> Returns new director object. <pre><code>{ "_id": "...", ... }</code></pre> <strong>Errors:</strong> 400(validation, duplicate), 401, 500
     </div>
-
      <div class="endpoint">
         <h3><span class="method-put">PUT</span> /directors/:directorId</h3>
-        <p>Updates a director's details (consider admin-only).</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-         <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:directorId</code> (<span class="required">Required</span>, String): The MongoDB ObjectId of the director to update.</li>
-        </ul>
-        <strong>Request Body:</strong> (Include only fields to be updated)
-        <ul>
-            <li><code>name</code> (Optional, String): Director's full name.</li>
-            <li><code>bio</code> (Optional, String): Biography text.</li>
-            <li><code>birth</code> (Optional, String): Birth date (ISO 8601 format).</li>
-            <li><code>death</code> (Optional, String/null): Death date (ISO 8601 format) or null.</li>
-        </ul>
-        <pre><code>{
-    "bio": "Updated biography details."
-}</code></pre>
-        <strong>Success Response (200 OK):</strong>
-        <p>Returns the updated director object.</p>
-         <pre><code>{
-    "_id": "director1...", // Same ID
-    "name": "Christopher Nolan",
-    "bio": "Updated biography details.",
-    // ... other fields
-}</code></pre>
-         <strong>Error Responses:</strong>
-        <ul>
-            <li><code>400 Bad Request</code>: Validation errors, Invalid Director ID, name conflict if name is changed, or no valid fields provided.</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-             <li><code>404 Not Found</code>: Director with the specified ID not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p>Updates a director's details.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
+         <strong>URL Parameters:</strong> <code>:directorId</code> (Req, ObjectId) <strong>Request Body:</strong> (Optional: <code>name</code>, <code>bio</code>, <code>birth</code>, <code>death</code>) <pre><code>{ "bio": "..." }</code></pre>
+        <strong>Success:</strong> Returns updated director object. <pre><code>{ "_id": "...", ... }</code></pre> <strong>Errors:</strong> 400(validation, Invalid ID, name conflict, no fields), 401, 404, 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-delete">DELETE</span> /directors/:directorId</h3>
-        <p>Deletes a director (consider admin-only). Fails if director is assigned to movies.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-         <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:directorId</code> (<span class="required">Required</span>, String): The MongoDB ObjectId of the director to delete.</li>
-        </ul>
-        <strong>Success Response (200 OK):</strong>
-        <pre><code>{
-    "message": "Director \"Christopher Nolan\" deleted successfully."
-}</code></pre>
-         <strong>Error Responses:</strong>
-        <ul>
-             <li><code>400 Bad Request</code>: Invalid Director ID or Director is currently assigned to one or more movies.</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-             <li><code>404 Not Found</code>: Director with the specified ID not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p>Deletes a director. Fails if assigned.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
+         <strong>URL Parameters:</strong> <code>:directorId</code> (Req, ObjectId) <strong>Success:</strong> <pre><code>{ "message": "Director deleted." }</code></pre> <strong>Errors:</strong> 400(Invalid ID, in use), 401, 404, 500
     </div>
-
-
     <h2>Actor Endpoints</h2>
-    <p>Endpoints for managing movie actors. CRUD operations might be restricted to admin users.</p>
-
+    <p>Endpoints for managing movie actors. CRUD might be admin-only.</p>
     <div class="endpoint">
         <h3><span class="method-get">GET</span> /actors</h3>
-        <p>Retrieves a list of all movie actors.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>Success Response (200 OK):</strong>
-        <p>Returns an array of actor objects.</p>
-        <pre><code>[
-    {
-        "_id": "actor1...",
-        "name": "Leonardo DiCaprio",
-        "bio": "American actor and film producer...",
-        "birth": "1974-11-11T00:00:00.000Z",
-        "death": null,
-        "pictureUrl": "url/to/leo.jpg"
-    },
-    // ... more actors
-]</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p>Retrieves a list of all actors.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
+        <strong>Success:</strong> Returns array of actor objects. <pre><code>[ { "_id": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 500
     </div>
-
      <div class="endpoint">
         <h3><span class="method-get">GET</span> /actors/name/:name</h3>
-        <p>Retrieves details for actors by name (case-insensitive, partial match). Returns an array.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:name</code> (<span class="required">Required</span>, String): The name (or partial name) of the actor.</li>
-        </ul>
-         <strong>Success Response (200 OK):</strong>
-        <p>Returns an array of matching actor objects.</p>
-        <pre><code>[
-    {
-        "_id": "actor1...",
-        "name": "Leonardo DiCaprio",
-        // ... other fields
-    }
-    // Potentially others if partial match used
-]</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>404 Not Found</code>: No actors found matching the specified name.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p>Retrieves actors by name (partial match). Returns array.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
+        <strong>URL Parameters:</strong> <code>:name</code> (Req) <strong>Success:</strong> Returns array of matching actors. <pre><code>[ { "_id": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 404, 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-get">GET</span> /actors/:actorId</h3>
-        <p>Retrieves details for a single actor by ID.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:actorId</code> (<span class="required">Required</span>, String): The MongoDB ObjectId of the actor.</li>
-        </ul>
-         <strong>Success Response (200 OK):</strong>
-        <p>Returns a single actor object.</p>
-        <pre><code>{
-    "_id": "actor1...",
-    "name": "Leonardo DiCaprio",
-    // ... other fields
-}</code></pre>
-        <strong>Error Responses:</strong>
-        <ul>
-            <li><code>400 Bad Request</code>: Invalid Actor ID format.</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>404 Not Found</code>: Actor with the specified ID not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p>Retrieves details for a single actor by ID.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
+        <strong>URL Parameters:</strong> <code>:actorId</code> (Req, ObjectId) <strong>Success:</strong> Returns single actor object. <pre><code>{ "_id": "...", ... }</code></pre> <strong>Errors:</strong> 400(Invalid ID), 401, 404, 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-post">POST</span> /actors</h3>
-        <p>Adds a new actor (consider admin-only).</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-        <strong>Request Body:</strong>
-        <ul>
-            <li><code>name</code> (<span class="required">Required</span>, String): Actor's full name.</li>
-            <li><code>bio</code> (<span class="required">Required</span>, String): Biography text.</li>
-            <li><code>birth</code> (<span class="required">Required</span>, String): Birth date (ISO 8601 format).</li>
-            <li><code>death</code> (Optional, String): Death date (ISO 8601 format), or null/omit if alive.</li>
-            <li><code>pictureUrl</code> (Optional, String): URL to a picture of the actor.</li>
-        </ul>
-         <pre><code>{
-    "name": "Scarlett Johansson",
-    "bio": "American actress.",
-    "birth": "1984-11-22",
-    "death": null,
-    "pictureUrl": "url/to/scarlett.jpg"
-}</code></pre>
-        <strong>Success Response (201 Created):</strong>
-        <p>Returns the newly created actor object.</p>
-         <pre><code>{
-    "_id": "actor_new...",
-    "name": "Scarlett Johansson",
-    // ... other fields
-}</code></pre>
-         <strong>Error Responses:</strong>
-        <ul>
-             <li><code>400 Bad Request</code>: Validation errors or actor name already exists (duplicate).</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p>Adds a new actor.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
+        <strong>Request Body:</strong> <code>name</code>(Req), <code>bio</code>(Req), <code>birth</code>(Req, Date), <code>death</code>(Opt, Date), <code>pictureUrl</code>(Opt, URL) <pre><code>{ "name": "...", ... }</code></pre>
+        <strong>Success:</strong> Returns new actor object. <pre><code>{ "_id": "...", ... }</code></pre> <strong>Errors:</strong> 400(validation, duplicate), 401, 500
     </div>
-
      <div class="endpoint">
         <h3><span class="method-put">PUT</span> /actors/:actorId</h3>
-        <p>Updates an actor's details (consider admin-only).</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-         <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:actorId</code> (<span class="required">Required</span>, String): The MongoDB ObjectId of the actor to update.</li>
-        </ul>
-        <strong>Request Body:</strong> (Include only fields to be updated)
-        <ul>
-            <li><code>name</code> (Optional, String): Actor's full name.</li>
-            <li><code>bio</code> (Optional, String): Biography text.</li>
-            <li><code>birth</code> (Optional, String): Birth date (ISO 8601 format).</li>
-            <li><code>death</code> (Optional, String/null): Death date (ISO 8601 format) or null.</li>
-            <li><code>pictureUrl</code> (Optional, String/null): URL to a picture of the actor.</li>
-        </ul>
-        <pre><code>{
-    "bio": "Updated bio.",
-    "pictureUrl": "new/url/to/pic.jpg"
-}</code></pre>
-        <strong>Success Response (200 OK):</strong>
-        <p>Returns the updated actor object.</p>
-         <pre><code>{
-    "_id": "actor1...", // Same ID
-    "name": "Leonardo DiCaprio",
-    "bio": "Updated bio.",
-    "pictureUrl": "new/url/to/pic.jpg",
-    // ... other fields
-}</code></pre>
-         <strong>Error Responses:</strong>
-        <ul>
-            <li><code>400 Bad Request</code>: Validation errors, Invalid Actor ID, name conflict if name is changed, or no valid fields provided.</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-             <li><code>404 Not Found</code>: Actor with the specified ID not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p>Updates an actor's details.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
+         <strong>URL Parameters:</strong> <code>:actorId</code> (Req, ObjectId) <strong>Request Body:</strong> (Optional: <code>name</code>, <code>bio</code>, <code>birth</code>, <code>death</code>, <code>pictureUrl</code>) <pre><code>{ "bio": "..." }</code></pre>
+        <strong>Success:</strong> Returns updated actor object. <pre><code>{ "_id": "...", ... }</code></pre> <strong>Errors:</strong> 400(validation, Invalid ID, name conflict, no fields), 401, 404, 500
     </div>
-
     <div class="endpoint">
         <h3><span class="method-delete">DELETE</span> /actors/:actorId</h3>
-        <p>Deletes an actor (consider admin-only). Fails if actor is assigned to movies.</p>
-        <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
-         <strong>URL Parameters:</strong>
-        <ul>
-            <li><code>:actorId</code> (<span class="required">Required</span>, String): The MongoDB ObjectId of the actor to delete.</li>
-        </ul>
-        <strong>Success Response (200 OK):</strong>
-        <pre><code>{
-    "message": "Actor \"Leonardo DiCaprio\" deleted successfully."
-}</code></pre>
-         <strong>Error Responses:</strong>
-        <ul>
-             <li><code>400 Bad Request</code>: Invalid Actor ID or Actor is currently assigned to one or more movies.</li>
-            <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-             <li><code>404 Not Found</code>: Actor with the specified ID not found.</li>
-            <li><code>500 Internal Server Error</code>: Server issue.</li>
-        </ul>
+        <p>Deletes an actor. Fails if assigned.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
+         <strong>URL Parameters:</strong> <code>:actorId</code> (Req, ObjectId) <strong>Success:</strong> <pre><code>{ "message": "Actor deleted." }</code></pre> <strong>Errors:</strong> 400(Invalid ID, in use), 401, 404, 500
     </div>
-
-
+    <h2>Admin Endpoints</h2>
+    <p>These endpoints provide access to potentially sensitive lists and might require specific 'admin' role authorization in a full implementation.</p>
+    <div class="endpoint">
+        <h3><span class="method-get">GET</span> /admin/users</h3>
+        <p>Retrieves a list of all registered users (excluding passwords).</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (Admin role likely required).</p>
+        <strong>Success:</strong> Returns array of user objects. <pre><code>[ { "_id": "...", "username": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 403, 500
+    </div>
+    <div class="endpoint">
+        <h3><span class="method-get">GET</span> /admin/movies</h3>
+        <p>Retrieves a list of all movies with basic populated info.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (Admin role likely required).</p>
+        <strong>Success:</strong> Returns array of movie objects. <pre><code>[ { "_id": "...", "title": "...", "genre": { "name": "..." }, ... } ]</code></pre> <strong>Errors:</strong> 401, 403, 500
+    </div>
+     <div class="endpoint">
+        <h3><span class="method-get">GET</span> /admin/genres</h3>
+        <p>Retrieves a list of all genres.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (Admin role likely required).</p>
+        <strong>Success:</strong> Returns array of genre objects. <pre><code>[ { "_id": "...", "name": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 403, 500
+    </div>
+     <div class="endpoint">
+        <h3><span class="method-get">GET</span> /admin/directors</h3>
+        <p>Retrieves a list of all directors.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (Admin role likely required).</p>
+        <strong>Success:</strong> Returns array of director objects. <pre><code>[ { "_id": "...", "name": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 403, 500
+    </div>
+    <div class="endpoint">
+        <h3><span class="method-get">GET</span> /admin/actors</h3>
+        <p>Retrieves a list of all actors.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (Admin role likely required).</p>
+        <strong>Success:</strong> Returns array of actor objects. <pre><code>[ { "_id": "...", "name": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 403, 500
+    </div>
     <h2 id="data-objects">Data Models</h2>
-    <div>
-        <h3>Movie Model Schema</h3>
-        <ul>
-            <li><code>_id</code> (ObjectId, Generated)</li>
-            <li><code>title</code> (String, Required)</li>
-            <li><code>description</code> (String, Required)</li>
-            <li><code>genre</code> (ObjectId, Ref: 'Genre', Required)</li>
-            <li><code>director</code> (ObjectId, Ref: 'Director', Required)</li>
-            <li><code>actors</code> (Array of ObjectId, Ref: 'Actor')</li>
-            <li><code>imagePath</code> (String, URL)</li>
-            <li><code>featured</code> (Boolean)</li>
-            <li><code>releaseYear</code> (Number)</li>
-            <li><code>rating</code> (Number, 0-10)</li>
-        </ul>
-    </div>
-
-     <div>
-        <h3>User Model Schema</h3>
-        <ul>
-             <li><code>_id</code> (ObjectId, Generated)</li>
-            <li><code>username</code> (String, Required, Unique)</li>
-            <li><code>password</code> (String, Required, Hashed)</li>
-            <li><code>email</code> (String, Required, Unique)</li>
-            <li><code>birthday</code> (Date)</li>
-            <li><code>firstname</code> (String)</li>
-            <li><code>lastname</code> (String)</li>
-            <li><code>favoriteMovies</code> (Array of ObjectId, Ref: 'Movie')</li>
-            </ul>
-    </div>
-
-     <div>
-        <h3>Genre Model Schema</h3>
-        <ul>
-            <li><code>_id</code> (ObjectId, Generated)</li>
-            <li><code>name</code> (String, Required, Unique)</li>
-            <li><code>description</code> (String, Required)</li>
-        </ul>
-    </div>
-
-     <div>
-        <h3>Director Model Schema</h3>
-        <ul>
-            <li><code>_id</code> (ObjectId, Generated)</li>
-            <li><code>name</code> (String, Required, Unique)</li>
-            <li><code>bio</code> (String, Required)</li>
-            <li><code>birth</code> (Date, Required)</li>
-            <li><code>death</code> (Date, Nullable)</li>
-        </ul>
-    </div>
-
-     <div>
-        <h3>Actor Model Schema</h3>
-        <ul>
-             <li><code>_id</code> (ObjectId, Generated)</li>
-            <li><code>name</code> (String, Required, Unique)</li>
-            <li><code>bio</code> (String, Required)</li>
-            <li><code>birth</code> (Date, Required)</li>
-            <li><code>death</code> (Date, Nullable)</li>
-            <li><code>pictureUrl</code> (String, URL, Nullable)</li>
-        </ul>
-    </div>
-
+    <div><h3>Movie Model Schema</h3><ul><li><code>_id</code></li><li><code>title</code>(Req)</li><li><code>description</code>(Req)</li><li><code>genre</code>(Req, Ref)</li><li><code>director</code>(Req, Ref)</li><li><code>actors</code>(Array[Ref])</li><li><code>imagePath</code></li><li><code>featured</code></li><li><code>releaseYear</code></li><li><code>rating</code></li></ul></div>
+    <div><h3>User Model Schema</h3><ul><li><code>_id</code></li><li><code>username</code>(Req, Unique)</li><li><code>password</code>(Req, Hash)</li><li><code>email</code>(Req, Unique)</li><li><code>birthday</code></li><li><code>firstname</code></li><li><code>lastname</code></li><li><code>favoriteMovies</code>(Array[Ref])</li></ul></div>
+    <div><h3>Genre Model Schema</h3><ul><li><code>_id</code></li><li><code>name</code>(Req, Unique)</li><li><code>description</code>(Req)</li></ul></div>
+    <div><h3>Director Model Schema</h3><ul><li><code>_id</code></li><li><code>name</code>(Req, Unique)</li><li><code>bio</code>(Req)</li><li><code>birth</code>(Req)</li><li><code>death</code>(Nullable)</li></ul></div>
+    <div><h3>Actor Model Schema</h3><ul><li><code>_id</code></li><li><code>name</code>(Req, Unique)</li><li><code>bio</code>(Req)</li><li><code>birth</code>(Req)</li><li><code>death</code>(Nullable)</li><li><code>pictureUrl</code>(Nullable)</li></ul></div>
     <h2>Error Responses</h2>
-    <p>Common HTTP status codes used:</p>
-    <ul>
-        <li><code>200 OK</code>: Request successful for GET, PUT, DELETE (sometimes).</li>
-        <li><code>201 Created</code>: Request successful for POST (resource created).</li>
-        <li><code>400 Bad Request</code>: Invalid request syntax, validation error, missing required fields, invalid ID format, resource already exists (on POST), or resource in use (on DELETE). Response body contains an <code>error</code> or <code>errors</code> field.</li>
-        <li><code>401 Unauthorized</code>: Authentication failed - missing, invalid, or expired JWT.</li>
-        <li><code>403 Forbidden</code>: Authenticated user does not have permission to access the resource (e.g., trying to modify another user's profile).</li>
-        <li><code>404 Not Found</code>: The requested resource (movie, user, genre, etc.) could not be found.</li>
-        <li><code>500 Internal Server Error</code>: An unexpected error occurred on the server.</li>
-    </ul>
-    <p>Error responses generally follow this JSON format:</p>
-    <pre><code>{
-    "error": "Descriptive error message here"
-}</code></pre>
-    <p>For validation errors (400), the response might look like:</p>
-     <pre><code>{
-    "errors": [
-        {
-            "type": "field",
-            "value": "",
-            "msg": "Password is required and must be at least 8 characters long",
-            "path": "password",
-            "location": "body"
-        }
-        // ... other validation errors
-    ]
-}</code></pre>
-
+    <p>Common HTTP status codes:</p><ul><li><code>200 OK</code></li><li><code>201 Created</code></li><li><code>400 Bad Request</code></li><li><code>401 Unauthorized</code></li><li><code>403 Forbidden</code></li><li><code>404 Not Found</code></li><li><code>500 Internal Server Error</code></li></ul>
+    <p>Error format:</p><pre><code>{ "error": "Descriptive error message here" }</code></pre>
+    <p>Validation error format:</p><pre><code>{ "errors": [ { "type": "field", /*...*/ "msg": "..." } ] }</code></pre>
 </body>
 </html>
