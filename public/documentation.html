@@ -19,14 +19,17 @@
     </style>
 </head>
 <body>
+
     <h1>MovieMobs API Documentation</h1>
     <p>Welcome to the documentation for the MovieMobs REST API.</p>
-    <p>Base URL: <code>[Your Deployed API Base URL]</code> (e.g., https://your-app-name.herokuapp.com or http://localhost:8080)</p>
+    <p>Base URL: <code>https://iecm-movies-app-6966360ed90e.herokuapp.com/</code> (or <code>http://localhost:8080</code> for local testing)</p>
+
     <h2>Authentication</h2>
     <p>Most endpoints require authentication using a JSON Web Token (JWT). To obtain a token, you must first register a user (if you haven't already) and then log in via the <code>/login</code> endpoint.</p>
     <p>Once you have a token, include it in the <code>Authorization</code> header for all protected requests:</p>
     <pre><code>Authorization: Bearer [YOUR_JWT_TOKEN]</code></pre>
     <p><strong>Important:</strong> The JWT signing and verification process relies on a secret key (<code>JWT_SECRET</code>) configured on the server using environment variables.</p>
+
     <div class="endpoint">
         <h3><span class="method-post">POST</span> /login</h3>
         <p>Authenticates a user and returns user data along with a JWT.</p>
@@ -39,6 +42,7 @@
         <pre><code>{ "user": { "_id": "...", "username": "...", ... }, "token": "eyJ..." }</code></pre>
         <strong>Error Responses:</strong> 401 (invalid credentials), 500
     </div>
+
     <h2>User Endpoints</h2>
     <div class="endpoint">
         <h3><span class="method-post">POST</span> /users</h3>
@@ -101,6 +105,7 @@
         <strong>Success Response (200 OK):</strong> <pre><code>{ "message": "User account \"...\" deleted successfully." }</code></pre>
         <strong>Error Responses:</strong> 401, 403, 404, 500
     </div>
+
     <h2>Movie Endpoints</h2>
     <div class="endpoint">
         <h3><span class="method-get">GET</span> /movies</h3>
@@ -184,6 +189,7 @@
         <pre><code>[ { "_id": "...", "name": "...", ... } ]</code></pre>
         <strong>Error Responses:</strong> 400 (Invalid ID), 401, 404 (Movie), 500
     </div>
+
     <h2>Genre Endpoints</h2>
     <p>Endpoints for managing movie genres. CRUD might be admin-only.</p>
     <div class="endpoint">
@@ -213,6 +219,7 @@
         <p>Deletes a genre. Fails if in use.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
         <strong>URL Parameters:</strong> <code>:name</code> (Req) <strong>Success:</strong> <pre><code>{ "message": "Genre deleted." }</code></pre> <strong>Errors:</strong> 400(in use), 401, 404, 500
     </div>
+
     <h2>Director Endpoints</h2>
     <p>Endpoints for managing movie directors. CRUD might be admin-only.</p>
     <div class="endpoint">
@@ -242,6 +249,7 @@
         <p>Deletes a director. Fails if assigned.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
          <strong>URL Parameters:</strong> <code>:directorId</code> (Req, ObjectId) <strong>Success:</strong> <pre><code>{ "message": "Director deleted." }</code></pre> <strong>Errors:</strong> 400(Invalid ID, in use), 401, 404, 500
     </div>
+
     <h2>Actor Endpoints</h2>
     <p>Endpoints for managing movie actors. CRUD might be admin-only.</p>
     <div class="endpoint">
@@ -276,6 +284,7 @@
         <p>Deletes an actor. Fails if assigned.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
          <strong>URL Parameters:</strong> <code>:actorId</code> (Req, ObjectId) <strong>Success:</strong> <pre><code>{ "message": "Actor deleted." }</code></pre> <strong>Errors:</strong> 400(Invalid ID, in use), 401, 404, 500
     </div>
+
     <h2>Admin Endpoints</h2>
     <p>These endpoints provide access to potentially sensitive lists and might require specific 'admin' role authorization in a full implementation.</p>
     <div class="endpoint">
@@ -303,15 +312,18 @@
         <p>Retrieves a list of all actors.</p><p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span> (Admin role likely required).</p>
         <strong>Success:</strong> Returns array of actor objects. <pre><code>[ { "_id": "...", "name": "...", ... } ]</code></pre> <strong>Errors:</strong> 401, 403, 500
     </div>
+
     <h2 id="data-objects">Data Models</h2>
     <div><h3>Movie Model Schema</h3><ul><li><code>_id</code></li><li><code>title</code>(Req)</li><li><code>description</code>(Req)</li><li><code>genre</code>(Req, Ref)</li><li><code>director</code>(Req, Ref)</li><li><code>actors</code>(Array[Ref])</li><li><code>imagePath</code></li><li><code>featured</code></li><li><code>releaseYear</code></li><li><code>rating</code></li></ul></div>
     <div><h3>User Model Schema</h3><ul><li><code>_id</code></li><li><code>username</code>(Req, Unique)</li><li><code>password</code>(Req, Hash)</li><li><code>email</code>(Req, Unique)</li><li><code>birthday</code></li><li><code>firstname</code></li><li><code>lastname</code></li><li><code>favoriteMovies</code>(Array[Ref])</li></ul></div>
     <div><h3>Genre Model Schema</h3><ul><li><code>_id</code></li><li><code>name</code>(Req, Unique)</li><li><code>description</code>(Req)</li></ul></div>
     <div><h3>Director Model Schema</h3><ul><li><code>_id</code></li><li><code>name</code>(Req, Unique)</li><li><code>bio</code>(Req)</li><li><code>birth</code>(Req)</li><li><code>death</code>(Nullable)</li></ul></div>
     <div><h3>Actor Model Schema</h3><ul><li><code>_id</code></li><li><code>name</code>(Req, Unique)</li><li><code>bio</code>(Req)</li><li><code>birth</code>(Req)</li><li><code>death</code>(Nullable)</li><li><code>pictureUrl</code>(Nullable)</li></ul></div>
+
     <h2>Error Responses</h2>
     <p>Common HTTP status codes:</p><ul><li><code>200 OK</code></li><li><code>201 Created</code></li><li><code>400 Bad Request</code></li><li><code>401 Unauthorized</code></li><li><code>403 Forbidden</code></li><li><code>404 Not Found</code></li><li><code>500 Internal Server Error</code></li></ul>
     <p>Error format:</p><pre><code>{ "error": "Descriptive error message here" }</code></pre>
     <p>Validation error format:</p><pre><code>{ "errors": [ { "type": "field", /*...*/ "msg": "..." } ] }</code></pre>
+
 </body>
 </html>
