@@ -1,34 +1,36 @@
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const Models = require('./models.js');
-const passportJWT = require('passport-jwt');
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const Models = require("./models.js");
+const passportJWT = require("passport-jwt");
 
 let Users = Models.User;
 let JWTStrategy = passportJWT.Strategy;
 let ExtractJWT = passportJWT.ExtractJwt;
 
 if (!process.env.JWT_SECRET) {
-    console.error("FATAL ERROR: JWT_SECRET environment variable is not set in passport.js. JWT Strategy will fail.");
+  console.error(
+    "FATAL ERROR: JWT_SECRET environment variable is not set in passport.js. JWT Strategy will fail."
+  );
 }
 
 passport.use(
   new LocalStrategy(
     {
-      usernameField: 'username',
-      passwordField: 'password',
+      usernameField: "username",
+      passwordField: "password",
     },
     async (username, password, callback) => {
       try {
         const user = await Users.findOne({ username: username });
         if (!user) {
-          return callback(null, false, { message: 'Incorrect username.' });
+          return callback(null, false, { message: "Incorrect username." });
         }
         if (!user.validatePassword(password)) {
-          return callback(null, false, { message: 'Incorrect password.' });
+          return callback(null, false, { message: "Incorrect password." });
         }
         return callback(null, user);
       } catch (error) {
-        console.error('Error during LocalStrategy authentication:', error);
+        console.error("Error during LocalStrategy authentication:", error);
         return callback(error);
       }
     }
@@ -39,7 +41,7 @@ passport.use(
   new JWTStrategy(
     {
       jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.JWT_SECRET
+      secretOrKey: process.env.JWT_SECRET,
     },
     async (jwtPayload, callback) => {
       try {
@@ -49,7 +51,7 @@ passport.use(
         }
         return callback(null, user);
       } catch (error) {
-        console.error('Error during JWTStrategy authentication:', error);
+        console.error("Error during JWTStrategy authentication:", error);
         return callback(error, false);
       }
     }

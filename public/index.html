@@ -1,151 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MOVIEMOBS API</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Moderustic&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.production.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MOVIEMOBS API</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Moderustic&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.production.css" />
-  <style>
-    /* Some basic custom styles */
-    body {
-      font-family: 'Moderustic', cursive;
-      color: #333;
-      background-color: #f8f9fa;
-    }
+  <body>
+    <header>
+      <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+          <a class="navbar-brand" href="#">MOVIEMOBS API</a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item dropdown">
+                <a
+                  class="nav-link dropdown-toggle"
+                  href="#"
+                  id="contactDropdown"
+                  role="button"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  Contact
+                </a>
+                <div class="dropdown-menu" aria-labelledby="contactDropdown">
+                  <a class="dropdown-item" href="mailto:ivancortes@hotmail.com"
+                    >Email</a
+                  >
+                  <a class="dropdown-item" href="tel:+17608******">Call</a>
+                  <a
+                    class="dropdown-item"
+                    href="https://github.com/ivencomur"
+                    target="_blank"
+                    >GitHub</a
+                  >
+                  <a
+                    class="dropdown-item"
+                    href="https://x.com/IVENCOMUR"
+                    target="_blank"
+                    >X (formerly Twitter)</a
+                  >
+                  <a
+                    class="dropdown-item"
+                    href="https://www.linkedin.com/in/ivan-cortes-murcia-22053953"
+                    target="_blank"
+                    >LinkedIn</a
+                  >
+                </div>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="documentation.html"
+                  >API Documentation</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
 
-    .header__title {
-      color: #007bff;
-      /* Primary color */
-      margin-top: 2rem;
-    }
+    <main class="container">
+      <section class="mt-4">
+        <h1 class="header__title text-center">Welcome to the MOVIEMOBS API</h1>
+        <p class="api-description text-center">
+          This API provides access to a database of movies, directors, genres,
+          and actors. Use the links below or in the navigation bar to explore
+          the API documentation.
+        </p>
+      </section>
 
-    .api-description {
-      margin-bottom: 2rem;
-      font-size: 1.1rem;
-    }
+      <section class="mt-5">
+        <h2>Quick Links</h2>
+        <ul class="endpoint-list">
+          <li>
+            <a href="documentation.html#summary" class="endpoint-link"
+              >API Endpoints</a
+            >
+            - A detailed list of all available API calls.
+          </li>
+          <li>
+            <a href="documentation.html#data-models" class="endpoint-link"
+              >Data Objects</a
+            >
+            - Information about the structure of the data returned by the API.
+          </li>
+          <li>
+            <a href="documentation.html#authentication" class="endpoint-link"
+              >Authentication</a
+            >
+            - Details on how to authenticate requests.
+          </li>
+          <li>
+            <a href="documentation.html#summary" class="endpoint-link"
+              >Usage Examples</a
+            >
+            - See the Endpoint Summary Table for examples.
+          </li>
+          {/* Note: Removed specific link to non-existent #usage-examples */}
+        </ul>
+      </section>
 
-    .endpoint-list {
-      list-style: none;
-      padding-left: 0;
-    }
+      <section class="mt-5 contact-info">
+        <h2>Contact</h2>
+        <p>
+          For any inquiries, please feel free to reach out using the following:
+        </p>
+        <p>
+          Email:
+          <a href="mailto:ivancortes@hotmail.com">ivancortes@hotmail.com</a>
+        </p>
+      </section>
+    </main>
 
-    .endpoint-list li {
-      margin-bottom: 0.5rem;
-    }
-
-    .endpoint-link {
-      color: #007bff;
-      text-decoration: none;
-    }
-
-    .endpoint-link:hover {
-      text-decoration: underline;
-    }
-
-    .contact-info {
-      margin-top: 1rem;
-    }
-
-    .social-media {
-      margin-top: 0.5rem;
-    }
-
-    .social-media img {
-      margin-right: 0.5rem;
-    }
-  </style>
-</head>
-
-<body>
-  <header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-      <div class="container">
-        <a class="navbar-brand" href="#">MOVIEMOBS API</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ml-auto">
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="contactDropdown" role="button" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-                Contact
-              </a>
-              <div class="dropdown-menu" aria-labelledby="contactDropdown">
-                <a class="dropdown-item" href="mailto:ivancortes@hotmail.com">Email</a>
-                <a class="dropdown-item" href="tel:+17608******">Call</a>
-                <a class="dropdown-item" href="https://github.com/ivencomur" target="_blank">GitHub</a>
-                <a class="dropdown-item" href="https://x.com/IVENCOMUR" target="_blank">X (formerly Twitter)</a>
-                <a class="dropdown-item" href="https://www.linkedin.com/in/ivan-cortes-murcia-22053953"
-                  target="_blank">LinkedIn</a>
-              </div>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="documentation.html#api-endpoints">API Endpoints</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="documentation.html#data-objects">Data Objects</a>
-            </li>
-          </ul>
+    <footer class="bg-light py-3 mt-5">
+      <div class="container text-center">
+        <p>&copy; 2025 MOVIEMOBS. All rights reserved.</p>
+        <div class="social-media">
+          <a href="https://github.com/ivencomur" target="_blank"
+            ><img
+              src="img/logo_github_icon.svg"
+              alt="Github"
+              width="30"
+              height="30"
+          /></a>
+          <a href="https://x.com/IVENCOMUR" target="_blank"
+            ><img
+              src="img/xformertwittericon.svg"
+              alt="X former Twitter"
+              width="30"
+              height="30"
+          /></a>
+          <a
+            href="https://www.linkedin.com/in/ivan-cortes-murcia-22053953"
+            target="_blank"
+            ><img
+              src="img/linkedinicon.svg"
+              alt="LinkedIn"
+              width="30"
+              height="30"
+          /></a>
         </div>
       </div>
-    </nav>
-  </header>
+    </footer>
 
-  <main class="container">
-    <section class="mt-4">
-      <h1 class="header__title text-center">
-        Welcome to the MOVIEMOBS API
-      </h1>
-      <p class="api-description text-center">
-        This API provides access to a database of movies, directors, genres, and actors.
-        Use the links below to explore the available endpoints and data structures.
-      </p>
-    </section>
+    <a href="index.html" class="back-to-home-btn" title="Back to Home">Home</a>
 
-    <section class="mt-5">
-      <h2>Quick Links</h2>
-      <ul class="endpoint-list">
-        <li><a href="documentation.html#api-endpoints" class="endpoint-link">API Endpoints</a> - A detailed list of all available API calls.</li>
-        <li><a href="documentation.html#data-objects" class="endpoint-link">Data Objects</a> - Information about the structure of the data returned by the API.</li>
-        <li><a href="documentation.html#authentication" class="endpoint-link">Authentication</a> - Details on how to authenticate requests (if applicable).</li>
-        <li><a href="documentation.html#usage-examples" class="endpoint-link">Usage Examples</a> - Code examples for common API operations.</li>
-      </ul>
-    </section>
-
-    <section class="mt-5 contact-info">
-      <h2>Contact</h2>
-      <p>
-        For any inquiries, please feel free to reach out using the following:
-      </p>
-      <p>
-        Email: <a href="mailto:ivancortes@hotmail.com">ivancortes@hotmail.com</a>
-      </p>
-    </section>
-  </main>
-
-  <footer class="bg-light py-3 mt-5">
-    <div class="container text-center">
-      <p>&copy; 2025 MOVIEMOBS. All rights reserved.</p>
-      <div class="social-media">
-        <a href="https://github.com/ivencomur" target="_blank"><img src="img/logo_github_icon.svg" alt="Github"
-            width="30" height="30" /></a>
-        <a href="https://x.com/IVENCOMUR" target="_blank"><img src="img/xformertwittericon.svg" alt="X former Twitter"
-            width="30" height="30" /></a>
-        <a href="https://www.linkedin.com/in/ivan-cortes-murcia-22053953" target="_blank"><img src="img/linkedinicon.svg"
-            alt="LinkedIn" width="30" height="30" /></a>
-      </div>
-    </div>
-  </footer>
-
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <script src="index.js"></script>
-</body>
-
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </body>
 </html>
