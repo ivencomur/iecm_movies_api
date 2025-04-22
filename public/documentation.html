@@ -30,12 +30,13 @@
 
     <h1>MovieMobs API Documentation</h1>
     <p>Welcome to the documentation for the MovieMobs REST API.</p>
-    <p>Base URL: <code>[Your Deployed API Base URL]</code> (e.g., https://your-app-name.herokuapp.com)</p>
+    <p>Base URL: <code>[Your Deployed API Base URL]</code> (e.g., https://your-app-name.herokuapp.com or http://localhost:8080)</p>
 
     <h2>Authentication</h2>
     <p>Most endpoints require authentication using a JSON Web Token (JWT). To obtain a token, you must first register a user (if you haven't already) and then log in via the <code>/login</code> endpoint.</p>
     <p>Once you have a token, include it in the <code>Authorization</code> header for all protected requests:</p>
     <pre><code>Authorization: Bearer [YOUR_JWT_TOKEN]</code></pre>
+    <p><strong>Important:</strong> The JWT signing and verification process relies on a secret key. This key must be set as an environment variable named <code>JWT_SECRET</code> on the server where the API is running.</p>
 
     <div class="endpoint">
         <h3><span class="method-post">POST</span> /login</h3>
@@ -66,8 +67,7 @@
 }</code></pre>
         <strong>Error Responses:</strong>
         <ul>
-            <li><code>400 Bad Request</code>: Invalid credentials format or missing fields.</li>
-            <li><code>401 Unauthorized</code>: Incorrect username or password.</li>
+            <li><code>401 Unauthorized</code>: Incorrect username or password (check message for details).</li>
             <li><code>500 Internal Server Error</code>: Server issue during login.</li>
         </ul>
     </div>
@@ -107,7 +107,7 @@
 }</code></pre>
         <strong>Error Responses:</strong>
         <ul>
-            <li><code>400 Bad Request</code>: Validation errors (e.g., username too short, invalid email, username/email already exists).</li>
+            <li><code>400 Bad Request</code>: Validation errors (e.g., username too short, invalid email) or username/email already exists.</li>
             <li><code>500 Internal Server Error</code>: Server issue during registration.</li>
         </ul>
     </div>
@@ -130,7 +130,7 @@
     "firstname": "Test",
     "lastname": "User",
     "favoriteMovies": [
-        { "_id": "movie...", "title": "Inception" }
+        { "_id": "movie...", "title": "Inception", /* other movie fields potentially */ }
         // ... other favorite movies
     ]
 }</code></pre>
@@ -158,7 +158,7 @@
             <li><code>birthday</code> (Optional, String): New birthday (ISO 8601 format).</li>
             <li><code>firstname</code> (Optional, String): New first name.</li>
             <li><code>lastname</code> (Optional, String): New last name.</li>
-            <li><em>Note: Password updates should ideally use a separate endpoint.</em></li>
+            <li><em>Note: Password updates require a separate, dedicated endpoint (not implemented here).</em></li>
         </ul>
         <pre><code>{
     "email": "updated.email@example.com",
@@ -201,8 +201,8 @@
     "username": "testuser",
     // ... other user fields
     "favoriteMovies": [
-        { "_id": "movie_id_1...", "title": "Existing Favorite Movie" },
-        { "_id": "movieId...", "title": "Newly Added Movie" }
+        { "_id": "movie_id_1...", "title": "Existing Favorite Movie", /* etc */ },
+        { "_id": "movieId...", "title": "Newly Added Movie", /* etc */ }
     ]
 }</code></pre>
         <strong>Error Responses:</strong>
@@ -231,7 +231,7 @@
     "username": "testuser",
     // ... other user fields
     "favoriteMovies": [
-        { "_id": "movie_id_1...", "title": "Remaining Favorite Movie" }
+        { "_id": "movie_id_1...", "title": "Remaining Favorite Movie", /* etc */ }
     ]
 }</code></pre>
          <strong>Error Responses:</strong>
@@ -239,7 +239,7 @@
             <li><code>400 Bad Request</code>: Invalid Movie ID format.</li>
             <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
             <li><code>403 Forbidden</code>: Authenticated user does not match <code>:username</code>.</li>
-            <li><code>404 Not Found</code>: User not found (movie doesn't need to exist to attempt removal).</li>
+            <li><code>404 Not Found</code>: User not found.</li>
             <li><code>500 Internal Server Error</code>: Server issue.</li>
         </ul>
     </div>
@@ -260,7 +260,7 @@
         <ul>
             <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
             <li><code>403 Forbidden</code>: Authenticated user does not match <code>:username</code>.</li>
-            <li><code>404 Not Found</code>: User with the specified username not found.</li>
+            <li><code>404 Not Found</code>: User with the specified username not found (or already deleted).</li>
             <li><code>500 Internal Server Error</code>: Server issue.</li>
         </ul>
     </div>
@@ -271,20 +271,22 @@
         <p>Retrieves a list of all movies.</p>
         <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
         <strong>Success Response (200 OK):</strong>
-        <p>Returns an array of movie objects, with Genre, Director, and Actors populated.</p>
+        <p>Returns an array of movie objects, with Genre, Director, and Actors populated (showing limited fields for brevity).</p>
         <pre><code>[
     {
         "_id": "movie1...",
         "title": "Inception",
         "description": "A thief who steals information by entering people's dreams...",
         "genre": { "_id": "genre1...", "name": "Sci-Fi", "description": "..." },
-        "director": { "_id": "director1...", "name": "Christopher Nolan", "bio": "...", "birth": "...", "death": null },
+        "director": { "_id": "director1...", "name": "Christopher Nolan", "bio": "..." },
         "actors": [
-             { "_id": "actor1...", "name": "Leonardo DiCaprio", ... },
-             { "_id": "actor2...", "name": "Joseph Gordon-Levitt", ... }
+             { "_id": "actor1...", "name": "Leonardo DiCaprio" },
+             { "_id": "actor2...", "name": "Joseph Gordon-Levitt" }
         ],
         "imagePath": "url/to/image.jpg",
-        "featured": true
+        "featured": true,
+        "releaseYear": 2010,
+        "rating": 8.8
     },
     // ... more movies
 ]</code></pre>
@@ -308,7 +310,17 @@
         <pre><code>{
     "_id": "movie1...",
     "title": "Inception",
-    // ... (similar structure as GET /movies list item)
+    "description": "A thief who steals information by entering people's dreams...",
+    "genre": { "_id": "genre1...", "name": "Sci-Fi", "description": "..." },
+    "director": { "_id": "director1...", "name": "Christopher Nolan", "bio": "...", "birth": "...", "death": null },
+    "actors": [
+        { "_id": "actor1...", "name": "Leonardo DiCaprio", "bio": "...", "birth": "...", "death": null, "pictureUrl": "..." },
+        { "_id": "actor2...", "name": "Joseph Gordon-Levitt", /* ... */ }
+    ],
+    "imagePath": "url/to/image.jpg",
+    "featured": true,
+    "releaseYear": 2010,
+    "rating": 8.8
 }</code></pre>
         <strong>Error Responses:</strong>
         <ul>
@@ -332,7 +344,7 @@
          <pre><code>{
     "_id": "movie1...",
     "title": "Inception",
-    // ... (similar structure as GET /movies list item)
+    // ... (similar structure as GET /movies/:movieId)
 }</code></pre>
         <strong>Error Responses:</strong>
         <ul>
@@ -351,13 +363,18 @@
             <li><code>:genreName</code> (<span class="required">Required</span>, String): The name of the genre.</li>
         </ul>
          <strong>Success Response (200 OK):</strong>
-        <p>Returns an array of movie objects matching the genre, fully populated.</p>
+        <p>Returns an array of movie objects matching the genre, populated with limited fields.</p>
          <pre><code>[
     {
         "_id": "movie1...",
         "title": "Inception",
-        "genre": { "_id": "genre1...", "name": "Sci-Fi", ... },
-        // ... other fields
+        "genre": { "_id": "genre1...", "name": "Sci-Fi" },
+        "director": { "_id": "director1...", "name": "Christopher Nolan" },
+        "actors": [ { "_id": "actor1...", "name": "Leonardo DiCaprio" }, /* ... */ ],
+        "imagePath": "url/to/image.jpg",
+        "featured": true,
+        "releaseYear": 2010,
+        "rating": 8.8
     },
     // ... other movies in the same genre
 ]</code></pre>
@@ -378,13 +395,18 @@
             <li><code>:directorName</code> (<span class="required">Required</span>, String): The name of the director.</li>
         </ul>
         <strong>Success Response (200 OK):</strong>
-        <p>Returns an array of movie objects matching the director, fully populated.</p>
+        <p>Returns an array of movie objects matching the director, populated with limited fields.</p>
          <pre><code>[
     {
         "_id": "movie1...",
         "title": "Inception",
-        "director": { "_id": "director1...", "name": "Christopher Nolan", ... },
-        // ... other fields
+        "genre": { "_id": "genre1...", "name": "Sci-Fi" },
+        "director": { "_id": "director1...", "name": "Christopher Nolan" },
+        "actors": [ { "_id": "actor1...", "name": "Leonardo DiCaprio" }, /* ... */ ],
+        "imagePath": "url/to/image.jpg",
+        "featured": true,
+        "releaseYear": 2010,
+        "rating": 8.8
     },
     // ... other movies by the same director
 ]</code></pre>
@@ -409,6 +431,8 @@
             <li><code>actors</code> (Optional, Array of Strings): Array of existing actor names.</li>
             <li><code>imagePath</code> (Optional, String): URL to the movie poster/image.</li>
             <li><code>featured</code> (Optional, Boolean): Whether the movie is featured.</li>
+            <li><code>releaseYear</code> (Optional, Number): Year of release.</li>
+            <li><code>rating</code> (Optional, Number): Rating (0-10).</li>
         </ul>
         <pre><code>{
     "title": "The Dark Knight",
@@ -417,7 +441,9 @@
     "director": "Christopher Nolan",
     "actors": ["Christian Bale", "Heath Ledger", "Aaron Eckhart"],
     "imagePath": "url/to/dark_knight.jpg",
-    "featured": true
+    "featured": true,
+    "releaseYear": 2008,
+    "rating": 9.0
 }</code></pre>
         <strong>Success Response (201 Created):</strong>
         <p>Returns the newly created movie object, fully populated.</p>
@@ -451,10 +477,13 @@
             <li><code>actors</code> (Optional, Array of Strings): Array of existing actor names (replaces entire existing actor list for the movie).</li>
             <li><code>imagePath</code> (Optional, String): URL to the movie poster/image.</li>
             <li><code>featured</code> (Optional, Boolean): Whether the movie is featured.</li>
+            <li><code>releaseYear</code> (Optional, Number): Year of release.</li>
+            <li><code>rating</code> (Optional, Number): Rating (0-10).</li>
         </ul>
         <pre><code>{
     "description": "An updated description.",
-    "featured": false
+    "featured": false,
+    "rating": 9.1
 }</code></pre>
         <strong>Success Response (200 OK):</strong>
         <p>Returns the updated movie object, fully populated.</p>
@@ -463,11 +492,12 @@
     "title": "Inception",
     "description": "An updated description.",
     "featured": false,
+    "rating": 9.1,
      // ... other fields populated
 }</code></pre>
         <strong>Error Responses:</strong>
         <ul>
-             <li><code>400 Bad Request</code>: Validation errors, Invalid Movie ID, or specified Genre/Director/Actor(s) not found.</li>
+             <li><code>400 Bad Request</code>: Validation errors, Invalid Movie ID, specified Genre/Director/Actor(s) not found, or no valid fields provided.</li>
             <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
             <li><code>404 Not Found</code>: Movie with the specified ID not found.</li>
             <li><code>500 Internal Server Error</code>: Server issue.</li>
@@ -686,23 +716,26 @@
 
      <div class="endpoint">
         <h3><span class="method-get">GET</span> /directors/name/:name</h3>
-        <p>Retrieves details for a director by name (case-insensitive, partial match).</p>
+        <p>Retrieves details for directors by name (case-insensitive, partial match). Returns an array.</p>
         <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
         <strong>URL Parameters:</strong>
         <ul>
             <li><code>:name</code> (<span class="required">Required</span>, String): The name (or partial name) of the director.</li>
         </ul>
          <strong>Success Response (200 OK):</strong>
-        <p>Returns a single director object.</p>
-        <pre><code>{
-    "_id": "director1...",
-    "name": "Christopher Nolan",
-    // ... other fields
-}</code></pre>
+        <p>Returns an array of matching director objects.</p>
+        <pre><code>[
+    {
+        "_id": "director1...",
+        "name": "Christopher Nolan",
+         // ... other fields
+    }
+    // Potentially other directors if partial match used
+]</code></pre>
         <strong>Error Responses:</strong>
         <ul>
             <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>404 Not Found</code>: Director containing the specified name not found.</li>
+            <li><code>404 Not Found</code>: No directors found matching the specified name.</li>
             <li><code>500 Internal Server Error</code>: Server issue.</li>
         </ul>
     </div>
@@ -733,7 +766,7 @@
 }</code></pre>
          <strong>Error Responses:</strong>
         <ul>
-             <li><code>400 Bad Request</code>: Validation errors or director name already exists.</li>
+             <li><code>400 Bad Request</code>: Validation errors or director name already exists (duplicate).</li>
             <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
             <li><code>500 Internal Server Error</code>: Server issue.</li>
         </ul>
@@ -767,7 +800,7 @@
 }</code></pre>
          <strong>Error Responses:</strong>
         <ul>
-            <li><code>400 Bad Request</code>: Validation errors, Invalid Director ID, or name conflict if name is changed.</li>
+            <li><code>400 Bad Request</code>: Validation errors, Invalid Director ID, name conflict if name is changed, or no valid fields provided.</li>
             <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
              <li><code>404 Not Found</code>: Director with the specified ID not found.</li>
             <li><code>500 Internal Server Error</code>: Server issue.</li>
@@ -825,23 +858,26 @@
 
      <div class="endpoint">
         <h3><span class="method-get">GET</span> /actors/name/:name</h3>
-        <p>Retrieves details for an actor by name (case-insensitive, partial match).</p>
+        <p>Retrieves details for actors by name (case-insensitive, partial match). Returns an array.</p>
         <p><strong>Authentication:</strong> <span class="auth-jwt">JWT Required</span></p>
         <strong>URL Parameters:</strong>
         <ul>
             <li><code>:name</code> (<span class="required">Required</span>, String): The name (or partial name) of the actor.</li>
         </ul>
          <strong>Success Response (200 OK):</strong>
-        <p>Returns a single actor object.</p>
-        <pre><code>{
-    "_id": "actor1...",
-    "name": "Leonardo DiCaprio",
-    // ... other fields
-}</code></pre>
+        <p>Returns an array of matching actor objects.</p>
+        <pre><code>[
+    {
+        "_id": "actor1...",
+        "name": "Leonardo DiCaprio",
+        // ... other fields
+    }
+    // Potentially others if partial match used
+]</code></pre>
         <strong>Error Responses:</strong>
         <ul>
             <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
-            <li><code>404 Not Found</code>: Actor containing the specified name not found.</li>
+            <li><code>404 Not Found</code>: No actors found matching the specified name.</li>
             <li><code>500 Internal Server Error</code>: Server issue.</li>
         </ul>
     </div>
@@ -898,7 +934,7 @@
 }</code></pre>
          <strong>Error Responses:</strong>
         <ul>
-             <li><code>400 Bad Request</code>: Validation errors or actor name already exists.</li>
+             <li><code>400 Bad Request</code>: Validation errors or actor name already exists (duplicate).</li>
             <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
             <li><code>500 Internal Server Error</code>: Server issue.</li>
         </ul>
@@ -935,7 +971,7 @@
 }</code></pre>
          <strong>Error Responses:</strong>
         <ul>
-            <li><code>400 Bad Request</code>: Validation errors, Invalid Actor ID, or name conflict if name is changed.</li>
+            <li><code>400 Bad Request</code>: Validation errors, Invalid Actor ID, name conflict if name is changed, or no valid fields provided.</li>
             <li><code>401 Unauthorized</code>: Missing or invalid JWT.</li>
              <li><code>404 Not Found</code>: Actor with the specified ID not found.</li>
             <li><code>500 Internal Server Error</code>: Server issue.</li>
@@ -964,7 +1000,7 @@
     </div>
 
 
-    <h2>Data Models</h2>
+    <h2 id="data-objects">Data Models</h2>
     <div>
         <h3>Movie Model Schema</h3>
         <ul>
@@ -976,6 +1012,8 @@
             <li><code>actors</code> (Array of ObjectId, Ref: 'Actor')</li>
             <li><code>imagePath</code> (String, URL)</li>
             <li><code>featured</code> (Boolean)</li>
+            <li><code>releaseYear</code> (Number)</li>
+            <li><code>rating</code> (Number, 0-10)</li>
         </ul>
     </div>
 
