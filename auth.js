@@ -1,13 +1,11 @@
-const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret'; // Use env variable!
-
+// auth.js
+const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret';
 const jwt = require('jsonwebtoken'),
   passport = require('passport');
-
 require('./passport');
 
 let generateJWTToken = (user) => {
-  const payload = { _id: user._id, username: user.username }; // Include _id and username in payload
-  return jwt.sign(payload, jwtSecret, {
+  return jwt.sign(user, jwtSecret, {
     subject: user.username,
     expiresIn: '7d',
     algorithm: 'HS256'

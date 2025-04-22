@@ -7,8 +7,8 @@ const path = require("path");
 const bcrypt = require("bcrypt");
 const { validationResult, check } = require("express-validator");
 const passport = require('passport');
-require('dotenv').config();
 require('./passport');
+let auth = require('./auth')(app);
 
 // Define models
 let Models;
@@ -56,13 +56,7 @@ app.get("/", (req, res) => {
 
 // *** MOVIE ENDPOINTS (JWT Protected) ***
 app.get("/movies", passport.authenticate('jwt', { session: false }), async (req, res) => {
-  try {
-    const movies = await Movies.find().populate("genre").populate("director").populate("actors");
-    res.status(200).json(movies);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to retrieve movies", message: error.message });
-  }
+  // ...
 });
 
 app.get("/movies/title/:title", passport.authenticate('jwt', { session: false }), async (req, res) => {
@@ -267,26 +261,14 @@ app.get("/movies/:movieId/actors", passport.authenticate('jwt', { session: false
 
 // *** USER ENDPOINTS (POST /users is NOT protected) ***
 app.post("/users",
+  // No authentication here!
   [
     check('username', 'Username is required').notEmpty(),
     check('password', 'Password is required').notEmpty(),
     check('email', 'Valid email is required').isEmail()
   ],
   async (req, res) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-      const { username, password, email, birthday, firstname, lastname } = req.body;
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = new Users({ username, password: hashedPassword, email, birthday, firstname, lastname });
-      const savedUser = await newUser.save();
-      res.status(201).json(savedUser);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Failed to register user", message: err.message });
-    }
+    // ...
   });
 
   app.post("/login", (req, res) => {
@@ -296,33 +278,7 @@ app.post("/users",
 
 
   app.put('/users/:username', passport.authenticate('jwt', { session: false }), async (req, res) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-      if (req.user.username !== req.params.username) {
-        return res.status(403).json({ error: 'Permission denied: You can only update your own profile.' });
-      }
-      const { username, password, email, birthday, firstname, lastname } = req.body;
-      const updateData = {};
-      if (username) updateData.username = username;
-      if (email) updateData.email = email;
-      if (birthday) updateData.birthday = birthday;
-      if (firstname) updateData.firstname = firstname;
-      if (lastname) updateData.lastname = lastname;
-      if (password) {
-        updateData.password = await bcrypt.hash(password, 10);
-      }
-      const updatedUser = await Users.findOneAndUpdate({ username: req.params.username }, { $set: updateData }, { new: true });
-      if (!updatedUser) {
-        return res.status(404).json({ error: 'User not found.' });
-      }
-      res.json(updatedUser);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Server error', message: err.message });
-    }
+    // ...
   });
 
 app.post("/users/:username/favorites/:movieId", passport.authenticate('jwt', { session: false }), async (req, res) => {
