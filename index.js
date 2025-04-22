@@ -47,7 +47,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("common"));
 app.use(bodyParser.urlencoded({ extended: true }));
-let auth = require('./auth')(app);
+
 
 // Requests/endpoints
 app.get("/", (req, res) => {
