@@ -1,3 +1,4 @@
+// models.js
 const mongoose = require('mongoose');
 
 const movieSchema = new mongoose.Schema({
@@ -7,7 +8,9 @@ const movieSchema = new mongoose.Schema({
   director: { type: mongoose.Schema.Types.ObjectId, ref: 'Director', required: true },
   actors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Actor' }],
   imagePath: String,
-  featured: { type: Boolean, default: false }
+  featured: { type: Boolean, default: false },
+  releaseYear: { type: Number, min: 1888, max: new Date().getFullYear() + 5 },
+  rating: { type: Number, min: 0, max: 10 }
 });
 
 const userSchema = new mongoose.Schema({
