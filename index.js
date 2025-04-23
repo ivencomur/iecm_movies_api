@@ -1,5 +1,6 @@
+//config
 require("dotenv").config();
-
+//dependences
 const mongoose = require("mongoose");
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -9,6 +10,7 @@ const { validationResult, check } = require("express-validator");
 const passport = require("passport");
 const cors = require("cors");
 
+//websites/domains api allows access into api
 let allowedOrigins = [
   "http://localhost:8080",
   "http://testsite.com",
@@ -56,7 +58,7 @@ mongoose
   });
 
 app.use(morgan("common"));
-
+//cors policy
 app.use(
   cors({
     origin: (origin, callback) => {
