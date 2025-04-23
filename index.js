@@ -9,6 +9,28 @@ const { validationResult, check } = require("express-validator");
 const passport = require("passport");
 const cors = require("cors");
 
+let allowedOrigins = [
+  "http://localhost:8080",
+  "http://testsite.com",
+  "https://ivencomur.github.io",
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        // If a specific origin isn’t found on the list of allowed origins
+        let message =
+          "The CORS policy for this application doesn’t allow access from origin " +
+          origin;
+        return callback(new Error(message), false);
+      }
+      return callback(null, true);
+    },
+  })
+);
+
 require("./passport");
 
 let Models;
@@ -50,12 +72,6 @@ mongoose
 
 app.use(morgan("common"));
 
-const allowedOrigins = [
-  "http://localhost:1234",
-  "http://localhost:4200",
-  "https://yourfrontenddomain.com",
-  "https://ivencomur.github.io",
-];
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -73,6 +89,9 @@ app.use(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
+
+const cors = require("cors");
+app.use(cors());
 
 let auth = require("./auth")(app);
 app.use(passport.initialize());
@@ -338,7 +357,9 @@ app.post(
         actorIds = actorDocs.map((actor) => actor._id);
 
         if (actorIds.length !== actorNames.length) {
-          const foundNamesLower = actorDocs.map((doc) => doc.name.toLowerCase());
+          const foundNamesLower = actorDocs.map((doc) =>
+            doc.name.toLowerCase()
+          );
           const notFoundNames = actorNames.filter(
             (name) => !foundNamesLower.includes(name.toLowerCase())
           );
@@ -753,11 +774,9 @@ app.delete("/users/:username", requireJWTAuth, async (req, res, next) => {
         .json({ error: "User not found (perhaps already deleted)." });
     }
 
-    res
-      .status(200)
-      .json({
-        message: `User account "${deletedUser.username}" deleted successfully.`,
-      });
+    res.status(200).json({
+      message: `User account "${deletedUser.username}" deleted successfully.`,
+    });
   } catch (err) {
     next(err);
   }
@@ -868,21 +887,17 @@ app.delete("/genres/:name", requireJWTAuth, async (req, res, next) => {
     const moviesUsingGenre = await Movies.find({ genre: genre._id }).limit(1);
 
     if (moviesUsingGenre.length > 0) {
-      return res
-        .status(400)
-        .json({
-          error: `Cannot delete genre "${genre.name}" as it is assigned to one or more movies.`,
-        });
+      return res.status(400).json({
+        error: `Cannot delete genre "${genre.name}" as it is assigned to one or more movies.`,
+      });
     }
 
     const deletedGenre = await Genres.findByIdAndDelete(genre._id);
 
     if (!deletedGenre) {
-      return res
-        .status(404)
-        .json({
-          error: `Genre "${genreNameSearch}" not found (concurrent delete?).`,
-        });
+      return res.status(404).json({
+        error: `Genre "${genreNameSearch}" not found (concurrent delete?).`,
+      });
     }
 
     res
@@ -910,11 +925,9 @@ app.get("/directors/name/:name", requireJWTAuth, async (req, res, next) => {
     });
 
     if (!directors || directors.length === 0) {
-      return res
-        .status(404)
-        .json({
-          error: `No directors found matching "${directorNameSearch}".`,
-        });
+      return res.status(404).json({
+        error: `No directors found matching "${directorNameSearch}".`,
+      });
     }
     res.status(200).json(directors);
   } catch (err) {
@@ -1018,11 +1031,9 @@ app.put(
       res.status(200).json(updatedDirector);
     } catch (err) {
       if (err.code === 11000 && err.keyPattern && err.keyPattern.name) {
-        return res
-          .status(400)
-          .json({
-            error: `Cannot update: Director name "${req.body.name}" is already taken.`,
-          });
+        return res.status(400).json({
+          error: `Cannot update: Director name "${req.body.name}" is already taken.`,
+        });
       }
       next(err);
     }
@@ -1043,13 +1054,11 @@ app.delete("/directors/:directorId", requireJWTAuth, async (req, res, next) => {
       const director = await Directors.findById(req.params.directorId).select(
         "name"
       );
-      return res
-        .status(400)
-        .json({
-          error: `Cannot delete director "${
-            director ? director.name : "ID: " + req.params.directorId
-          }" as they are assigned to one or more movies.`,
-        });
+      return res.status(400).json({
+        error: `Cannot delete director "${
+          director ? director.name : "ID: " + req.params.directorId
+        }" as they are assigned to one or more movies.`,
+      });
     }
 
     const deletedDirector = await Directors.findByIdAndDelete(
@@ -1060,11 +1069,9 @@ app.delete("/directors/:directorId", requireJWTAuth, async (req, res, next) => {
       return res.status(404).json({ error: "Director not found." });
     }
 
-    res
-      .status(200)
-      .json({
-        message: `Director "${deletedDirector.name}" deleted successfully.`,
-      });
+    res.status(200).json({
+      message: `Director "${deletedDirector.name}" deleted successfully.`,
+    });
   } catch (err) {
     next(err);
   }
@@ -1218,11 +1225,9 @@ app.put(
       res.status(200).json(updatedActor);
     } catch (err) {
       if (err.code === 11000 && err.keyPattern && err.keyPattern.name) {
-        return res
-          .status(400)
-          .json({
-            error: `Cannot update: Actor name "${req.body.name}" is already taken.`,
-          });
+        return res.status(400).json({
+          error: `Cannot update: Actor name "${req.body.name}" is already taken.`,
+        });
       }
       next(err);
     }
@@ -1241,13 +1246,11 @@ app.delete("/actors/:actorId", requireJWTAuth, async (req, res, next) => {
 
     if (moviesWithActor.length > 0) {
       const actor = await Actors.findById(req.params.actorId).select("name");
-      return res
-        .status(400)
-        .json({
-          error: `Cannot delete actor "${
-            actor ? actor.name : "ID: " + req.params.actorId
-          }" as they are assigned to one or more movies.`,
-        });
+      return res.status(400).json({
+        error: `Cannot delete actor "${
+          actor ? actor.name : "ID: " + req.params.actorId
+        }" as they are assigned to one or more movies.`,
+      });
     }
 
     const deletedActor = await Actors.findByIdAndDelete(req.params.actorId);
