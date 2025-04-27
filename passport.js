@@ -32,7 +32,6 @@ let Users = Models.User,
     )
   );
 
-<<<<<<< HEAD
 
 passport.use(new JWTStrategy({
   jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
@@ -46,56 +45,3 @@ passport.use(new JWTStrategy({
       return callback(error)
     });
 }));
-=======
-passport.use(
-  new LocalStrategy(
-    {
-      usernameField: "username",
-      passwordField: "password",
-    },
-    async (username, password, callback) => {
-      console.log(`Attempting login for user: ${username}`);
-      try {
-        const user = await Users.findOne({ username: username });
-
-        if (!user) {
-          console.log(`Login failed: Incorrect username '${username}'.`);
-          return callback(null, false, { message: "Incorrect username." });
-        }
-
-        if (!user.validatePassword(password)) {
-          console.log(`Login failed: Incorrect password for user '${username}'.`);
-          return callback(null, false, { message: "Incorrect password." });
-        }
-
-        console.log(`Login successful for user: ${username}`);
-        return callback(null, user);
-      } catch (error) {
-        console.error("Error during LocalStrategy authentication:", error);
-        return callback(error);
-      }
-    }
-  )
-);
-
-passport.use(
-  new JWTStrategy(
-    {
-      jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.JWT_SECRET,
-    },
-    async (jwtPayload, callback) => {
-      try {
-        const user = await Users.findById(jwtPayload._id);
-        if (!user) {
-          return callback(null, false);
-        }
-        return callback(null, user);
-      } catch (error) {
-        console.error("Error during JWTStrategy authentication:", error);
-        return callback(error, false);
-      }
-    }
-  )
-);
->>>>>>> 2b6f9fa67a14051e2f45d45d6ac3d399d5cea908
