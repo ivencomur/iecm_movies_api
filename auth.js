@@ -1,57 +1,37 @@
-const jwt = require("jsonwebtoken");
-const passport = require("passport");
-require("./passport");
+const jwtSecret = 'your_jwt_secret';
 
-const jwtSecret = process.env.JWT_SECRET;
+const jwt = require('jsonwebtoken'),
+  passport = require('passport');
+
+require('./passport');
+
 
 let generateJWTToken = (user) => {
-  if (!jwtSecret) {
-    console.error(
-      "FATAL ERROR: JWT_SECRET environment variable not set in auth.js. Cannot sign token."
-    );
-    throw new Error("JWT_SECRET is not configured, cannot generate token.");
-  }
   return jwt.sign(user, jwtSecret, {
-    subject: user.username,
-    expiresIn: "7d",
-    algorithm: "HS256",
+    subject: user.Username,
+    expiresIn: '7d',
+    algorithm: 'HS256'
   });
-};
+}
+
+
 
 module.exports = (router) => {
-  router.post("/login", (req, res, next) => {
-    passport.authenticate("local", { session: false }, (error, user, info) => {
-      if (error) {
-        console.error("Login authentication error:", error);
-        return res
-          .status(500)
-          .json({ error: "Internal server error during login." });
-      }
-      if (!user) {
-        const message =
-          info && info.message
-            ? info.message
-            : "Login failed (invalid credentials or user not found).";
-        console.log("Login failed:", message);
-        return res.status(401).json({ error: message });
+  router.post('/login', (req, res) => {
+    passport.authenticate('local', { session: false }, (error, user, info) => {
+      if (error || !user) {
+        return res.status(400).json({
+          message: 'Something is not right',
+          user: user
+        });
       }
       req.login(user, { session: false }, (error) => {
         if (error) {
-          console.error("req.login error:", error);
-          return res
-            .status(500)
-            .json({ error: "Internal error after authentication." });
+          res.send(error);
         }
-        try {
-          const token = generateJWTToken(user.toJSON());
-          const userResponse = { ...user.toJSON() };
-          delete userResponse.password;
-          return res.status(200).json({ user: userResponse, token: token });
-        } catch (jwtError) {
-          console.error("Error generating JWT:", jwtError);
-          return next(jwtError);
-        }
+        let token = generateJWTToken(user.toJSON());
+        return res.json({ user, token });
       });
-    })(req, res, next);
+    })(req, res);
   });
-};
+}
