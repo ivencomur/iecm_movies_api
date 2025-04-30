@@ -7,41 +7,47 @@ let Users = Models.User,
   JWTStrategy = passportJWT.Strategy,
   ExtractJWT = passportJWT.ExtractJwt;
 
-  passport.use(
-    new LocalStrategy(
-      {
-        usernameField: 'Username',
-        passwordField: 'Password',
-      },
-      async (username, password, callback) => {
-        await Users.findOne({ Username: username })
-        .then(async (user) => { // Added async here
-          if (!user) {
-            return callback(null, false, { message: 'Incorrect username or password.' });
-          }
-          const passwordMatch = await bcrypt.compare(password, user.Password);
-          if (!passwordMatch) {
-            return callback(null, false, { message: 'Incorrect username or password.' });
-          }
-          return callback(null, user);
-        })
-        .catch((error) => {
-          return callback(error);
-        })
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "username",
+      passwordField: "password",
+    },
+    async (username, password, callback) => {
+      try {
+        const user = await Users.findOne({ username: username });
+        if (!user) {
+          return callback(null, false, { message: "Incorrect username." });
+        }
+        if (!user.validatePassword(password)) {
+          return callback(null, false, { message: "Incorrect password." });
+        }
+        return callback(null, user);
+      } catch (error) {
+        console.error("Error during LocalStrategy authentication:", error);
+        return callback(error);
       }
-    )
-  );
+    }
+  )
+);
 
-
-passport.use(new JWTStrategy({
-  jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-  secretOrKey: 'your_jwt_secret'
-}, async (jwtPayload, callback) => {
-  return await Users.findById(jwtPayload._id)
-    .then((user) => {
-      return callback(null, user);
-    })
-    .catch((error) => {
-      return callback(error)
-    });
-}));
+passport.use(
+  new JWTStrategy(
+    {
+      jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+      secretOrKey: process.env.JWT_SECRET,
+    },
+    async (jwtPayload, callback) => {
+      try {
+        const user = await Users.findById(jwtPayload._id);
+        if (!user) {
+          return callback(null, false);
+        }
+        return callback(null, user);
+      } catch (error) {
+        console.error("Error during JWTStrategy authentication:", error);
+        return callback(error, false);
+      }
+    }
+  )
+);
