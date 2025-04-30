@@ -72,12 +72,7 @@ mongoose
 
 app.use(morgan("common"));
 
-const allowedOrigins = [
-  "http://localhost:1234",
-  "http://localhost:4200",
-  "https://yourfrontenddomain.com",
-  "*",
-];
+
 app.use(
   cors({
     origin: (origin, callback) => {
