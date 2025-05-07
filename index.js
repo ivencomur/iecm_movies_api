@@ -15,6 +15,7 @@ let allowedOrigins = [
   "http://localhost:8080",
   "http://testsite.com",
   "https://ivencomur.github.io",
+  "http://localhost:1234"
 ];
 
 
