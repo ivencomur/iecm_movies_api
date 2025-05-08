@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>THE MOVIEMOBS - API Documentation</title>
+    <link rel="stylesheet" href="css/style.production.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Moderustic:wght@400;700&display=swap"
+        rel="stylesheet"
+    />
+    <link
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.production.css" />
+</head>
+<body>
+<header class="jumbotron jumbotron-fluid bg-dark text-white">
+    <div class="container">
+        <h1 class="display-4 text-center">Welcome to MOVIEMOBS, my movie-database Project's API!</h1>
+        <p class="lead text-center">Explore the available endpoints for the MOVIEMOBS API.</p>
+    </div>
+</header>
+<main class="profile container">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Request</th>
+                <th>Endpoint URL</th>
+                <th>Method</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Get movie by title</td>
+                <td>/movies/title/:title</td>
+                <td>GET</td>
+                <td>Shows detailed information for a single movie from the database by its title, including populated <a href="#director-object-details">Director</a>, <a href="#genre-object-details">Genre</a>, and <a href="#actor-object-details">Actors</a>.</td>
+            </tr>
+            <tr>
+                <td>Get movies by genre</td>
+                <td>/movies/genre/:genreName</td>
+                <td>GET</td>
+                <td>Shows all movies that match a specific genre, including populated <a href="#director-object-details">Director</a>, <a href="#genre-object-details">Genre</a>, and <a href="#actor-object-details">Actors</a>.</td>
+            </tr>
+            <tr>
+                <td>Get movies by director</td>
+                <td>/movies/director/:directorName</td>
+                <td>GET</td>
+                <td>Shows all movies directed by a specific director, including populated <a href="#director-object-details">Director</a>, <a href="#genre-object-details">Genre</a>, and <a href="#actor-object-details">Actors</a>.</td>
+            </tr>
+            <tr>
+                <td>Get movie by ID</td>
+                <td>/movies/:movieId</td>
+                <td>GET</td>
+                <td>Retrieves a movie by its ID, including populated <a href="#director-object-details">Director</a>, <a href="#genre-object-details">Genre</a>, and <a href="#actor-object-details">Actors</a>.</td>
+            </tr>
+            <tr>
+                <td>Create new movie</td>
+                <td>/movies</td>
+                <td>POST</td>
+                <td>Adds/creates a new movie. The request body needs to be a JSON object with movie details. See <a href="#create-movie-request-body">request body example</a>.</td>
+            </tr>
+            <tr>
+                <td>Update existing movie</td>
+                <td>/movies/:movieId</td>
+                <td>PUT</td>
+                <td>Updates an existing movie. Request body needs to  be a JSON object with updated movie details. See <a href="#update-movie-request-body">request body example</a>.</td>
+            </tr>
+            <tr>
+                <td>Delete a movie</td>
+                <td>/movies/:movieId</td>
+                <td>DELETE</td>
+                <td>Deletes a movie by its ID.</td>
+            </tr>
+            <tr>
+                <td>Get movie cast</td>
+                <td>/movies/:movieId/cast</td>
+                <td>GET</td>
+                <td>Shows the full list of <a href="#actor-object-details">actors</a> (a.k.a. cast) for a specific movie.</td>
+            </tr>
+            <tr>
+                <td>Get actors by movie</td>
+                <td>/actors/movie/:movieId</td>
+                <td>GET</td>
+                <td>Shows all <a href="#actor-object-details">actors</a> who starred in a specific movie.</td>
+            </tr>
+            <tr>
+                <td>Get actors by genre</td>
+                <td>/actors/genre/:genreName</td>
+                <td>GET</td>
+                <td>Shows all <a href="#actor-object-details">actors</a> who have starred in movies of a specific <a href="#genre-object-details">genre</a>.</td>
+            </tr>
+            <tr>
+                <td>Get actor by name</td>
+                <td>/actors/name/:name</td>
+                <td>GET</td>
+                <td>Shows an <a href="#actor-object-details">actor</a> by their name.</td>
+            </tr>
+            <tr>
+                <td>Get actor by ID</td>
+                <td>/actors/:actorId</td>
+                <td>GET</td>
+                <td>Shows an <a href="#actor-object-details">actor</a> by their ID.</td>
+            </tr>
+            <tr>
+                <td>Get all actors</td>
+                <td>/actors</td>
+                <td>GET</td>
+                <td>Retrieves a list of all <a href="#actor-object-details">actors</a>.</td>
+            </tr>
+            <tr>
+                <td>Create/add new actor</td>
+                <td>/actors</td>
+                <td>POST</td>
+                <td>Creates a new <a href="#actor-object-details">actor</a>. Request body needs to be a JSON object with actor details. See <a href="#create-actor-request-body">request body example</a>.</td>
+            </tr>
+            <tr>
+                <td>Update existing actor</td>
+                <td>/actors/:actorId</td>
+                <td>PUT</td>
+                <td>Updates an existing <a href="#actor-object-details">actor</a>. Request body needs to be a JSON object with updated actor details. See <a href="#update-actor-request-body">request body example</a>.</td>
+            </tr>
+            <tr>
+                <td>Delete an actor</td>
+                <td>/actors/:actorId</td>
+                <td>DELETE</td>
+                <td>Deletes an <a href="#actor-object-details">actor</a> by their ID.</td>
+            </tr>
+            <tr>
+                <td>Get all genres</td>
+                <td>/genres</td>
+                <td>GET</td>
+                <td>Retrieves a list of all <a href="#genre-object-details">genres</a>.</td>
+            </tr>
+            <tr>
+                <td>Delete a genre</td>
+                <td>/genres/:name</td>
+                <td>DELETE</td>
+                <td>Deletes a <a href="#genre-object-details">genre</a> by its name.</td>
+            </tr>
+            <tr>
+                <td>Update existing genre</td>
+                <td>/genres/:name</td>
+                <td>PUT</td>
+                <td>Updates an existing <a href="#genre-object-details">genre</a>. Request body needs to be a JSON object with updated genre details. See <a href="#update-genre-request-body">request body example</a>.</td>
+            </tr>
+            <tr>
+                <td>Get all directors</td>
+                <td>/directors</td>
+                <td>GET</td>
+                <td>Shows a list of all <a href="#director-object-details">directors</a>.</td>
+            </tr>
+            <tr>
+                <td>Get director by name</td>
+                <td>/directors/name/:name</td>
+                <td>GET</td>
+                <td>Shows a <a href="#director-object-details">director</a> by their name.</td>
+            </tr>
+            <tr>
+                <td>Get director by ID</td>
+                <td>/directors/:directorId</td>
+                <td>GET</td>
+                <td>Retrieves a <a href="#director-object-details">director</a> by their ID.</td>
+            </tr>
+            <tr>
+                <td>Register new user</td>
+                <td>/users</td>
+                <td>POST</td>
+                <td>Registers a new user in the database. See <a href="#register-user-request-body">request body example</a>.</td>
+            </tr>
+            <tr>
+                <td>Update user info</td>
+                <td>/users/:username</td>
+                <td>PUT</td>
+                <td>Updates user information in the database for the user with the given username. See <a href="#update-user-request-body">request body example</a>.</td>
+            </tr>
+            <tr>
+                <td>Add movie to favorites</td>
+                <td>/users/:username/favorites/:movieId</td>
+                <td>POST</td>
+                <td>Adds a movie to a user's list of favorite movies in the database.</td>
+            </tr>
+            <tr>
+                <td>Remove movie from favorites</td>
+                <td>/users/:username/favorites/:movieId</td>
+                <td>DELETE</td>
+                <td>Removes a movie from a user's list of favorite movies in the database.</td>
+            </tr>
+            <tr>
+                <td>Deregister user</td>
+                <td>/users/:username</td>
+                <td>DELETE</td>
+                <td>Deletes a user from the database.</td>
+            </tr>
+            <tr>
+                <td>Get welcome message</td>
+                <td>/</td>
+                <td>GET</td>
+                <td>Welcome message for the API.</td>
+            </tr>
+            <tr>
+                <td>Get all users (admin)</td>
+                <td>/admin/users</td>
+                <td>GET</td>
+                <td>Shows a list of all users. Note: No specific admin access control is implemented in the current API.</td>
+            </tr>
+            <tr>
+                <td>Get all movies with details (admin)</td>
+                <td>/admin/movies</td>
+                <td>GET</td>
+                <td>Shows a list of all movies with populated <a href="#director-object-details">Director</a>, <a href="#genre-object-details">Genre</a>, and <a href="#actor-object-details">Actors</a> details. Note: No specific admin access control is implemented in the current API.</td>
+            </tr>
+            <tr>
+                <td>Get all genres (admin)</td>
+                <td>/admin/genres</td>
+                <td>GET</td>
+                <td>Shows a list of all <a href="#genre-object-details">genres</a>. Note: No specific admin access control is implemented in the current API.</td>
+            </tr>
+            <tr>
+                <td>Get all directors (admin)</td>
+                <td>/admin/directors</td>
+                <td>GET</td>
+                <td>Shows a list of all <a href="#director-object-details">directors</a>. Note: No specific admin access control is implemented in the current API.</td>
+            </tr>
+            <tr>
+                <td>Get all actors (admin)</td>
+                <td>/admin/actors</td>
+                <td>GET</td>
+                <td>Shows a list of all <a href="#actor-object-details">actors</a>. Note: No specific admin access control is implemented in the current API.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Detailed Documentation for Key Endpoints</h3>
+
+    <section id="movie-by-title">
+        <h4>Get movie by title</h4>
+        <p>Shows detailed information for a movie from the database by its title. The response includes populated details for the Director, Genre, and Actors.</p>
+        <ul>
+            <li><strong>Endpoint URL:</strong> /movies/title/:title</li>
+            <li><strong>Method:</strong> GET</li>
+            <li><strong>Path Parameter:</strong> <code>title</code> (string) - The title of the movie you are looking for.</li>
+            <li><strong>Response Data:</strong> JSON object containing the movie's details, including its <a href="#director-object-details">Director</a>, <a href="#genre-object-details">Genre</a> (with Name and Description), and an array of <a href="#actor-object-details">Actors</a> (each with Name, Bio, Birthdate, Deathdate). Returns a 404 status if the movie is not found.</li>
+        </ul>
+    </section>
+
+    <section id="create-movie">
+        <h4>Create new movie</h4>
+        <p>Adds a new movie to the database.</p>
+        <ul>
+            <li><strong>Endpoint URL:</strong> /movies</li>
+            <li><strong>Method:</strong> POST</li>
+            <li><strong>Request Body:</strong> JSON object containing the details of the new movie. Ensure that the <code>Genre.Name</code> and <code>Director.Name</code> match existing entries in the database. <code>Actors</code> should be an array of names of existing actors. See <a href="#create-movie-request-body">request body example</a> below.</li>
+            <li><strong>Response Data:</strong> JSON object of the newly created movie with its assigned <code>_id</code> (status 201). Returns a 500 status if there's a server error.</li>
+        </ul>
+        <h5 id="create-movie-request-body">Request Body Example</h5>
+        <pre><code>
+{
+    "Title": "The New Masterpiece",
+    "Description": "A groundbreaking film.",
+    "Genre": {
+        "Name": "Drama"
+    },
+    "Director": {
+        "Name": "Famous Director"
+    },
+    "Actors": ["Leading Actor 1", "Leading Actor 2"],
+    "ImagePath": "/images/new_masterpiece.jpg",
+    "Featured": true
+}
+        </code></pre>
+    </section>
+
+    <section id="update-movie">
+        <h4>Update existing movie</h4>
+        <p>Updates an existing movie.</p>
+        <ul>
+            <li><strong>Endpoint URL:</strong> /movies/:movieId</li>
+            <li><strong>Method:</strong> PUT</li>
+            <li><strong>Path Parameter:</strong> <code>movieId</code> (string) - The ID of the movie to update.</li>
+            <li><strong>Request Body:</strong> JSON object containing the fields to update. You can update any of the movie's properties (Title, Description, Genre.Name, Director.Name, Actors - array of names, ImagePath, Featured). See <a href="#update-movie-request-body">request body example</a> below.</li>
+            <li><strong>Response Data:</strong> JSON object of the updated movie with populated Director, Genre, and Actors details (status 200). Returns a 404 status if the movie is not found, or a 500 status if there's a server error.</li>
+        </ul>
+        <h5 id="update-movie-request-body">Request Body Example</h5>
+        <pre><code>
+{
+    "Description": "An even more groundbreaking film!",
+    "Featured": false,
+    "Genre": {
+        "Name": "Sci-Fi"
+    },
+    "Actors": ["Leading Actor 1", "New Actor"]
+}
+        </code></pre>
+    </section>
+
+    <section id="register-user">
+        <h4>Register new user</h4>
+        <p>Registers a new user in the database.</p>
+        <ul>
+            <li><strong>Endpoint URL:</strong> /users</li>
+            <li><strong>Method:</strong> POST</li>
+            <li><strong>Request Body:</strong> JSON object containing user registration details. See <a href="#register-user-request-body">request body example</a> below.</li>
+            <li><strong>Response Data:</strong> JSON object of the newly registered user (status 201). Returns a 400 error if the username already exists.</li>
+        </ul>
+        <h5 id="register-user-request-body">Request Body Example</h5>
+        <pre><code>
+{
+    "Username": "newUsername",
+    "Password": "securePassword",
+    "Email": "newuser@example.com",
+    "Birthday": "YYYY-MM-DD"
+}
+        </code></pre>
+    </section>
+
+    <section id="update-user">
+        <h4>Update user info</h4>
+        <p>Updates user information in the database for the user with the given username.</p>
+        <ul>
+            <li><strong>Endpoint URL:</strong> /users/:username</li>
+            <li><strong>Method:</strong> PUT</li>
+            <li><strong>Path Parameter:</strong> <code>username</code> (string) - The username of the user to update.</li>
+            <li><strong>Request Body:</strong> JSON object containing the fields to update. You can update <code>Password</code>, <code>Email</code>, and <code>Birthday</code>. See <a href="#update-user-request-body">request body example</a> below.</li>
+            <li><strong>Response Data:</strong> JSON object of the updated user (status 200). Returns a 404 status if the user is not found, or a 500 status if there's a server error.</li>
+        </ul>
+        <h5 id="update-user-request-body">Request Body Example</h5>
+        <pre><code>
+{
+    "Password": "newSecurePassword",
+    "Email": "updated@example.com"
+}
+        </code></pre>
+    </section>
+
+    <section id="add-favorite">
+        <h4>Add movie to favorites</h4>
+        <p>Adds a movie to a user's list of favorite movies.</p>
+        <ul>
+            <li><strong>Endpoint URL:</strong> /users/:username/favorites/:movieId</li>
+            <li><strong>Method:</strong> POST</li>
+            <li><strong>Path Parameters:</strong>
+                <ul>
+                    <li><code>username</code> (string) - The username of the user.</li>
+                    <li><code>movieId</code> (string) - The ID of the movie to add to favorites.</li>
+                </ul>
+            </li>
+            <li><strong>Request Body:</strong> None</li>
+            <li><strong>Response Data:</strong> JSON object of the updated user with the <code>FavoriteMovies</code> array including the new <code>movieId</code> (status 200). Returns a 404 status if the user is not found.</li>
+        </ul>
+    </section>
+
+    <section id="admin-get-all-movies">
+        <h4>Get all movies with details (Admin)</h4>
+        <p>Retrieves a list of all movies with populated details for <a href="#director-object-details">Director</a>, <a href="#genre-object-details">Genre</a>, and <a href="#actor-object-details">Actors</a>. Note: No specific admin access control is implemented in the current API.</p>
+        <ul>
+            <li><strong>Endpoint URL:</strong> /admin/movies</li>
+            <li><strong>Method:</strong> GET</li>
+            <li><strong>Response Data:</strong> JSON array of movie objects, each including populated Director, Genre, and Actors fields (status 200).</li>
+        </ul>
+    </section>
+
+    <h3>Data Object Details</h3>
+
+    <section id="movie-object-details">
+        <h4>Movie Object</h4>
+        <p>Represents a movie in the database.</p>
+        <pre><code>
+{
+    "_id": "...",
+    "Title": "Movie Title",
+    "Description": "Description of the movie.",
+    "Genre": {
+        "Name": "Genre Name",
+        "Description": "Description of the genre."
+    },
+    "Director": {
+        "Name": "Director's Name",
+        "Bio": "Biography of the director.",
+        "Birth": "YYYY-MM-DD,
+        "Death": "YYYY-MM-DD" (or null if still living)
+    },
+    "Actors": [
+        {
+            "_id": "...",
+            "Name": "Actor Name 1",
+            "Bio": "Biography of the actor.",
+            "Birthdate": "YYYY-MM-DD",
+            "Deathdate": "YYYY-MM-DD" (or null if still living)
+        },
+        {
+            "_id": "...",
+            "Name": "Actor Name 2",
+            "Bio": "Biography of the actor.",
+            "Birthdate": "YYYY-MM-DD",
+            "Deathdate": "YYYY-MM-DD" (or null if still living)
+        },
+        ...
+    ],
+    "ImagePath": "/path/to/image.jpg",
+    "Featured": true/false,
+    "__v": 0
+}
+        </code></pre>
+    </section>
+
+    <section id="genre-object-details">
+        <h4>Genre Object</h4>
+        <p>Represents a movie genre.</p>
+        <pre><code>
+{
+    "_id": "...",
+    "Name": "Genre Name",
+    "Description": "Description of the genre."
+}
+        </code></pre>
+    </section>
+
+    <section id="director-object-details">
+        <h4>Director Object</h4>
+        <p>Represents a movie director.</p>
+        <pre><code>
+{
+    "_id": "...",
+    "Name": "Director's Name",
+    "Bio": "Biography of the director.",
+    "Birth": "YYYY-MM-DD",
+    "Death": "YYYY-MM-DD" (or null if still living)
+}
+        </code></pre>
+    </section>
+
+    <section id="actor-object-details">
+        <h4>Actor Object</h4>
+        <p>Represents an actor.</p>
+        <pre><code>
+{
+    "_id": "...",
+    "Name": "Actor's Name",
+    "Bio": "Biography of the actor.",
+    "Birthdate": "YYYY-MM-DD",
+    "Deathdate": "YYYY-MM-DD" (or null if still living)
+}
+        </code></pre>
+    </section>
+
+    <section id="user-object-details">
+        <h4>User Object</h4>
+        <p>Represents a registered user.</p>
+        <pre><code>
+{
+    "_id": "...",
+    "Username": "string",
+    "Password": "string (hashed)",
+    "Email": "string",
+    "Birthday": "YYYY-MM-DD",
+    "FavoriteMovies": ["movieId1", "movieId2", ...]
+}
+        </code></pre>
+    </section>
+
+</main>
+<footer class="page-footer">
+    <br />
+    <br />
+    <h3>Ivan Cortés Murcia</h3>
+    <p>Lawrenceville, GA, USA</p>
+    <p>Tel: <a href="tel:+17608******">+17608******</a></p>
+    <a href="mailto:ivancortes@hotmail.com">ivancortes@hotmail.com</a>
+    <p>Find me on:</p>
+    <div class="social-media">
+        <a id="github-link" href="https://github.com/ivencomur" target="_blank"
+            ><img
+                src="img/logo_github_icon.svg"
+                alt="Github"
+                width="30"
+                height="30"
+        /></a>
+        <a id="twitter-link" href="https://x.com/IVENCOMUR" target="_blank"
+            ><img
+                src="img/xformertwittericon.svg"
+                alt="X former Twitter"
+                width="30"
+                height="30"
+        /></a>
+        <a
+            id="linkedin-link"
+            href="https://www.linkedin.com/in/ivan-cortes-murcia-22053953"
+            target="_blank"
+            ><img
+                src="img/linkedinicon.svg"
+                alt="LinkedIn"
+                width="30"
+                height="30"
+        /></a>
+    </div>
+</footer>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="index.js"></script>
+</body>
+</html>

@@ -1,0 +1,502 @@
+const express = require("express");
+const morgan = require("morgan");
+const path = require("path");
+const {
+  MovieSequelize,
+  DirectorSequelize,
+  GenreSequelize,
+  ActorSequelize,
+  MovieCastSequelize,
+  UserSequelize,
+  UsersMovieSequelize,
+  sequelize, // Import the sequelize instance
+} = require("./models"); // Adjust the path if necessary
+
+const app = express();
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
+app.use(express.urlencoded({ extended: true }));
+const port = process.env.PORT || 8080;
+
+app.use(morgan("common"));
+
+// Database Connection Test
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log("Sequelize: Database connection has been established successfully.");
+    // Optional: Sync the models with the database.
+    // Be cautious with force: true in production.
+    // sequelize.sync({ force: false });
+  })
+  .catch((err) => {
+    console.error("Sequelize: Unable to connect to the database:", err);
+  });
+
+app.get("/movies/title/:title", async (req, res) => {
+  try {
+    const { title } = req.params;
+    const movie = await MovieSequelize.findOne({
+      where: { title: title },
+      include: [
+        { model: DirectorSequelize, as: "director" },
+        { model: GenreSequelize, as: "genre" },
+        {
+          model: ActorSequelize,
+          as: "actors",
+          through: MovieCastSequelize,
+        },
+      ],
+    });
+
+    if (movie) {
+      res.status(200).json(movie);
+    } else {
+      res.status(404).send("Movie not found.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.get("/movies/genre/:genreName", async (req, res) => {
+  try {
+    const { genreName } = req.params;
+    const genre = await GenreSequelize.findOne({ where: { name: genreName } });
+
+    if (!genre) {
+      return res.status(404).send("Genre not found");
+    }
+
+    const movies = await MovieSequelize.findAll({
+      where: { genreid: genre.genreid },
+      include: [
+        { model: DirectorSequelize, as: "director" },
+        { model: GenreSequelize, as: "genre" },
+        {
+          model: ActorSequelize,
+          as: "actors",
+          through: MovieCastSequelize,
+        },
+      ],
+    });
+
+    res.status(200).json(movies);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.get("/movies/director/:directorName", async (req, res) => {
+  try {
+    const { directorName } = req.params;
+    const director = await DirectorSequelize.findOne({
+      where: { name: directorName },
+    });
+
+    if (!director) {
+      return res.status(404).send("Director not found");
+    }
+
+    const movies = await MovieSequelize.findAll({
+      where: { directorid: director.directorid },
+      include: [
+        { model: DirectorSequelize, as: "director" },
+        { model: GenreSequelize, as: "genre" },
+        {
+          model: ActorSequelize,
+          as: "actors",
+          through: MovieCastSequelize,
+        },
+      ],
+    });
+
+    res.status(200).json(movies);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.get("/movies/:movieId", async (req, res) => {
+  try {
+    const { movieId } = req.params;
+    const movie = await MovieSequelize.findByPk(movieId, {
+      include: [
+        { model: DirectorSequelize, as: "director" },
+        { model: GenreSequelize, as: "genre" },
+        {
+          model: ActorSequelize,
+          as: "actors",
+          through: MovieCastSequelize,
+        },
+      ],
+    });
+
+    if (movie) {
+      res.status(200).json(movie);
+    } else {
+      res.status(404).send("Movie not found.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.post("/movies", async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      directorid,
+      genreid,
+      imageurl,
+      featured,
+      releaseyear,
+      rating,
+    } = req.body;
+    const newMovie = await MovieSequelize.create({
+      title,
+      description,
+      directorid,
+      genreid,
+      imageurl,
+      featured,
+      releaseyear,
+      rating,
+    });
+    res.status(201).json(newMovie);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.put("/movies/:movieId", async (req, res) => {
+  try {
+    const { movieId } = req.params;
+    const {
+      title,
+      description,
+      directorid,
+      genreid,
+      imageurl,
+      featured,
+      releaseyear,
+      rating,
+    } = req.body;
+
+    const [updatedRowCount] = await MovieSequelize.update(
+      {
+        title,
+        description,
+        directorid,
+        genreid,
+        imageurl,
+        featured,
+        releaseyear,
+        rating,
+      },
+      { where: { movieid: movieId } }
+    );
+
+    if (updatedRowCount > 0) {
+      const updatedMovie = await MovieSequelize.findByPk(movieId);
+      res.status(200).json(updatedMovie);
+    } else {
+      res.status(404).send("Movie not found.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.delete("/movies/:movieId", async (req, res) => {
+  try {
+    const { movieId } = req.params;
+    const deletedRowCount = await MovieSequelize.destroy({
+      where: { movieid: movieId },
+    });
+
+    if (deletedRowCount > 0) {
+      res.status(200).send("Movie deleted successfully.");
+    } else {
+      res.status(404).send("Movie not found.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.get("/movies/:movieId/cast", async (req, res) => {
+  try {
+    const { movieId } = req.params;
+    const movie = await MovieSequelize.findByPk(movieId, {
+      include: [{ model: ActorSequelize, as: "actors", through: MovieCastSequelize }],
+    });
+
+    if (movie) {
+      res.status(200).json(movie.actors);
+    } else {
+      res.status(404).send("Movie not found.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.get("/actors/movie/:movieId", async (req, res) => {
+  try {
+    const { movieId } = req.params;
+    const movie = await MovieSequelize.findByPk(movieId, {
+      include: [{ model: ActorSequelize, as: "actors", through: MovieCastSequelize }],
+    });
+
+    if (movie) {
+      res.status(200).json(movie.actors);
+    } else {
+      res.status(404).send("Movie not found.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.get("/actors/genre/:genreName", async (req, res) => {
+  try {
+    const { genreName } = req.params;
+    const genre = await GenreSequelize.findOne({ where: { name: genreName } });
+
+    if (!genre) {
+      return res.status(404).send("Genre not found.");
+    }
+
+    const actors = await ActorSequelize.findAll({
+      include: [
+        {
+          model: MovieSequelize,
+          as: "movies",
+          through: MovieCastSequelize,
+          where: { genreid: genre.genreid },
+        },
+      ],
+    });
+
+    res.status(200).json(actors);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.get("/actors/name/:name", async (req, res) => {
+  try {
+    const { name } = req.params;
+    const actor = await ActorSequelize.findOne({ where: { name: name } });
+
+    if (actor) {
+      res.status(200).json(actor);
+    } else {
+      res.status(404).send("Actor not found.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.get("/actors/:actorId", async (req, res) => {
+  try {
+    const { actorId } = req.params;
+    const actor = await ActorSequelize.findByPk(actorId);
+
+    if (actor) {
+      res.status(200).json(actor);
+    } else {
+      res.status(404).send("Actor not found.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.get("/actors", async (req, res) => {
+  try {
+    const actors = await ActorSequelize.findAll();
+    res.status(200).json(actors);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.post("/actors", async (req, res) => {
+  try {
+    const { name, bio, birthdate, deathdate, pictureurl } = req.body;
+    const newActor = await ActorSequelize.create({
+      name,
+      bio,
+      birthdate,
+      deathdate,
+      pictureurl,
+    });
+    res.status(201).json(newActor);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.put("/actors/:actorId", async (req, res) => {
+  try {
+    const { actorId } = req.params;
+    const { name, bio, birthdate, deathdate, pictureurl } = req.body;
+
+    const [updatedRowCount] = await ActorSequelize.update(
+      { name, bio, birthdate, deathdate, pictureurl },
+      { where: { actorid: actorId } }
+    );
+
+    if (updatedRowCount > 0) {
+      const updatedActor = await ActorSequelize.findByPk(actorId);
+      res.status(200).json(updatedActor);
+    } else {
+      res.status(404).send("Actor not found.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.delete("/actors/:actorId", async (req, res) => {
+  try {
+    const { actorId } = req.params;
+    const deletedRowCount = await ActorSequelize.destroy({
+      where: { actorid: actorId },
+    });
+
+    if (deletedRowCount > 0) {
+      res.status(200).send("Actor deleted successfully.");
+    } else {
+      res.status(404).send("Actor not found.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.get("/genres", async (req, res) => {
+  try {
+    const genres = await GenreSequelize.findAll();
+    res.status(200).json(genres);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.delete("/genres/:name", async (req, res) => {
+  try {
+    const { name } = req.params;
+    const deletedRowCount = await GenreSequelize.destroy({
+      where: { name: name },
+    });
+
+    if (deletedRowCount > 0) {
+      res.status(200).send("Genre deleted successfully.");
+    } else {
+      res.status(404).send("Genre not found.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.put("/genres/:name", async (req, res) => {
+  try {
+    const { name } = req.params;
+    const { description } = req.body;
+    const [updatedRowCount] = await GenreSequelize.update(
+      { description: description },
+      { where: { name: name } }
+    );
+
+    if (updatedRowCount > 0) {
+      const updatedGenre = await GenreSequelize.findOne({ where: { name: name } });
+      res.status(200).json(updatedGenre);
+    } else {
+      res.status(404).send("Genre not found.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.get("/directors", async (req, res) => {
+  try {
+    const directors = await DirectorSequelize.findAll();
+    res.status(200).json(directors);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.get("/directors/name/:name", async (req, res) => {
+  try {
+    const { name } = req.params;
+    const director = await DirectorSequelize.findOne({ where: { name: name } });
+
+    if (director) {
+      res.status(200).json(director);
+    } else {
+      res.status(404).send("Director not found.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.get("/directors/:directorId", async (req, res) => {
+  try {
+    const { directorId } = req.params;
+    const director = await DirectorSequelize.findByPk(directorId);
+
+    if (director) {
+      res.status(200).json(director);
+    } else {
+      res.status(404).send("Director not found.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("We are sorry, there has been an error.");
+  }
+});
+
+app.post("/users", async (req, res) => {
+  try {
+    const { username, email, firstname, lastname } = req.body;
+    const existingUser = await UserSequelize.findOne({ where: { username: username } });
+
+    if (existingUser) {
+      return res
+        .status(400)
+        .send(
+          "Username already exists. <a href='/documentation.html#register-user'>Try again?</a>"
+        );
+    } else {
+      const newUser = await User
+
