@@ -326,8 +326,8 @@ app.post(
   }
 );
 
-// !!! CHANGE MADE HERE: requireJWTAuth REMOVED !!!
 app.get("/movies", async (req, res, next) => {
+
   try {
     const movies = await Movies.find()
       .populate("genre", "name description")
