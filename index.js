@@ -69,12 +69,15 @@ app.use(
   })
 );
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use(express.static(path.join(__dirname, "public")));
 
 let auth = require("./auth")(app);
 app.use(passport.initialize());
+
+const requireJWTAuth = passport.authenticate("jwt", { session: false });
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
@@ -323,8 +326,6 @@ app.post(
     }
   }
 );
-
-const requireJWTAuth = passport.authenticate("jwt", { session: false });
 
 app.get("/movies", requireJWTAuth, async (req, res, next) => {
   try {
@@ -1084,6 +1085,21 @@ app.get("/directors/name/:name", requireJWTAuth, async (req, res, next) => {
   }
 });
 
+app.get("/directors/:directorId", requireJWTAuth, async (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.directorId)) {
+    return res.status(400).json({ error: "Invalid Director ID format." });
+  }
+  try {
+    const director = await Directors.findById(req.params.directorId);
+    if (!director) {
+      return res.status(404).json({ error: "Director not found." });
+    }
+    res.status(200).json(director);
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.post(
   "/directors",
   requireJWTAuth,
@@ -1095,7 +1111,7 @@ app.post(
       .isISO8601()
       .toDate(),
     check("death", "Death date must be a valid date (YYYY-MM-DD) if provided")
-      .optional({ nullable: true })
+      .optional({ nullable: true, checkFalsy: true })
       .isISO8601()
       .toDate(),
   ],
@@ -1140,7 +1156,7 @@ app.put(
       .isISO8601()
       .toDate(),
     check("death", "Death date must be a valid date (YYYY-MM-DD) or null")
-      .optional({ nullable: true })
+      .optional({ nullable: true, checkFalsy: true })
       .isISO8601()
       .toDate(),
   ],
@@ -1160,12 +1176,26 @@ app.put(
       if (name !== undefined) updateData.name = name;
       if (bio !== undefined) updateData.bio = bio;
       if (birth !== undefined) updateData.birth = birth;
-      if (death !== undefined) updateData.death = death;
+      if (Object.prototype.hasOwnProperty.call(req.body, "death")) {
+        updateData.death = death;
+      }
 
       if (Object.keys(updateData).length === 0) {
         return res
           .status(400)
           .json({ error: "No valid fields provided for update." });
+      }
+
+      if (name !== undefined) {
+        const existingDirector = await Directors.findOne({
+          name: name,
+          _id: { $ne: req.params.directorId },
+        });
+        if (existingDirector) {
+          return res
+            .status(400)
+            .json({ error: `Director name "${name}" is already taken.` });
+        }
       }
 
       const updatedDirector = await Directors.findByIdAndUpdate(
@@ -1281,7 +1311,7 @@ app.post(
       .isISO8601()
       .toDate(),
     check("death", "Death date must be a valid date (YYYY-MM-DD) if provided")
-      .optional({ nullable: true })
+      .optional({ nullable: true, checkFalsy: true })
       .isISO8601()
       .toDate(),
     check("pictureUrl", "Picture URL must be a valid URL if provided")
@@ -1330,7 +1360,7 @@ app.put(
       .isISO8601()
       .toDate(),
     check("death", "Death date must be a valid date (YYYY-MM-DD) or null")
-      .optional({ nullable: true })
+      .optional({ nullable: true, checkFalsy: true })
       .isISO8601()
       .toDate(),
     check("pictureUrl", "Picture URL must be a valid URL or null")
@@ -1353,13 +1383,29 @@ app.put(
       if (name !== undefined) updateData.name = name;
       if (bio !== undefined) updateData.bio = bio;
       if (birth !== undefined) updateData.birth = birth;
-      if (death !== undefined) updateData.death = death;
-      if (pictureUrl !== undefined) updateData.pictureUrl = pictureUrl;
+      if (Object.prototype.hasOwnProperty.call(req.body, "death")) {
+        updateData.death = death;
+      }
+      if (Object.prototype.hasOwnProperty.call(req.body, "pictureUrl")) {
+        updateData.pictureUrl = pictureUrl;
+      }
 
       if (Object.keys(updateData).length === 0) {
         return res
           .status(400)
           .json({ error: "No valid fields provided for update." });
+      }
+
+      if (name !== undefined) {
+        const existingActor = await Actors.findOne({
+          name: name,
+          _id: { $ne: req.params.actorId },
+        });
+        if (existingActor) {
+          return res
+            .status(400)
+            .json({ error: `Actor name "${name}" is already taken.` });
+        }
       }
 
       const updatedActor = await Actors.findByIdAndUpdate(
@@ -1417,10 +1463,10 @@ app.delete("/actors/:actorId", requireJWTAuth, async (req, res, next) => {
 });
 
 const isAdmin = (req, res, next) => {
-  console.warn(
-    "Admin check middleware not fully implemented for /admin routes. Allowing access for now."
-  );
-  next();
+  if (req.user && req.user.username === "admin") {
+    return next();
+  }
+  return res.status(403).json({ error: "Forbidden: Admin access required." });
 };
 
 app.get("/admin/users", requireJWTAuth, isAdmin, async (req, res, next) => {
