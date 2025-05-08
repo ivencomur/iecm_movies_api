@@ -1,7 +1,7 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
 const express = require("express");
-const bodyParser = require("body-parser"); // Keeping original
+const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const path = require("path");
 const { validationResult, check } = require("express-validator");
@@ -61,7 +61,7 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        console.warn(`CORS blocked origin: ${origin}`); // Keep original log
+        console.warn(`CORS blocked origin: ${origin}`);
         callback(new Error("Not allowed by CORS"));
       }
     },
@@ -69,14 +69,12 @@ app.use(
   })
 );
 
-app.use(bodyParser.json()); // Keep original
-app.use(bodyParser.urlencoded({ extended: true })); // Keep original
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 let auth = require("./auth")(app);
 app.use(passport.initialize());
-
-const requireJWTAuth = passport.authenticate("jwt", { session: false });
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
@@ -326,8 +324,9 @@ app.post(
   }
 );
 
-app.get("/movies", async (req, res, next) => {
+const requireJWTAuth = passport.authenticate("jwt", { session: false });
 
+app.get("/movies", requireJWTAuth, async (req, res, next) => {
   try {
     const movies = await Movies.find()
       .populate("genre", "name description")
@@ -514,7 +513,6 @@ app.post(
             (name) => !foundNamesLower.includes(name.toLowerCase())
           );
           console.warn(
-            // Keep original console.warn
             `POST /movies: Some actors provided were not found: ${notFoundNames.join(
               ", "
             )}`
@@ -650,7 +648,7 @@ app.put(
         updateData.actors = actorDocs.map((actor) => actor._id);
 
         if (updateData.actors.length !== actorNames.length) {
-          console.warn("PUT /movies: Some actors provided were not found."); // Keep original console.warn
+          console.warn("PUT /movies: Some actors provided were not found.");
         }
       }
 
@@ -918,7 +916,6 @@ app.delete("/users/:username", requireJWTAuth, async (req, res, next) => {
 
     if (!deletedUser) {
       console.warn(
-        // Keep original console.warn
         `Attempted to delete user ${req.params.username} (ID: ${req.user._id}) but they were already gone.`
       );
       return res
@@ -1087,21 +1084,6 @@ app.get("/directors/name/:name", requireJWTAuth, async (req, res, next) => {
   }
 });
 
-app.get("/directors/:directorId", requireJWTAuth, async (req, res, next) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.directorId)) {
-    return res.status(400).json({ error: "Invalid Director ID format." });
-  }
-  try {
-    const director = await Directors.findById(req.params.directorId);
-    if (!director) {
-      return res.status(404).json({ error: "Director not found." });
-    }
-    res.status(200).json(director);
-  } catch (err) {
-    next(err);
-  }
-});
-
 app.post(
   "/directors",
   requireJWTAuth,
@@ -1113,7 +1095,7 @@ app.post(
       .isISO8601()
       .toDate(),
     check("death", "Death date must be a valid date (YYYY-MM-DD) if provided")
-      .optional({ nullable: true, checkFalsy: true })
+      .optional({ nullable: true })
       .isISO8601()
       .toDate(),
   ],
@@ -1158,7 +1140,7 @@ app.put(
       .isISO8601()
       .toDate(),
     check("death", "Death date must be a valid date (YYYY-MM-DD) or null")
-      .optional({ nullable: true, checkFalsy: true })
+      .optional({ nullable: true })
       .isISO8601()
       .toDate(),
   ],
@@ -1178,26 +1160,12 @@ app.put(
       if (name !== undefined) updateData.name = name;
       if (bio !== undefined) updateData.bio = bio;
       if (birth !== undefined) updateData.birth = birth;
-      if (Object.prototype.hasOwnProperty.call(req.body, "death")) {
-        updateData.death = death;
-      }
+      if (death !== undefined) updateData.death = death;
 
       if (Object.keys(updateData).length === 0) {
         return res
           .status(400)
           .json({ error: "No valid fields provided for update." });
-      }
-
-      if (name !== undefined) {
-        const existingDirector = await Directors.findOne({
-          name: name,
-          _id: { $ne: req.params.directorId },
-        });
-        if (existingDirector) {
-          return res
-            .status(400)
-            .json({ error: `Director name "${name}" is already taken.` });
-        }
       }
 
       const updatedDirector = await Directors.findByIdAndUpdate(
@@ -1313,7 +1281,7 @@ app.post(
       .isISO8601()
       .toDate(),
     check("death", "Death date must be a valid date (YYYY-MM-DD) if provided")
-      .optional({ nullable: true, checkFalsy: true })
+      .optional({ nullable: true })
       .isISO8601()
       .toDate(),
     check("pictureUrl", "Picture URL must be a valid URL if provided")
@@ -1362,7 +1330,7 @@ app.put(
       .isISO8601()
       .toDate(),
     check("death", "Death date must be a valid date (YYYY-MM-DD) or null")
-      .optional({ nullable: true, checkFalsy: true })
+      .optional({ nullable: true })
       .isISO8601()
       .toDate(),
     check("pictureUrl", "Picture URL must be a valid URL or null")
@@ -1385,29 +1353,13 @@ app.put(
       if (name !== undefined) updateData.name = name;
       if (bio !== undefined) updateData.bio = bio;
       if (birth !== undefined) updateData.birth = birth;
-      if (Object.prototype.hasOwnProperty.call(req.body, "death")) {
-        updateData.death = death;
-      }
-      if (Object.prototype.hasOwnProperty.call(req.body, "pictureUrl")) {
-        updateData.pictureUrl = pictureUrl;
-      }
+      if (death !== undefined) updateData.death = death;
+      if (pictureUrl !== undefined) updateData.pictureUrl = pictureUrl;
 
       if (Object.keys(updateData).length === 0) {
         return res
           .status(400)
           .json({ error: "No valid fields provided for update." });
-      }
-
-      if (name !== undefined) {
-        const existingActor = await Actors.findOne({
-          name: name,
-          _id: { $ne: req.params.actorId },
-        });
-        if (existingActor) {
-          return res
-            .status(400)
-            .json({ error: `Actor name "${name}" is already taken.` });
-        }
       }
 
       const updatedActor = await Actors.findByIdAndUpdate(
@@ -1466,7 +1418,6 @@ app.delete("/actors/:actorId", requireJWTAuth, async (req, res, next) => {
 
 const isAdmin = (req, res, next) => {
   console.warn(
-    // Keep original console.warn
     "Admin check middleware not fully implemented for /admin routes. Allowing access for now."
   );
   next();
@@ -1521,7 +1472,7 @@ app.get("/admin/actors", requireJWTAuth, isAdmin, async (req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error("--- Global Error Handler ---"); // Keep original console.error
+  console.error("--- Global Error Handler ---");
   console.error("Timestamp:", new Date().toISOString());
   console.error("Request URL:", req.originalUrl);
   console.error("Request Method:", req.method);
@@ -1544,11 +1495,11 @@ app.use((err, req, res, next) => {
     errorMessage = `Validation Error: ${err.message}`;
   } else if (err instanceof mongoose.Error.CastError) {
     statusCode = 400;
-    errorMessage = `Invalid ID format for parameter '<span class="math-inline">\{err\.path\}'\. Value\: '</span>{err.value}'`;
+    errorMessage = `Invalid ID format for parameter '${err.path}'. Value: '${err.value}'`;
   } else if (err.code === 11000) {
     statusCode = 400;
     const field = Object.keys(err.keyValue || {})[0] || "field";
-    errorMessage = `<span class="math-inline">\{field\.charAt\(0\)\.toUpperCase\(\) \+ field\.slice\(1\)\} '</span>{
+    errorMessage = `${field.charAt(0).toUpperCase() + field.slice(1)} '${
       err.keyValue[field]
     }' already exists.`;
   } else if (statusCode >= 500) {
@@ -1559,9 +1510,8 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`MovieMobs API Server is listening on Port ${PORT}`); // Keep original console.log
+  console.log(`MovieMobs API Server is listening on Port ${PORT}`);
   console.log(
-    // Keep original console.log
     `Access documentation (if served locally) at http://localhost:${PORT}/documentation.html`
   );
 });
