@@ -1541,11 +1541,11 @@ app.use((err, req, res, next) => {
     errorMessage = `Validation Error: ${err.message}`;
   } else if (err instanceof mongoose.Error.CastError) {
     statusCode = 400;
-    errorMessage = `Invalid ID format for parameter '${err.path}'. Value: '${err.value}'`;
+    errorMessage = `Invalid ID format for parameter '<span class="math-inline">\{err\.path\}'\. Value\: '</span>{err.value}'`;
   } else if (err.code === 11000) {
     statusCode = 400;
     const field = Object.keys(err.keyValue || {})[0] || "field";
-    errorMessage = `${field.charAt(0).toUpperCase() + field.slice(1)} '${
+    errorMessage = `<span class="math-inline">\{field\.charAt\(0\)\.toUpperCase\(\) \+ field\.slice\(1\)\} '</span>{
       err.keyValue[field]
     }' already exists.`;
   } else if (statusCode >= 500) {
