@@ -324,7 +324,7 @@ app.post(
   }
 );
 
-const requireJWTAuth = passport.authenticate("jwt", { session: false });
+
 
 app.get("/movies", requireJWTAuth, async (req, res, next) => {
   try {
