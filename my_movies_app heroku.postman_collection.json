@@ -1,0 +1,179 @@
+{
+	"info": {
+	  "_postman_id": "31b6090a-ca69-4ea6-9406-58cabc7787cd",
+	  "name": "my_movies_api",
+	  "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+	  "_exporter_id": "42514276"
+	},
+	"item": [
+	  {
+		"name": "LOGIN",
+		"request": {
+		  "method": "POST",
+		  "header": [],
+		  "body": {
+			"mode": "raw",
+			"raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n  }",
+			"options": {
+			  "raw": {
+				"language": "json"
+			  }
+			}
+		  },
+		  "url": {
+			"raw": "{{apiUrl}}/login",
+			"variable": []
+		  }
+		},
+		"response": []
+	  },
+	  {
+		"name": "GET /movies",
+		"request": {
+		  "method": "GET",
+		  "header": [
+			{
+			  "key": "Authorization",
+			  "value": "Bearer {{authToken}}",
+			  "type": "default"
+			}
+		  ],
+		  "url": {
+			"raw": "{{apiUrl}}/movies",
+			"variable": []
+		  }
+		},
+		"response": []
+	  },
+	  {
+		"name": "GET /movies/:title",
+		"request": {
+		  "method": "GET",
+		  "header": [
+			{
+			  "key": "Authorization",
+			  "value": "Bearer {{authToken}}",
+			  "type": "default"
+			}
+		  ],
+		  "url": {
+			"raw": "{{apiUrl}}/movies/title/:title",
+			"path": [
+			  "movies",
+			  "title",
+			  ":title"
+			],
+			"variable": [
+			  {
+				"key": "title",
+				"value": "The Matrix"
+			  }
+			]
+		  }
+		},
+		"response": []
+	  },
+	  {
+		"name": "POST /users",
+		"request": {
+		  "method": "POST",
+		  "header": [],
+		  "body": {
+			"mode": "raw",
+			"raw": "{\n    \"username\": \"newuser\",\n    \"password\": \"newpass\",\n    \"email\": \"newuser@example.com\"\n  }",
+			"options": {
+			  "raw": {
+				"language": "json"
+			  }
+			}
+		  },
+		  "url": {
+			"raw": "{{apiUrl}}/users",
+			"variable": []
+		  }
+		},
+		"response": []
+	  },
+	  {
+		"name": "PUT /users/:username",
+		"request": {
+		  "method": "PUT",
+		  "header": [
+			{
+			  "key": "Authorization",
+			  "value": "Bearer {{authToken}}",
+			  "type": "default"
+			}
+		  ],
+		  "url": {
+			"raw": "{{apiUrl}}/users/:username",
+			"path": [
+			  "users",
+			  ":username"
+			],
+			"variable": [
+			  {
+				"key": "username",
+				"value": "newuser"
+			  }
+			]
+		  },
+		  "body": {
+			"mode": "raw",
+			"raw": "{\n    \"email\": \"updatedemail@example.com\"\n  }",
+			"options": {
+			  "raw": {
+				"language": "json"
+			  }
+			}
+		  }
+		},
+		"response": []
+	  },
+	  {
+		"name": "GET /actors",
+		"request": {
+		  "method": "GET",
+		  "header": [
+			{
+			  "key": "Authorization",
+			  "value": "Bearer {{authToken}}",
+			  "type": "default"
+			}
+		  ],
+		  "url": {
+			"raw": "{{apiUrl}}/actors",
+			"variable": []
+		  }
+		},
+		"response": []
+	  },
+	  {
+		"name": "POST /actors",
+		"request": {
+		  "method": "POST",
+		  "header": [
+			{
+			  "key": "Authorization",
+			  "value": "Bearer {{authToken}}",
+			  "type": "default"
+			}
+		  ],
+		  "body": {
+			"mode": "raw",
+			"raw": "{\n    \"name\": \"New Actor\",\n    \"bio\": \"A new actor's bio\",\n    \"birth\": \"1990-01-01\"\n}",
+			"options": {
+			  "raw": {
+				"language": "json"
+			  }
+			}
+		  },
+		  "url": {
+			"raw": "{{apiUrl}}/actors",
+			"variable": []
+		  }
+		},
+		"response": []
+	  }
+	]
+  }
