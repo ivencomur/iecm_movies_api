@@ -1,25 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
-const genreSchema = new mongoose.Schema({
-  Name: { type: String, required: true, unique: true },
-  Description: { type: String, required: true },
-});
-
-const directorSchema = new mongoose.Schema({
-  Name: { type: String, required: true, unique: true },
-  Bio: { type: String, required: true },
-  Birth: Date,
-  Death: Date,
-});
-
-const actorSchema = new mongoose.Schema({
-  Name: { type: String, required: true, unique: true },
-  Bio: { type: String, required: true },
-  Birth: Date,
-  Death: Date,
-  PictureUrl: String,
-});
 
 const movieSchema = new mongoose.Schema({
   Title: { type: String, required: true, unique: true },

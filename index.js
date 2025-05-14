@@ -326,7 +326,7 @@ app.post(
 
 const requireJWTAuth = passport.authenticate("jwt", { session: false });
 
-app.get("/movies", async (req, res, next) => {
+app.get("/movies", requireJWTAuth, async (req, res, next) => {
   try {
     const movies = await Movies.find()
       .populate("genre", "name description")
