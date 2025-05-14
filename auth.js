@@ -9,7 +9,7 @@ let generateJWTToken = (user) => {
     console.error(
       "FATAL ERROR: JWT_SECRET environment variable not set in auth.js. Cannot sign token."
     );
-    throw new Error("JWT_SECRET is not configured, cannot generate token.");
+    return null;
   }
   return jwt.sign(user, jwtSecret, {
     subject: user.username,
@@ -23,9 +23,7 @@ module.exports = (router) => {
     passport.authenticate("local", { session: false }, (error, user, info) => {
       if (error) {
         console.error("Login authentication error:", error);
-        return res
-          .status(500)
-          .json({ error: "Internal server error during login." });
+        return next(error);
       }
       if (!user) {
         const message =
@@ -38,12 +36,17 @@ module.exports = (router) => {
       req.login(user, { session: false }, (error) => {
         if (error) {
           console.error("req.login error:", error);
-          return res
-            .status(500)
-            .json({ error: "Internal error after authentication." });
+          return next(error);
         }
         try {
           const token = generateJWTToken(user.toJSON());
+          if (!token) {
+            return res
+              .status(500)
+              .json({
+                error: "Internal server error: Could not generate token.",
+              });
+          }
           const userResponse = { ...user.toJSON() };
           delete userResponse.password;
           return res.status(200).json({ user: userResponse, token: token });

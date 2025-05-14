@@ -1,6 +1,4 @@
-//config
 require("dotenv").config();
-//dependences
 const mongoose = require("mongoose");
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -10,13 +8,12 @@ const { validationResult, check } = require("express-validator");
 const passport = require("passport");
 const cors = require("cors");
 
-//websites/domains api allows access into api
 let allowedOrigins = [
   "http://localhost:8080",
   "http://testsite.com",
   "https://ivencomur.github.io",
+  "http://localhost:1234",
 ];
-
 
 require("./passport");
 
@@ -58,7 +55,6 @@ mongoose
   });
 
 app.use(morgan("common"));
-//cors policy
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -76,8 +72,6 @@ app.use(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
-
-
 
 let auth = require("./auth")(app);
 app.use(passport.initialize());
@@ -105,27 +99,115 @@ app.post(
     ).isLength({ min: 8 }),
     check("email", "A valid email address is required").isEmail(),
     check("birthday", "Birthday must be a valid date (YYYY-MM-DD)")
-      .optional()
+      .optional({ checkFalsy: true })
       .isISO8601()
       .toDate(),
     check("firstname", "First name must be a non-empty string")
-      .optional()
+      .optional({ checkFalsy: true })
       .isString()
-      .notEmpty(),
+      .bail()
+      .notEmpty()
+      .withMessage("First name, if provided, cannot be empty."),
     check("lastname", "Last name must be a non-empty string")
-      .optional()
+      .optional({ checkFalsy: true })
       .isString()
-      .notEmpty(),
+      .bail()
+      .notEmpty()
+      .withMessage("Last name, if provided, cannot be empty."),
   ],
   async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+    const processSingleUser = async (
+      userDataFromRequest,
+      isBatchItem = false
+    ) => {
+      let userData = { ...userDataFromRequest };
 
-    try {
+      if (
+        !userData.username ||
+        typeof userData.username !== "string" ||
+        userData.username.length < 5 ||
+        !/^[a-zA-Z0-9]+$/.test(userData.username)
+      ) {
+        throw Object.assign(
+          new Error(
+            "Username must be alphanumeric and at least 5 characters long."
+          ),
+          { context: { path: "username", value: userData.username } }
+        );
+      }
+      if (
+        !userData.password ||
+        typeof userData.password !== "string" ||
+        userData.password.length < 8
+      ) {
+        throw Object.assign(
+          new Error(
+            "Password is required and must be at least 8 characters long."
+          ),
+          { context: { path: "password" } }
+        );
+      }
+      if (
+        !userData.email ||
+        typeof userData.email !== "string" ||
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userData.email)
+      ) {
+        throw Object.assign(new Error("A valid email address is required."), {
+          context: { path: "email", value: userData.email },
+        });
+      }
+
+      if (
+        userData.birthday !== undefined &&
+        userData.birthday !== null &&
+        userData.birthday !== ""
+      ) {
+        const parsedDate = new Date(userData.birthday);
+        if (isNaN(parsedDate.getTime())) {
+          throw Object.assign(
+            new Error(
+              "Birthday, if provided, must be a valid date string (e.g., YYYY-MM-DD or ISO8601 format)."
+            ),
+            { context: { path: "birthday", value: userData.birthday } }
+          );
+        }
+        userData.birthday = parsedDate;
+      } else {
+        userData.birthday = null;
+      }
+
+      if (userData.firstname !== undefined && userData.firstname !== null) {
+        if (
+          typeof userData.firstname !== "string" ||
+          userData.firstname.trim() === ""
+        ) {
+          throw Object.assign(
+            new Error("First name, if provided, must be a non-empty string."),
+            { context: { path: "firstname", value: userData.firstname } }
+          );
+        }
+        userData.firstname = userData.firstname.trim();
+      } else {
+        userData.firstname = null;
+      }
+
+      if (userData.lastname !== undefined && userData.lastname !== null) {
+        if (
+          typeof userData.lastname !== "string" ||
+          userData.lastname.trim() === ""
+        ) {
+          throw Object.assign(
+            new Error("Last name, if provided, must be a non-empty string."),
+            { context: { path: "lastname", value: userData.lastname } }
+          );
+        }
+        userData.lastname = userData.lastname.trim();
+      } else {
+        userData.lastname = null;
+      }
+
       const { username, password, email, birthday, firstname, lastname } =
-        req.body;
+        userData;
 
       const existingUser = await Users.findOne({
         $or: [{ username: username }, { email: email }],
@@ -136,11 +218,13 @@ app.post(
           existingUser.username === username
             ? `Username "${username}" already exists.`
             : `Email "${email}" is already registered.`;
-        return res.status(400).json({ error: message });
+        throw Object.assign(new Error(message), {
+          isDuplicate: true,
+          field: existingUser.username === username ? "username" : "email",
+        });
       }
 
       const hashedPassword = Users.hashPassword(password);
-
       const newUser = new Users({
         username,
         password: hashedPassword,
@@ -148,22 +232,101 @@ app.post(
         birthday,
         firstname,
         lastname,
+        favoriteMovies: userData.favoriteMovies || [],
       });
-      const savedUser = await newUser.save();
 
+      const savedUser = await newUser.save();
       const userResponse = { ...savedUser.toJSON() };
       delete userResponse.password;
+      return userResponse;
+    };
 
-      res.status(201).json(userResponse);
-    } catch (err) {
-      next(err);
+    if (Array.isArray(req.body)) {
+      const usersDataArray = req.body;
+      const results = [];
+      const batchErrors = [];
+
+      for (let i = 0; i < usersDataArray.length; i++) {
+        const userObject = usersDataArray[i];
+        try {
+          const result = await processSingleUser(userObject, true);
+          results.push(result);
+        } catch (err) {
+          batchErrors.push({
+            index: i,
+            input_username: (userObject && userObject.username) || "N/A",
+            error: err.message || "Server error during user processing",
+            field: err.field || (err.context && err.context.path) || undefined,
+            value:
+              (err.context && err.context.value) ||
+              (userObject && err.context && userObject[err.context.path]) ||
+              undefined,
+          });
+        }
+      }
+
+      if (results.length === usersDataArray.length) {
+        return res.status(201).json(results);
+      } else if (results.length === 0) {
+        return res.status(400).json({
+          message: "All user creations in the batch failed.",
+          errors: batchErrors,
+        });
+      } else {
+        return res.status(207).json({
+          message: "Batch user creation partially successful.",
+          succeeded_count: results.length,
+          failed_count: batchErrors.length,
+          succeeded: results,
+          failed: batchErrors,
+        });
+      }
+    } else {
+      const expressValidatorErrors = validationResult(req);
+      if (!expressValidatorErrors.isEmpty()) {
+        return res.status(400).json({ errors: expressValidatorErrors.array() });
+      }
+      try {
+        const result = await processSingleUser(req.body, false);
+        return res.status(201).json(result);
+      } catch (err) {
+        if (err.isDuplicate) {
+          return res.status(400).json({
+            errors: [
+              {
+                type: "field",
+                msg: err.message,
+                path: err.field,
+                location: "body",
+                value: req.body[err.field],
+              },
+            ],
+          });
+        } else if (err.context && err.context.path) {
+          return res.status(400).json({
+            errors: [
+              {
+                type: "field",
+                msg: err.message,
+                path: err.context.path,
+                location: "body",
+                value:
+                  err.context.value !== undefined
+                    ? err.context.value
+                    : req.body[err.context.path],
+              },
+            ],
+          });
+        }
+        return next(err);
+      }
     }
   }
 );
 
 const requireJWTAuth = passport.authenticate("jwt", { session: false });
 
-app.get("/movies", requireJWTAuth, async (req, res, next) => {
+app.get("/movies", async (req, res, next) => {
   try {
     const movies = await Movies.find()
       .populate("genre", "name description")
@@ -916,6 +1079,21 @@ app.get("/directors/name/:name", requireJWTAuth, async (req, res, next) => {
       });
     }
     res.status(200).json(directors);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.get("/directors/:directorId", requireJWTAuth, async (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.directorId)) {
+    return res.status(400).json({ error: "Invalid Director ID format." });
+  }
+  try {
+    const director = await Directors.findById(req.params.directorId);
+    if (!director) {
+      return res.status(404).json({ error: "Director not found."});
+    }
+    res.status(200).json(director);
   } catch (err) {
     next(err);
   }
