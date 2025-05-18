@@ -13,6 +13,7 @@ let allowedOrigins = [
   "http://testsite.com",
   "https://ivencomur.github.io",
   "http://localhost:1234",
+  // Add any other origins your frontend might be served from during development/production
 ];
 
 require("./passport");
@@ -116,10 +117,7 @@ app.post(
       .withMessage("Last name, if provided, cannot be empty."),
   ],
   async (req, res, next) => {
-    const processSingleUser = async (
-      userDataFromRequest,
-      isBatchItem = false
-    ) => {
+    const processSingleUser = async (userDataFromRequest) => {
       let userData = { ...userDataFromRequest };
 
       if (
@@ -156,7 +154,6 @@ app.post(
           context: { path: "email", value: userData.email },
         });
       }
-
       if (
         userData.birthday !== undefined &&
         userData.birthday !== null &&
@@ -175,7 +172,6 @@ app.post(
       } else {
         userData.birthday = null;
       }
-
       if (userData.firstname !== undefined && userData.firstname !== null) {
         if (
           typeof userData.firstname !== "string" ||
@@ -190,7 +186,6 @@ app.post(
       } else {
         userData.firstname = null;
       }
-
       if (userData.lastname !== undefined && userData.lastname !== null) {
         if (
           typeof userData.lastname !== "string" ||
@@ -208,11 +203,9 @@ app.post(
 
       const { username, password, email, birthday, firstname, lastname } =
         userData;
-
       const existingUser = await Users.findOne({
         $or: [{ username: username }, { email: email }],
       });
-
       if (existingUser) {
         const message =
           existingUser.username === username
@@ -234,7 +227,6 @@ app.post(
         lastname,
         favoriteMovies: userData.favoriteMovies || [],
       });
-
       const savedUser = await newUser.save();
       const userResponse = { ...savedUser.toJSON() };
       delete userResponse.password;
@@ -245,11 +237,10 @@ app.post(
       const usersDataArray = req.body;
       const results = [];
       const batchErrors = [];
-
       for (let i = 0; i < usersDataArray.length; i++) {
         const userObject = usersDataArray[i];
         try {
-          const result = await processSingleUser(userObject, true);
+          const result = await processSingleUser(userObject);
           results.push(result);
         } catch (err) {
           batchErrors.push({
@@ -264,22 +255,25 @@ app.post(
           });
         }
       }
-
       if (results.length === usersDataArray.length) {
         return res.status(201).json(results);
       } else if (results.length === 0) {
-        return res.status(400).json({
-          message: "All user creations in the batch failed.",
-          errors: batchErrors,
-        });
+        return res
+          .status(400)
+          .json({
+            message: "All user creations in the batch failed.",
+            errors: batchErrors,
+          });
       } else {
-        return res.status(207).json({
-          message: "Batch user creation partially successful.",
-          succeeded_count: results.length,
-          failed_count: batchErrors.length,
-          succeeded: results,
-          failed: batchErrors,
-        });
+        return res
+          .status(207)
+          .json({
+            message: "Batch user creation partially successful.",
+            succeeded_count: results.length,
+            failed_count: batchErrors.length,
+            succeeded: results,
+            failed: batchErrors,
+          });
       }
     } else {
       const expressValidatorErrors = validationResult(req);
@@ -287,36 +281,40 @@ app.post(
         return res.status(400).json({ errors: expressValidatorErrors.array() });
       }
       try {
-        const result = await processSingleUser(req.body, false);
+        const result = await processSingleUser(req.body);
         return res.status(201).json(result);
       } catch (err) {
         if (err.isDuplicate) {
-          return res.status(400).json({
-            errors: [
-              {
-                type: "field",
-                msg: err.message,
-                path: err.field,
-                location: "body",
-                value: req.body[err.field],
-              },
-            ],
-          });
+          return res
+            .status(400)
+            .json({
+              errors: [
+                {
+                  type: "field",
+                  msg: err.message,
+                  path: err.field,
+                  location: "body",
+                  value: req.body[err.field],
+                },
+              ],
+            });
         } else if (err.context && err.context.path) {
-          return res.status(400).json({
-            errors: [
-              {
-                type: "field",
-                msg: err.message,
-                path: err.context.path,
-                location: "body",
-                value:
-                  err.context.value !== undefined
-                    ? err.context.value
-                    : req.body[err.context.path],
-              },
-            ],
-          });
+          return res
+            .status(400)
+            .json({
+              errors: [
+                {
+                  type: "field",
+                  msg: err.message,
+                  path: err.context.path,
+                  location: "body",
+                  value:
+                    err.context.value !== undefined
+                      ? err.context.value
+                      : req.body[err.context.path],
+                },
+              ],
+            });
         }
         return next(err);
       }
@@ -329,9 +327,9 @@ const requireJWTAuth = passport.authenticate("jwt", { session: false });
 app.get("/movies", requireJWTAuth, async (req, res, next) => {
   try {
     const movies = await Movies.find()
-      .populate("genre", "name description")
-      .populate("director", "name bio")
-      .populate("actors", "name");
+      .populate("Genre", "name description")
+      .populate("Director", "name bio")
+      .populate("Actors", "name");
     res.status(200).json(movies);
   } catch (err) {
     next(err);
@@ -344,10 +342,9 @@ app.get("/movies/:movieId", requireJWTAuth, async (req, res, next) => {
       return res.status(400).json({ error: "Invalid Movie ID format." });
     }
     const movie = await Movies.findById(req.params.movieId)
-      .populate("genre")
-      .populate("director")
-      .populate("actors");
-
+      .populate("Genre")
+      .populate("Director")
+      .populate("Actors");
     if (!movie) {
       return res.status(404).json({ error: "Movie not found." });
     }
@@ -363,10 +360,9 @@ app.get("/movies/title/:title", requireJWTAuth, async (req, res, next) => {
     const movie = await Movies.findOne({
       title: { $regex: new RegExp("^" + titleSearch + "$", "i") },
     })
-      .populate("genre")
-      .populate("director")
-      .populate("actors");
-
+      .populate("Genre")
+      .populate("Director")
+      .populate("Actors");
     if (!movie) {
       return res
         .status(404)
@@ -384,18 +380,15 @@ app.get("/movies/genre/:genreName", requireJWTAuth, async (req, res, next) => {
     const genre = await Genres.findOne({
       name: { $regex: new RegExp("^" + genreNameSearch + "$", "i") },
     });
-
     if (!genre) {
       return res
         .status(404)
         .json({ error: `Genre "${genreNameSearch}" not found.` });
     }
-
-    const movies = await Movies.find({ genre: genre._id })
-      .populate("genre", "name")
-      .populate("director", "name")
-      .populate("actors", "name");
-
+    const movies = await Movies.find({ Genre: genre._id })
+      .populate("Genre", "name")
+      .populate("Director", "name")
+      .populate("Actors", "name");
     res.status(200).json(movies);
   } catch (err) {
     next(err);
@@ -411,18 +404,15 @@ app.get(
       const director = await Directors.findOne({
         name: { $regex: new RegExp("^" + directorNameSearch + "$", "i") },
       });
-
       if (!director) {
         return res
           .status(404)
           .json({ error: `Director "${directorNameSearch}" not found.` });
       }
-
-      const movies = await Movies.find({ director: director._id })
-        .populate("genre", "name")
-        .populate("director", "name")
-        .populate("actors", "name");
-
+      const movies = await Movies.find({ Director: director._id })
+        .populate("Genre", "name")
+        .populate("Director", "name")
+        .populate("Actors", "name");
       res.status(200).json(movies);
     } catch (err) {
       next(err);
@@ -457,7 +447,6 @@ app.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
     try {
       const {
         title,
@@ -470,14 +459,12 @@ app.post(
         releaseYear,
         rating,
       } = req.body;
-
-      const existingMovie = await Movies.findOne({ title: title });
+      const existingMovie = await Movies.findOne({ Title: title });
       if (existingMovie) {
         return res
           .status(400)
           .json({ error: `Movie with title "${title}" already exists.` });
       }
-
       const genreDoc = await Genres.findOne({
         name: { $regex: new RegExp("^" + genreName + "$", "i") },
       });
@@ -486,7 +473,6 @@ app.post(
           .status(400)
           .json({ error: `Genre "${genreName}" not found.` });
       }
-
       const directorDoc = await Directors.findOne({
         name: { $regex: new RegExp("^" + directorName + "$", "i") },
       });
@@ -495,7 +481,6 @@ app.post(
           .status(400)
           .json({ error: `Director "${directorName}" not found.` });
       }
-
       let actorIds = [];
       if (actorNames.length > 0) {
         const actorDocs = await Actors.find({
@@ -504,40 +489,23 @@ app.post(
           },
         });
         actorIds = actorDocs.map((actor) => actor._id);
-
-        if (actorIds.length !== actorNames.length) {
-          const foundNamesLower = actorDocs.map((doc) =>
-            doc.name.toLowerCase()
-          );
-          const notFoundNames = actorNames.filter(
-            (name) => !foundNamesLower.includes(name.toLowerCase())
-          );
-          console.warn(
-            `POST /movies: Some actors provided were not found: ${notFoundNames.join(
-              ", "
-            )}`
-          );
-        }
       }
-
       const newMovie = new Movies({
-        title,
-        description,
-        releaseYear,
-        rating,
-        genre: genreDoc._id,
-        director: directorDoc._id,
-        actors: actorIds,
-        imagePath,
-        featured,
+        Title: title,
+        Description: description,
+        ReleaseYear: releaseYear,
+        Rating: rating,
+        Genre: genreDoc._id,
+        Director: directorDoc._id,
+        Actors: actorIds,
+        ImagePath: imagePath,
+        Featured: featured,
       });
       const savedMovie = await newMovie.save();
-
       const populatedMovie = await Movies.findById(savedMovie._id)
-        .populate("genre")
-        .populate("director")
-        .populate("actors");
-
+        .populate("Genre")
+        .populate("Director")
+        .populate("Actors");
       res.status(201).json(populatedMovie);
     } catch (err) {
       next(err);
@@ -584,11 +552,9 @@ app.put(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
     if (!mongoose.Types.ObjectId.isValid(req.params.movieId)) {
       return res.status(400).json({ error: "Invalid Movie ID format." });
     }
-
     try {
       const {
         title,
@@ -601,76 +567,61 @@ app.put(
         releaseYear,
         rating,
       } = req.body;
-
       const updateData = {};
-      if (title !== undefined) updateData.title = title;
-      if (description !== undefined) updateData.description = description;
-      if (imagePath !== undefined) updateData.imagePath = imagePath;
-      if (featured !== undefined) updateData.featured = featured;
-      if (releaseYear !== undefined) updateData.releaseYear = releaseYear;
-      if (rating !== undefined) updateData.rating = rating;
+      if (title !== undefined) updateData.Title = title;
+      if (description !== undefined) updateData.Description = description;
+      if (imagePath !== undefined) updateData.ImagePath = imagePath;
+      if (featured !== undefined) updateData.Featured = featured;
+      if (releaseYear !== undefined) updateData.ReleaseYear = releaseYear;
+      if (rating !== undefined) updateData.Rating = rating;
 
       if (genreName !== undefined) {
         const genreDoc = await Genres.findOne({
           name: { $regex: new RegExp("^" + genreName + "$", "i") },
         });
-        if (!genreDoc) {
+        if (!genreDoc)
           return res
             .status(400)
             .json({ error: `Genre "${genreName}" not found.` });
-        }
-        updateData.genre = genreDoc._id;
+        updateData.Genre = genreDoc._id;
       }
-
       if (directorName !== undefined) {
         const directorDoc = await Directors.findOne({
           name: { $regex: new RegExp("^" + directorName + "$", "i") },
         });
-        if (!directorDoc) {
+        if (!directorDoc)
           return res
             .status(400)
             .json({ error: `Director "${directorName}" not found.` });
-        }
-        updateData.director = directorDoc._id;
+        updateData.Director = directorDoc._id;
       }
-
       if (actorNames !== undefined) {
-        if (!Array.isArray(actorNames)) {
+        if (!Array.isArray(actorNames))
           return res
             .status(400)
             .json({ error: "Actors field must be an array of names." });
-        }
         const actorDocs = await Actors.find({
           name: {
             $in: actorNames.map((name) => new RegExp("^" + name + "$", "i")),
           },
         });
-        updateData.actors = actorDocs.map((actor) => actor._id);
-
-        if (updateData.actors.length !== actorNames.length) {
-          console.warn("PUT /movies: Some actors provided were not found.");
-        }
+        updateData.Actors = actorDocs.map((actor) => actor._id);
       }
-
       if (Object.keys(updateData).length === 0) {
         return res
           .status(400)
           .json({ error: "No valid fields provided for update." });
       }
-
       const updatedMovie = await Movies.findByIdAndUpdate(
         req.params.movieId,
         { $set: updateData },
         { new: true, runValidators: true }
       )
-        .populate("genre")
-        .populate("director")
-        .populate("actors");
-
-      if (!updatedMovie) {
+        .populate("Genre")
+        .populate("Director")
+        .populate("Actors");
+      if (!updatedMovie)
         return res.status(404).json({ error: "Movie not found." });
-      }
-
       res.status(200).json(updatedMovie);
     } catch (err) {
       next(err);
@@ -682,22 +633,17 @@ app.delete("/movies/:movieId", requireJWTAuth, async (req, res, next) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.movieId)) {
     return res.status(400).json({ error: "Invalid Movie ID format." });
   }
-
   try {
     const deletedMovie = await Movies.findByIdAndDelete(req.params.movieId);
-
-    if (!deletedMovie) {
+    if (!deletedMovie)
       return res.status(404).json({ error: "Movie not found." });
-    }
-
     await Users.updateMany(
       { favoriteMovies: req.params.movieId },
       { $pull: { favoriteMovies: req.params.movieId } }
     );
-
     res
       .status(200)
-      .json({ message: `Movie "${deletedMovie.title}" deleted successfully.` });
+      .json({ message: `Movie "${deletedMovie.Title}" deleted successfully.` });
   } catch (err) {
     next(err);
   }
@@ -709,13 +655,11 @@ app.get("/movies/:movieId/actors", requireJWTAuth, async (req, res, next) => {
   }
   try {
     const movie = await Movies.findById(req.params.movieId).populate(
-      "actors",
+      "Actors",
       "name bio birth death pictureUrl"
     );
-    if (!movie) {
-      return res.status(404).json({ error: "Movie not found." });
-    }
-    res.status(200).json(movie.actors || []);
+    if (!movie) return res.status(404).json({ error: "Movie not found." });
+    res.status(200).json(movie.Actors || []);
   } catch (err) {
     next(err);
   }
@@ -727,15 +671,11 @@ app.get("/users/:username", requireJWTAuth, async (req, res, next) => {
       .status(403)
       .json({ error: "Forbidden: You can only view your own profile." });
   }
-
   try {
     const user = await Users.findOne({ username: req.params.username })
       .select("-password")
       .populate("favoriteMovies");
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
+    if (!user) return res.status(404).json({ error: "User not found." });
     res.status(200).json(user);
   } catch (err) {
     next(err);
@@ -773,15 +713,12 @@ app.put(
         .status(403)
         .json({ error: "Forbidden: You can only update your own profile." });
     }
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
     try {
       const { username, email, birthday, firstname, lastname } = req.body;
-
       const updateData = {};
       if (username !== undefined) updateData.username = username;
       if (email !== undefined) updateData.email = email;
@@ -793,12 +730,10 @@ app.put(
         const orChecks = [];
         if (username) orChecks.push({ username: username });
         if (email) orChecks.push({ email: email });
-
         const existingUser = await Users.findOne({
           $or: orChecks,
           _id: { $ne: req.user._id },
         });
-
         if (existingUser) {
           const message =
             existingUser.username === username
@@ -807,23 +742,18 @@ app.put(
           return res.status(400).json({ error: message });
         }
       }
-
       if (Object.keys(updateData).length === 0) {
         return res
           .status(400)
           .json({ error: "No valid fields provided for update." });
       }
-
       const updatedUser = await Users.findOneAndUpdate(
         { username: req.params.username },
         { $set: updateData },
         { new: true, runValidators: true }
       ).select("-password");
-
-      if (!updatedUser) {
+      if (!updatedUser)
         return res.status(404).json({ error: "User not found for update." });
-      }
-
       res.status(200).json(updatedUser);
     } catch (err) {
       next(err);
@@ -840,17 +770,12 @@ app.post(
         .status(403)
         .json({ error: "Forbidden: You can only modify your own favorites." });
     }
-
     if (!mongoose.Types.ObjectId.isValid(req.params.movieId)) {
       return res.status(400).json({ error: "Invalid Movie ID format." });
     }
-
     try {
       const movie = await Movies.findById(req.params.movieId);
-      if (!movie) {
-        return res.status(404).json({ error: "Movie not found." });
-      }
-
+      if (!movie) return res.status(404).json({ error: "Movie not found." });
       const user = await Users.findByIdAndUpdate(
         req.user._id,
         { $addToSet: { favoriteMovies: movie._id } },
@@ -858,11 +783,7 @@ app.post(
       )
         .select("-password")
         .populate("favoriteMovies");
-
-      if (!user) {
-        return res.status(404).json({ error: "User not found." });
-      }
-
+      if (!user) return res.status(404).json({ error: "User not found." });
       res.status(200).json(user);
     } catch (err) {
       next(err);
@@ -879,11 +800,9 @@ app.delete(
         .status(403)
         .json({ error: "Forbidden: You can only modify your own favorites." });
     }
-
     if (!mongoose.Types.ObjectId.isValid(req.params.movieId)) {
       return res.status(400).json({ error: "Invalid Movie ID format." });
     }
-
     try {
       const user = await Users.findByIdAndUpdate(
         req.user._id,
@@ -892,11 +811,7 @@ app.delete(
       )
         .select("-password")
         .populate("favoriteMovies");
-
-      if (!user) {
-        return res.status(404).json({ error: "User not found." });
-      }
-
+      if (!user) return res.status(404).json({ error: "User not found." });
       res.status(200).json(user);
     } catch (err) {
       next(err);
@@ -910,22 +825,17 @@ app.delete("/users/:username", requireJWTAuth, async (req, res, next) => {
       .status(403)
       .json({ error: "Forbidden: You can only delete your own account." });
   }
-
   try {
     const deletedUser = await Users.findByIdAndDelete(req.user._id);
-
-    if (!deletedUser) {
-      console.warn(
-        `Attempted to delete user ${req.params.username} (ID: ${req.user._id}) but they were already gone.`
-      );
+    if (!deletedUser)
       return res
         .status(404)
         .json({ error: "User not found (perhaps already deleted)." });
-    }
-
-    res.status(200).json({
-      message: `User account "${deletedUser.username}" deleted successfully.`,
-    });
+    res
+      .status(200)
+      .json({
+        message: `User account "${deletedUser.username}" deleted successfully.`,
+      });
   } catch (err) {
     next(err);
   }
@@ -946,12 +856,10 @@ app.get("/genres/:name", requireJWTAuth, async (req, res, next) => {
     const genre = await Genres.findOne({
       name: { $regex: new RegExp("^" + genreNameSearch + "$", "i") },
     });
-
-    if (!genre) {
+    if (!genre)
       return res
         .status(404)
         .json({ error: `Genre "${genreNameSearch}" not found.` });
-    }
     res.status(200).json(genre);
   } catch (err) {
     next(err);
@@ -967,21 +875,18 @@ app.post(
   ],
   async (req, res, next) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
+    if (!errors.isEmpty())
       return res.status(400).json({ errors: errors.array() });
-    }
-
     try {
       const { name, description } = req.body;
       const newGenre = new Genres({ name, description });
       const savedGenre = await newGenre.save();
       res.status(201).json(savedGenre);
     } catch (err) {
-      if (err.code === 11000) {
+      if (err.code === 11000)
         return res
           .status(400)
           .json({ error: `Genre name "${req.body.name}" already exists.` });
-      }
       next(err);
     }
   }
@@ -993,25 +898,20 @@ app.put(
   [check("description", "Description is required").trim().notEmpty()],
   async (req, res, next) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
+    if (!errors.isEmpty())
       return res.status(400).json({ errors: errors.array() });
-    }
-
     try {
       const genreNameSearch = decodeURIComponent(req.params.name);
       const { description } = req.body;
-
       const updatedGenre = await Genres.findOneAndUpdate(
         { name: { $regex: new RegExp("^" + genreNameSearch + "$", "i") } },
         { $set: { description } },
         { new: true, runValidators: true }
       );
-
-      if (!updatedGenre) {
+      if (!updatedGenre)
         return res
           .status(404)
           .json({ error: `Genre "${genreNameSearch}" not found.` });
-      }
       res.status(200).json(updatedGenre);
     } catch (err) {
       next(err);
@@ -1022,33 +922,27 @@ app.put(
 app.delete("/genres/:name", requireJWTAuth, async (req, res, next) => {
   try {
     const genreNameSearch = decodeURIComponent(req.params.name);
-
     const genre = await Genres.findOne({
       name: { $regex: new RegExp("^" + genreNameSearch + "$", "i") },
     });
-
-    if (!genre) {
+    if (!genre)
       return res
         .status(404)
         .json({ error: `Genre "${genreNameSearch}" not found.` });
-    }
-
-    const moviesUsingGenre = await Movies.find({ genre: genre._id }).limit(1);
-
-    if (moviesUsingGenre.length > 0) {
-      return res.status(400).json({
-        error: `Cannot delete genre "${genre.name}" as it is assigned to one or more movies.`,
-      });
-    }
-
+    const moviesUsingGenre = await Movies.find({ Genre: genre._id }).limit(1);
+    if (moviesUsingGenre.length > 0)
+      return res
+        .status(400)
+        .json({
+          error: `Cannot delete genre "${genre.name}" as it is assigned to one or more movies.`,
+        });
     const deletedGenre = await Genres.findByIdAndDelete(genre._id);
-
-    if (!deletedGenre) {
-      return res.status(404).json({
-        error: `Genre "${genreNameSearch}" not found (concurrent delete?).`,
-      });
-    }
-
+    if (!deletedGenre)
+      return res
+        .status(404)
+        .json({
+          error: `Genre "${genreNameSearch}" not found (concurrent delete?).`,
+        });
     res
       .status(200)
       .json({ message: `Genre "${deletedGenre.name}" deleted successfully.` });
@@ -1072,12 +966,12 @@ app.get("/directors/name/:name", requireJWTAuth, async (req, res, next) => {
     const directors = await Directors.find({
       name: { $regex: new RegExp(directorNameSearch, "i") },
     });
-
-    if (!directors || directors.length === 0) {
-      return res.status(404).json({
-        error: `No directors found matching "${directorNameSearch}".`,
-      });
-    }
+    if (!directors || directors.length === 0)
+      return res
+        .status(404)
+        .json({
+          error: `No directors found matching "${directorNameSearch}".`,
+        });
     res.status(200).json(directors);
   } catch (err) {
     next(err);
@@ -1090,9 +984,8 @@ app.get("/directors/:directorId", requireJWTAuth, async (req, res, next) => {
   }
   try {
     const director = await Directors.findById(req.params.directorId);
-    if (!director) {
-      return res.status(404).json({ error: "Director not found."});
-    }
+    if (!director)
+      return res.status(404).json({ error: "Director not found." });
     res.status(200).json(director);
   } catch (err) {
     next(err);
@@ -1116,10 +1009,8 @@ app.post(
   ],
   async (req, res, next) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
+    if (!errors.isEmpty())
       return res.status(400).json({ errors: errors.array() });
-    }
-
     try {
       const { name, bio, birth, death } = req.body;
       const newDirector = new Directors({
@@ -1131,11 +1022,10 @@ app.post(
       const savedDirector = await newDirector.save();
       res.status(201).json(savedDirector);
     } catch (err) {
-      if (err.code === 11000) {
+      if (err.code === 11000)
         return res
           .status(400)
           .json({ error: `Director name "${req.body.name}" already exists.` });
-      }
       next(err);
     }
   }
@@ -1161,14 +1051,10 @@ app.put(
   ],
   async (req, res, next) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
+    if (!errors.isEmpty())
       return res.status(400).json({ errors: errors.array() });
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(req.params.directorId)) {
+    if (!mongoose.Types.ObjectId.isValid(req.params.directorId))
       return res.status(400).json({ error: "Invalid Director ID format." });
-    }
-
     try {
       const { name, bio, birth, death } = req.body;
       const updateData = {};
@@ -1176,66 +1062,59 @@ app.put(
       if (bio !== undefined) updateData.bio = bio;
       if (birth !== undefined) updateData.birth = birth;
       if (death !== undefined) updateData.death = death;
-
-      if (Object.keys(updateData).length === 0) {
+      if (Object.keys(updateData).length === 0)
         return res
           .status(400)
           .json({ error: "No valid fields provided for update." });
-      }
-
       const updatedDirector = await Directors.findByIdAndUpdate(
         req.params.directorId,
         { $set: updateData },
         { new: true, runValidators: true }
       );
-
-      if (!updatedDirector) {
+      if (!updatedDirector)
         return res.status(404).json({ error: "Director not found." });
-      }
       res.status(200).json(updatedDirector);
     } catch (err) {
-      if (err.code === 11000 && err.keyPattern && err.keyPattern.name) {
-        return res.status(400).json({
-          error: `Cannot update: Director name "${req.body.name}" is already taken.`,
-        });
-      }
+      if (err.code === 11000 && err.keyPattern && err.keyPattern.name)
+        return res
+          .status(400)
+          .json({
+            error: `Cannot update: Director name "${req.body.name}" is already taken.`,
+          });
       next(err);
     }
   }
 );
 
 app.delete("/directors/:directorId", requireJWTAuth, async (req, res, next) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.directorId)) {
+  if (!mongoose.Types.ObjectId.isValid(req.params.directorId))
     return res.status(400).json({ error: "Invalid Director ID format." });
-  }
-
   try {
     const moviesUsingDirector = await Movies.find({
-      director: req.params.directorId,
+      Director: req.params.directorId,
     }).limit(1);
-
     if (moviesUsingDirector.length > 0) {
       const director = await Directors.findById(req.params.directorId).select(
         "name"
       );
-      return res.status(400).json({
-        error: `Cannot delete director "${
-          director ? director.name : "ID: " + req.params.directorId
-        }" as they are assigned to one or more movies.`,
-      });
+      return res
+        .status(400)
+        .json({
+          error: `Cannot delete director "${
+            director ? director.name : "ID: " + req.params.directorId
+          }" as they are assigned to one or more movies.`,
+        });
     }
-
     const deletedDirector = await Directors.findByIdAndDelete(
       req.params.directorId
     );
-
-    if (!deletedDirector) {
+    if (!deletedDirector)
       return res.status(404).json({ error: "Director not found." });
-    }
-
-    res.status(200).json({
-      message: `Director "${deletedDirector.name}" deleted successfully.`,
-    });
+    res
+      .status(200)
+      .json({
+        message: `Director "${deletedDirector.name}" deleted successfully.`,
+      });
   } catch (err) {
     next(err);
   }
@@ -1258,12 +1137,10 @@ app.get("/actors/name/:name", requireJWTAuth, async (req, res, next) => {
     const actors = await Actors.find({
       name: { $regex: new RegExp(actorNameSearch, "i") },
     });
-
-    if (!actors || actors.length === 0) {
+    if (!actors || actors.length === 0)
       return res
         .status(404)
         .json({ error: `No actors found matching "${actorNameSearch}".` });
-    }
     res.status(200).json(actors);
   } catch (err) {
     next(err);
@@ -1271,14 +1148,11 @@ app.get("/actors/name/:name", requireJWTAuth, async (req, res, next) => {
 });
 
 app.get("/actors/:actorId", requireJWTAuth, async (req, res, next) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.actorId)) {
+  if (!mongoose.Types.ObjectId.isValid(req.params.actorId))
     return res.status(400).json({ error: "Invalid Actor ID format." });
-  }
   try {
     const actor = await Actors.findById(req.params.actorId);
-    if (!actor) {
-      return res.status(404).json({ error: "Actor not found." });
-    }
+    if (!actor) return res.status(404).json({ error: "Actor not found." });
     res.status(200).json(actor);
   } catch (err) {
     next(err);
@@ -1305,10 +1179,8 @@ app.post(
   ],
   async (req, res, next) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
+    if (!errors.isEmpty())
       return res.status(400).json({ errors: errors.array() });
-    }
-
     try {
       const { name, bio, birth, death, pictureUrl } = req.body;
       const newActor = new Actors({
@@ -1321,11 +1193,10 @@ app.post(
       const savedActor = await newActor.save();
       res.status(201).json(savedActor);
     } catch (err) {
-      if (err.code === 11000) {
+      if (err.code === 11000)
         return res
           .status(400)
           .json({ error: `Actor name "${req.body.name}" already exists.` });
-      }
       next(err);
     }
   }
@@ -1354,14 +1225,10 @@ app.put(
   ],
   async (req, res, next) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
+    if (!errors.isEmpty())
       return res.status(400).json({ errors: errors.array() });
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(req.params.actorId)) {
+    if (!mongoose.Types.ObjectId.isValid(req.params.actorId))
       return res.status(400).json({ error: "Invalid Actor ID format." });
-    }
-
     try {
       const { name, bio, birth, death, pictureUrl } = req.body;
       const updateData = {};
@@ -1370,59 +1237,50 @@ app.put(
       if (birth !== undefined) updateData.birth = birth;
       if (death !== undefined) updateData.death = death;
       if (pictureUrl !== undefined) updateData.pictureUrl = pictureUrl;
-
-      if (Object.keys(updateData).length === 0) {
+      if (Object.keys(updateData).length === 0)
         return res
           .status(400)
           .json({ error: "No valid fields provided for update." });
-      }
-
       const updatedActor = await Actors.findByIdAndUpdate(
         req.params.actorId,
         { $set: updateData },
         { new: true, runValidators: true }
       );
-
-      if (!updatedActor) {
+      if (!updatedActor)
         return res.status(404).json({ error: "Actor not found." });
-      }
       res.status(200).json(updatedActor);
     } catch (err) {
-      if (err.code === 11000 && err.keyPattern && err.keyPattern.name) {
-        return res.status(400).json({
-          error: `Cannot update: Actor name "${req.body.name}" is already taken.`,
-        });
-      }
+      if (err.code === 11000 && err.keyPattern && err.keyPattern.name)
+        return res
+          .status(400)
+          .json({
+            error: `Cannot update: Actor name "${req.body.name}" is already taken.`,
+          });
       next(err);
     }
   }
 );
 
 app.delete("/actors/:actorId", requireJWTAuth, async (req, res, next) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.actorId)) {
+  if (!mongoose.Types.ObjectId.isValid(req.params.actorId))
     return res.status(400).json({ error: "Invalid Actor ID format." });
-  }
-
   try {
     const moviesWithActor = await Movies.find({
-      actors: req.params.actorId,
+      Actors: req.params.actorId,
     }).limit(1);
-
     if (moviesWithActor.length > 0) {
       const actor = await Actors.findById(req.params.actorId).select("name");
-      return res.status(400).json({
-        error: `Cannot delete actor "${
-          actor ? actor.name : "ID: " + req.params.actorId
-        }" as they are assigned to one or more movies.`,
-      });
+      return res
+        .status(400)
+        .json({
+          error: `Cannot delete actor "${
+            actor ? actor.name : "ID: " + req.params.actorId
+          }" as they are assigned to one or more movies.`,
+        });
     }
-
     const deletedActor = await Actors.findByIdAndDelete(req.params.actorId);
-
-    if (!deletedActor) {
+    if (!deletedActor)
       return res.status(404).json({ error: "Actor not found." });
-    }
-
     res
       .status(200)
       .json({ message: `Actor "${deletedActor.name}" deleted successfully.` });
@@ -1450,9 +1308,9 @@ app.get("/admin/users", requireJWTAuth, isAdmin, async (req, res, next) => {
 app.get("/admin/movies", requireJWTAuth, isAdmin, async (req, res, next) => {
   try {
     const movies = await Movies.find()
-      .populate("genre", "name")
-      .populate("director", "name")
-      .populate("actors", "name");
+      .populate("Genre", "name")
+      .populate("Director", "name")
+      .populate("Actors", "name");
     res.status(200).json(movies);
   } catch (err) {
     next(err);
@@ -1520,7 +1378,6 @@ app.use((err, req, res, next) => {
   } else if (statusCode >= 500) {
     errorMessage = "An internal server error occurred. Please try again later.";
   }
-
   res.status(statusCode).json({ error: errorMessage });
 });
 
