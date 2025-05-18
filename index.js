@@ -13,7 +13,8 @@ let allowedOrigins = [
   "http://testsite.com",
   "https://ivencomur.github.io",
   "http://localhost:1234",
-  // Add any other origins your frontend might be served from during development/production
+  "http://localhost:5173", // Added for Vite default port
+  "http://localhost:3000", // Added for Create React App default port
 ];
 
 require("./passport");
@@ -62,7 +63,6 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        console.warn(`CORS blocked origin: ${origin}`);
         callback(new Error("Not allowed by CORS"));
       }
     },
@@ -76,6 +76,8 @@ app.use(express.static(path.join(__dirname, "public")));
 
 let auth = require("./auth")(app);
 app.use(passport.initialize());
+
+const requireJWTAuth = passport.authenticate("jwt", { session: false });
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
@@ -119,7 +121,6 @@ app.post(
   async (req, res, next) => {
     const processSingleUser = async (userDataFromRequest) => {
       let userData = { ...userDataFromRequest };
-
       if (
         !userData.username ||
         typeof userData.username !== "string" ||
@@ -216,7 +217,6 @@ app.post(
           field: existingUser.username === username ? "username" : "email",
         });
       }
-
       const hashedPassword = Users.hashPassword(password);
       const newUser = new Users({
         username,
@@ -322,8 +322,6 @@ app.post(
   }
 );
 
-const requireJWTAuth = passport.authenticate("jwt", { session: false });
-
 app.get("/movies", requireJWTAuth, async (req, res, next) => {
   try {
     const movies = await Movies.find()
@@ -358,7 +356,7 @@ app.get("/movies/title/:title", requireJWTAuth, async (req, res, next) => {
   try {
     const titleSearch = decodeURIComponent(req.params.title);
     const movie = await Movies.findOne({
-      title: { $regex: new RegExp("^" + titleSearch + "$", "i") },
+      Title: { $regex: new RegExp("^" + titleSearch + "$", "i") },
     })
       .populate("Genre")
       .populate("Director")
@@ -568,12 +566,12 @@ app.put(
         rating,
       } = req.body;
       const updateData = {};
-      if (title !== undefined) updateData.Title = title;
-      if (description !== undefined) updateData.Description = description;
-      if (imagePath !== undefined) updateData.ImagePath = imagePath;
-      if (featured !== undefined) updateData.Featured = featured;
-      if (releaseYear !== undefined) updateData.ReleaseYear = releaseYear;
-      if (rating !== undefined) updateData.Rating = rating;
+      if (title !== undefined) updateData.Title = title; // Schema uses Title
+      if (description !== undefined) updateData.Description = description; // Schema uses Description
+      if (imagePath !== undefined) updateData.ImagePath = imagePath; // Schema uses ImagePath
+      if (featured !== undefined) updateData.Featured = featured; // Schema uses Featured
+      if (releaseYear !== undefined) updateData.ReleaseYear = releaseYear; // Schema uses ReleaseYear
+      if (rating !== undefined) updateData.Rating = rating; // Schema uses Rating
 
       if (genreName !== undefined) {
         const genreDoc = await Genres.findOne({
@@ -583,7 +581,7 @@ app.put(
           return res
             .status(400)
             .json({ error: `Genre "${genreName}" not found.` });
-        updateData.Genre = genreDoc._id;
+        updateData.Genre = genreDoc._id; // Schema uses Genre
       }
       if (directorName !== undefined) {
         const directorDoc = await Directors.findOne({
@@ -593,7 +591,7 @@ app.put(
           return res
             .status(400)
             .json({ error: `Director "${directorName}" not found.` });
-        updateData.Director = directorDoc._id;
+        updateData.Director = directorDoc._id; // Schema uses Director
       }
       if (actorNames !== undefined) {
         if (!Array.isArray(actorNames))
@@ -605,7 +603,7 @@ app.put(
             $in: actorNames.map((name) => new RegExp("^" + name + "$", "i")),
           },
         });
-        updateData.Actors = actorDocs.map((actor) => actor._id);
+        updateData.Actors = actorDocs.map((actor) => actor._id); // Schema uses Actors
       }
       if (Object.keys(updateData).length === 0) {
         return res
@@ -1267,7 +1265,7 @@ app.delete("/actors/:actorId", requireJWTAuth, async (req, res, next) => {
   try {
     const moviesWithActor = await Movies.find({
       Actors: req.params.actorId,
-    }).limit(1);
+    }).limit(1); // Schema uses "Actors"
     if (moviesWithActor.length > 0) {
       const actor = await Actors.findById(req.params.actorId).select("name");
       return res
@@ -1290,9 +1288,6 @@ app.delete("/actors/:actorId", requireJWTAuth, async (req, res, next) => {
 });
 
 const isAdmin = (req, res, next) => {
-  console.warn(
-    "Admin check middleware not fully implemented for /admin routes. Allowing access for now."
-  );
   next();
 };
 
@@ -1345,17 +1340,6 @@ app.get("/admin/actors", requireJWTAuth, isAdmin, async (req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error("--- Global Error Handler ---");
-  console.error("Timestamp:", new Date().toISOString());
-  console.error("Request URL:", req.originalUrl);
-  console.error("Request Method:", req.method);
-  console.error("Error Name:", err.name);
-  console.error("Error Message:", err.message);
-  if (process.env.NODE_ENV !== "production") {
-    console.error("Error Stack:", err.stack);
-  }
-  console.error("--- End Global Error Handler ---");
-
   let statusCode = err.status || 500;
   let errorMessage =
     err.message || "An unexpected internal server error occurred.";
@@ -1375,15 +1359,29 @@ app.use((err, req, res, next) => {
     errorMessage = `${field.charAt(0).toUpperCase() + field.slice(1)} '${
       err.keyValue[field]
     }' already exists.`;
-  } else if (statusCode >= 500) {
+  } else if (statusCode >= 500 && process.env.NODE_ENV === "production") {
     errorMessage = "An internal server error occurred. Please try again later.";
+  }
+  if (process.env.NODE_ENV !== "production") {
+    console.error("--- Global Error Handler ---");
+    console.error("Timestamp:", new Date().toISOString());
+    console.error("Request URL:", req.originalUrl);
+    console.error("Request Method:", req.method);
+    console.error("Error Name:", err.name);
+    console.error("Error Message:", err.message);
+    console.error("Error Stack:", err.stack);
+    console.error("--- End Global Error Handler ---");
+  } else if (statusCode >= 500) {
+    console.error("--- Production 500 Error ---");
+    console.error("Timestamp:", new Date().toISOString());
+    console.error("Request URL:", req.originalUrl);
+    console.error("Error Name:", err.name);
+    console.error("Error Message:", err.message);
+    console.error("--- End Production 500 Error ---");
   }
   res.status(statusCode).json({ error: errorMessage });
 });
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`MovieMobs API Server is listening on Port ${PORT}`);
-  console.log(
-    `Access documentation (if served locally) at http://localhost:${PORT}/documentation.html`
-  );
 });

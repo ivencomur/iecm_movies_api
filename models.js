@@ -1,16 +1,11 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
-
 const movieSchema = new mongoose.Schema({
   Title: { type: String, required: true, unique: true },
   Description: { type: String, required: true },
   Genre: { type: mongoose.Schema.Types.ObjectId, ref: "Genre", required: true },
-  Director: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Director",
-    required: true,
-  },
+  Director: { type: mongoose.Schema.Types.ObjectId, ref: "Director", required: true },
   Actors: [{ type: mongoose.Schema.Types.ObjectId, ref: "Actor" }],
   ImagePath: String,
   Featured: { type: Boolean, default: false },
@@ -19,72 +14,65 @@ const movieSchema = new mongoose.Schema({
 });
 
 const userSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    birthday: Date,
-    favoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }],
-    firstname: String,
-    lastname: String
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  birthday: Date,
+  favoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: "Movie" }],
+  firstname: String,
+  lastname: String,
 });
 
-
 userSchema.statics.hashPassword = (password) => {
-   
-    if (!bcrypt) {
-      console.error("bcrypt module not loaded. Cannot hash password.");
-      throw new Error("Password hashing dependency not available.");
-    }
-    try {
-       return bcrypt.hashSync(password, 10); 
-    } catch (error) {
-       console.error("Error hashing password:", error);
-       throw error; 
-    }
+  if (!bcrypt) {
+    console.error("bcrypt module not loaded. Cannot hash password.");
+    throw new Error("Password hashing dependency not available.");
+  }
+  try {
+    return bcrypt.hashSync(password, 10);
+  } catch (error) {
+    console.error("Error hashing password:", error);
+    throw error;
+  }
 };
 
-
-userSchema.methods.validatePassword = function(password) {
-   
-   if (!bcrypt) {
-      console.error("bcrypt module not loaded. Cannot validate password.");
-      
-      return false;
-   }
-   try {
-      
-      return bcrypt.compareSync(password, this.password);
-   } catch (error) {
-      console.error("Error comparing password:", error);
-      return false; 
-   }
+userSchema.methods.validatePassword = function (password) {
+  if (!bcrypt) {
+    console.error("bcrypt module not loaded. Cannot validate password.");
+    return false;
+  }
+  try {
+    return bcrypt.compareSync(password, this.password);
+  } catch (error) {
+    console.error("Error comparing password:", error);
+    return false;
+  }
 };
-
 
 const genreSchema = new mongoose.Schema({
-    name: { type: String, required: true, unique: true },
-    description: { type: String, required: true }
+  name: { type: String, required: true, unique: true },
+  description: { type: String, required: true },
 });
 
 const directorSchema = new mongoose.Schema({
-    name: { type: String, required: true, unique: true }, 
-    bio: { type: String, required: true },
-    birth: Date,
-    death: Date
+  name: { type: String, required: true, unique: true },
+  bio: { type: String, required: true },
+  birth: Date,
+  death: Date,
 });
 
 const actorSchema = new mongoose.Schema({
-    name: { type: String, required: true, unique: true }, 
-    bio: { type: String, required: true },
-    birth: Date,
-    death: Date,
-    pictureUrl: String
+  name: { type: String, required: true, unique: true },
+  bio: { type: String, required: true },
+  birth: Date,
+  death: Date,
+  pictureUrl: String,
 });
 
-const Movie = mongoose.model('Movie', movieSchema);
-const User = mongoose.model('User', userSchema);
-const Genre = mongoose.model('Genre', genreSchema);
-const Director = mongoose.model('Director', directorSchema);
-const Actor = mongoose.model('Actor', actorSchema);
+const Movie = mongoose.model("Movie", movieSchema);
+const User = mongoose.model("User", userSchema);
+const Genre = mongoose.model("Genre", genreSchema);
+const Director = mongoose.model("Director", directorSchema);
+const Actor = mongoose.model("Actor", actorSchema);
 
 module.exports = { Movie, User, Genre, Director, Actor };

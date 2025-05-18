@@ -1,11 +1,11 @@
-const passport = require('passport'),
-  LocalStrategy = require('passport-local').Strategy,
-  Models = require('./models.js'),
-  passportJWT = require('passport-jwt');
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const Models = require("./models.js");
+const passportJWT = require("passport-jwt");
 
-let Users = Models.User,
-  JWTStrategy = passportJWT.Strategy,
-  ExtractJWT = passportJWT.ExtractJwt;
+let Users = Models.User;
+let JWTStrategy = passportJWT.Strategy;
+let ExtractJWT = passportJWT.ExtractJwt;
 
 passport.use(
   new LocalStrategy(
@@ -24,7 +24,6 @@ passport.use(
         }
         return callback(null, user);
       } catch (error) {
-        console.error("Error during LocalStrategy authentication:", error);
         return callback(error);
       }
     }
@@ -45,7 +44,6 @@ passport.use(
         }
         return callback(null, user);
       } catch (error) {
-        console.error("Error during JWTStrategy authentication:", error);
         return callback(error, false);
       }
     }
