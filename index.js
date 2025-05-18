@@ -13,8 +13,8 @@ let allowedOrigins = [
   "http://testsite.com",
   "https://ivencomur.github.io",
   "http://localhost:1234",
-  "http://localhost:5173", // Added for Vite default port
-  "http://localhost:3000", // Added for Create React App default port
+  "http://localhost:3000",
+  "http://localhost:5173",
 ];
 
 require("./passport");
@@ -63,6 +63,7 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.warn(`CORS blocked origin: ${origin}`);
         callback(new Error("Not allowed by CORS"));
       }
     },
@@ -201,7 +202,6 @@ app.post(
       } else {
         userData.lastname = null;
       }
-
       const { username, password, email, birthday, firstname, lastname } =
         userData;
       const existingUser = await Users.findOne({
@@ -232,7 +232,6 @@ app.post(
       delete userResponse.password;
       return userResponse;
     };
-
     if (Array.isArray(req.body)) {
       const usersDataArray = req.body;
       const results = [];
@@ -457,7 +456,7 @@ app.post(
         releaseYear,
         rating,
       } = req.body;
-      const existingMovie = await Movies.findOne({ Title: title });
+      const existingMovie = await Movies.findOne({ Title: title }); // Schema uses Title
       if (existingMovie) {
         return res
           .status(400)
@@ -488,17 +487,18 @@ app.post(
         });
         actorIds = actorDocs.map((actor) => actor._id);
       }
-      const newMovie = new Movies({
+      const newMovieData = {
         Title: title,
         Description: description,
-        ReleaseYear: releaseYear,
-        Rating: rating,
         Genre: genreDoc._id,
         Director: directorDoc._id,
         Actors: actorIds,
-        ImagePath: imagePath,
-        Featured: featured,
-      });
+      };
+      if (imagePath !== undefined) newMovieData.ImagePath = imagePath;
+      if (featured !== undefined) newMovieData.Featured = featured;
+      if (releaseYear !== undefined) newMovieData.ReleaseYear = releaseYear;
+      if (rating !== undefined) newMovieData.Rating = rating;
+      const newMovie = new Movies(newMovieData);
       const savedMovie = await newMovie.save();
       const populatedMovie = await Movies.findById(savedMovie._id)
         .populate("Genre")
@@ -566,13 +566,12 @@ app.put(
         rating,
       } = req.body;
       const updateData = {};
-      if (title !== undefined) updateData.Title = title; // Schema uses Title
-      if (description !== undefined) updateData.Description = description; // Schema uses Description
-      if (imagePath !== undefined) updateData.ImagePath = imagePath; // Schema uses ImagePath
-      if (featured !== undefined) updateData.Featured = featured; // Schema uses Featured
-      if (releaseYear !== undefined) updateData.ReleaseYear = releaseYear; // Schema uses ReleaseYear
-      if (rating !== undefined) updateData.Rating = rating; // Schema uses Rating
-
+      if (title !== undefined) updateData.Title = title;
+      if (description !== undefined) updateData.Description = description;
+      if (imagePath !== undefined) updateData.ImagePath = imagePath;
+      if (featured !== undefined) updateData.Featured = featured;
+      if (releaseYear !== undefined) updateData.ReleaseYear = releaseYear;
+      if (rating !== undefined) updateData.Rating = rating;
       if (genreName !== undefined) {
         const genreDoc = await Genres.findOne({
           name: { $regex: new RegExp("^" + genreName + "$", "i") },
@@ -581,7 +580,7 @@ app.put(
           return res
             .status(400)
             .json({ error: `Genre "${genreName}" not found.` });
-        updateData.Genre = genreDoc._id; // Schema uses Genre
+        updateData.Genre = genreDoc._id;
       }
       if (directorName !== undefined) {
         const directorDoc = await Directors.findOne({
@@ -591,7 +590,7 @@ app.put(
           return res
             .status(400)
             .json({ error: `Director "${directorName}" not found.` });
-        updateData.Director = directorDoc._id; // Schema uses Director
+        updateData.Director = directorDoc._id;
       }
       if (actorNames !== undefined) {
         if (!Array.isArray(actorNames))
@@ -603,7 +602,7 @@ app.put(
             $in: actorNames.map((name) => new RegExp("^" + name + "$", "i")),
           },
         });
-        updateData.Actors = actorDocs.map((actor) => actor._id); // Schema uses Actors
+        updateData.Actors = actorDocs.map((actor) => actor._id);
       }
       if (Object.keys(updateData).length === 0) {
         return res
@@ -723,7 +722,6 @@ app.put(
       if (birthday !== undefined) updateData.birthday = birthday;
       if (firstname !== undefined) updateData.firstname = firstname;
       if (lastname !== undefined) updateData.lastname = lastname;
-
       if (username || email) {
         const orChecks = [];
         if (username) orChecks.push({ username: username });
@@ -1263,9 +1261,7 @@ app.delete("/actors/:actorId", requireJWTAuth, async (req, res, next) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.actorId))
     return res.status(400).json({ error: "Invalid Actor ID format." });
   try {
-    const moviesWithActor = await Movies.find({
-      Actors: req.params.actorId,
-    }).limit(1); // Schema uses "Actors"
+    const moviesWithActor = await Movies.find({ Actors: req.params.actorId }); // Schema uses "Actors"
     if (moviesWithActor.length > 0) {
       const actor = await Actors.findById(req.params.actorId).select("name");
       return res
@@ -1362,15 +1358,16 @@ app.use((err, req, res, next) => {
   } else if (statusCode >= 500 && process.env.NODE_ENV === "production") {
     errorMessage = "An internal server error occurred. Please try again later.";
   }
+
   if (process.env.NODE_ENV !== "production") {
-    console.error("--- Global Error Handler ---");
+    console.error("--- Global Error Handler (Dev) ---");
     console.error("Timestamp:", new Date().toISOString());
     console.error("Request URL:", req.originalUrl);
     console.error("Request Method:", req.method);
     console.error("Error Name:", err.name);
     console.error("Error Message:", err.message);
     console.error("Error Stack:", err.stack);
-    console.error("--- End Global Error Handler ---");
+    console.error("--- End Global Error Handler (Dev) ---");
   } else if (statusCode >= 500) {
     console.error("--- Production 500 Error ---");
     console.error("Timestamp:", new Date().toISOString());
