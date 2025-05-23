@@ -18,7 +18,8 @@ let allowedOrigins = [
   "https://ivencomur.github.io",
   "http://localhost:1234", // Common Parcel dev server port
   "http://localhost:3000", // Common React dev server port
-  "http://localhost:5173", // Common Vite dev server port
+  "http://localhost:5173",
+  "http://localhost:52020" // Common Vite dev server port
   // Add your frontend's deployed URL here, e.g., "https://your-movie-app-frontend.netlify.app"
   // Add your current frontend development port if different, e.g., "http://localhost:52020"
 ];
