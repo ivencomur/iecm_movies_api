@@ -84,9 +84,9 @@ mongoose
 
 // --- Core Middleware Setup ---
 app.use(morgan("common")); // Log HTTP requests
-app.use(
-  // Enable CORS with dynamic origin validation
-  cors({
+
+/*
+{
     origin: (origin, callback) => {
       // Allow requests with no origin (like Postman, curl)
       if (!origin) return callback(null, true);
@@ -105,7 +105,11 @@ app.use(
       callback(new Error(`Origin ${origin} not allowed by CORS`));
     },
     optionsSuccessStatus: 200,
-  })
+  }
+*/
+app.use(
+  // Enable CORS with dynamic origin validation
+  cors(corsOptions)
 );
 app.use(bodyParser.json()); // Parse JSON request bodies
 app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded request bodies
