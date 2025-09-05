@@ -107,32 +107,32 @@
                 <td><span class="auth-public">Public</span></td>
               </tr>
               <tr>
-                <td>Get User Profile</td>
-                <td><code>/users/:username</code></td>
+                <td>Get Authenticated User's Profile</td>
+                <td><code>/user</code></td>
                 <td><span class="method-get">GET</span></td>
                 <td><span class="auth-jwt">JWT</span></td>
               </tr>
               <tr>
-                <td>Update User Profile</td>
-                <td><code>/users/:username</code></td>
+                <td>Update Authenticated User's Profile</td>
+                <td><code>/user</code></td>
                 <td><span class="method-put">PUT</span></td>
                 <td><span class="auth-jwt">JWT</span></td>
               </tr>
               <tr>
                 <td>Add Favorite Movie</td>
-                <td><code>/users/:username/favorites/:movieId</code></td>
+                <td><code>/user/favorites/:movieId</code></td>
                 <td><span class="method-post">POST</span></td>
                 <td><span class="auth-jwt">JWT</span></td>
               </tr>
               <tr>
                 <td>Remove Favorite Movie</td>
-                <td><code>/users/:username/favorites/:movieId</code></td>
+                <td><code>/user/favorites/:movieId</code></td>
                 <td><span class="method-delete">DELETE</span></td>
                 <td><span class="auth-jwt">JWT</span></td>
               </tr>
               <tr>
-                <td>Deregister User</td>
-                <td><code>/users/:username</code></td>
+                <td>Deregister Authenticated User</td>
+                <td><code>/user</code></td>
                 <td><span class="method-delete">DELETE</span></td>
                 <td><span class="auth-jwt">JWT</span></td>
               </tr>
@@ -454,19 +454,12 @@
             </ul>
           </li>
         </ul>
-        <h3><span class="method-get">GET</span> /users/:username</h3>
-        <p>Retrieves a user's profile information by username.</p>
+        <h3><span class="method-get">GET</span> /user</h3>
+        <p>Retrieves the authenticated user's profile information.</p>
         <ul>
           <li>
             <strong>Authentication:</strong
-            ><span class="auth-jwt">JWT Required</span> (User must match
-            <code>:username</code> in token).
-          </li>
-          <li>
-            <strong>URL Parameters:</strong> <code>:username</code> (<span
-              class="required"
-              >Required</span
-            >, String).
+            ><span class="auth-jwt">JWT Required</span>
           </li>
           <li>
             <strong>Success Response (200 OK):</strong> JSON user object
@@ -474,24 +467,16 @@
             <code>favoriteMovies</code> array.
           </li>
           <li>
-            <strong>Error Responses:</strong> 401 (Unauthorized), 403 (Forbidden
-            if token user doesn't match path username), 404 (User not found),
+            <strong>Error Responses:</strong> 401 (Unauthorized), 404 (User not found),
             500
           </li>
         </ul>
-        <h3><span class="method-put">PUT</span> /users/:username</h3>
-        <p>Updates a user's profile information.</p>
+        <h3><span class="method-put">PUT</span> /user</h3>
+        <p>Updates the authenticated user's profile information.</p>
         <ul>
           <li>
             <strong>Authentication:</strong>
-            <span class="auth-jwt">JWT Required</span> (User must match
-            <code>:username</code> in token).
-          </li>
-          <li>
-            <strong>URL Parameters:</strong> <code>:username</code> (<span
-              class="required"
-              >Required</span
-            >, String).
+            <span class="auth-jwt">JWT Required</span>
           </li>
           <li>
             <strong>Request Body:</strong> JSON object with optional fields to
@@ -499,7 +484,7 @@
             <code>email</code> (String, valid format),
             <code>birthday</code> (String, "YYYY-MM-DD"),
             <code>firstname</code> (String), <code>lastname</code> (String).
-            Password cannot be updated here.
+            Password can also be updated.
           </li>
           <li>
             <strong>Success Response (200 OK):</strong> JSON object of the
@@ -507,26 +492,22 @@
           </li>
           <li>
             <strong>Error Responses:</strong> 400 (Validation errors,
-            Username/Email conflict, No fields to update), 401, 403, 404 (User
+            Username/Email conflict, No fields to update), 401, 404 (User
             not found), 500
           </li>
         </ul>
         <h3>
           <span class="method-post">POST</span>
-          /users/:username/favorites/:movieId
+          /user/favorites/:movieId
         </h3>
-        <p>Adds a movie to the user's list of favorite movies.</p>
+        <p>Adds a movie to the authenticated user's list of favorite movies.</p>
         <ul>
           <li>
             <strong>Authentication:</strong>
-            <span class="auth-jwt">JWT Required</span> (User must match
-            <code>:username</code> in token).
+            <span class="auth-jwt">JWT Required</span>
           </li>
           <li>
-            <strong>URL Parameters:</strong> <code>:username</code> (<span
-              class="required"
-              >Required</span
-            >, String), <code>:movieId</code> (<span class="required"
+            <strong>URL Parameters:</strong> <code>:movieId</code> (<span class="required"
               >Required</span
             >, ObjectId String).
           </li>
@@ -535,26 +516,22 @@
             updated, populated <code>favoriteMovies</code>.
           </li>
           <li>
-            <strong>Error Responses:</strong> 400 (Invalid Movie ID), 401, 403,
+            <strong>Error Responses:</strong> 400 (Invalid Movie ID), 401,
             404 (User or Movie not found), 500
           </li>
         </ul>
         <h3>
           <span class="method-delete">DELETE</span>
-          /users/:username/favorites/:movieId
+          /user/favorites/:movieId
         </h3>
-        <p>Removes a movie from the user's list of favorite movies.</p>
+        <p>Removes a movie from the authenticated user's list of favorite movies.</p>
         <ul>
           <li>
             <strong>Authentication:</strong>
-            <span class="auth-jwt">JWT Required</span> (User must match
-            <code>:username</code> in token).
+            <span class="auth-jwt">JWT Required</span>
           </li>
           <li>
-            <strong>URL Parameters:</strong> <code>:username</code> (<span
-              class="required"
-              >Required</span
-            >, String), <code>:movieId</code> (<span class="required"
+            <strong>URL Parameters:</strong> <code>:movieId</code> (<span class="required"
               >Required</span
             >, ObjectId String).
           </li>
@@ -563,23 +540,16 @@
             updated, populated <code>favoriteMovies</code>.
           </li>
           <li>
-            <strong>Error Responses:</strong> 400 (Invalid Movie ID), 401, 403,
+            <strong>Error Responses:</strong> 400 (Invalid Movie ID), 401,
             404 (User not found), 500
           </li>
         </ul>
-        <h3><span class="method-delete">DELETE</span> /users/:username</h3>
-        <p>Deregisters a user account.</p>
+        <h3><span class="method-delete">DELETE</span> /user</h3>
+        <p>Deregisters the authenticated user's account.</p>
         <ul>
           <li>
             <strong>Authentication:</strong>
-            <span class="auth-jwt">JWT Required</span> (User must match
-            <code>:username</code> in token).
-          </li>
-          <li>
-            <strong>URL Parameters:</strong> <code>:username</code> (<span
-              class="required"
-              >Required</span
-            >, String).
+            <span class="auth-jwt">JWT Required</span>
           </li>
           <li>
             <strong>Success Response (200 OK):</strong> JSON:
@@ -588,12 +558,12 @@
             >
           </li>
           <li>
-            <strong>Error Responses:</strong> 401, 403, 404 (User not found),
+            <strong>Error Responses:</strong> 401, 404 (User not found),
             500
           </li>
         </ul>
       </section>
-      <section class="mt-5">
+            <section class="mt-5">
         <h2 id="movies">Movie Endpoints</h2>
         <h3><span class="method-get">GET</span> /movies</h3>
         <p>
@@ -868,7 +838,7 @@
             ><span class="auth-jwt">JWT Required</span>
           </li>
           <li>
-            <strong>Request Body:</strong> JSON: <code>name</code> (<span
+            <strong>Request Body:</strong> JSON: code>name</code> (<span
               class="required"
               >Required</span
             >, String), <code>description</code> (<span class="required"
@@ -1304,26 +1274,26 @@
           <ul>
             <li><code>_id</code> (ObjectId)</li>
             <li>
-              <code>title</code> (String, <span class="required">Req</span>,
+              <code>Title</code> (String, <span class="required">Req</span>,
               Unique)
             </li>
             <li>
-              <code>description</code> (String,
+              <code>Description</code> (String,
               <span class="required">Req</span>)
             </li>
             <li>
-              <code>genre</code> (ObjectId, Ref: 'Genre',
+              <code>Genre</code> (ObjectId, Ref: 'Genre',
               <span class="required">Req</span>)
             </li>
             <li>
-              <code>director</code> (ObjectId, Ref: 'Director',
+              <code>Director</code> (ObjectId, Ref: 'Director',
               <span class="required">Req</span>)
             </li>
-            <li><code>actors</code> (Array of ObjectId, Ref: 'Actor')</li>
-            <li><code>imagePath</code> (String)</li>
-            <li><code>featured</code> (Boolean, Default: false)</li>
-            <li><code>releaseYear</code> (Number)</li>
-            <li><code>rating</code> (Number)</li>
+            <li><code>Actors</code> (Array of ObjectId, Ref: 'Actor')</li>
+            <li><code>ImagePath</code> (String)</li>
+            <li><code>Featured</code> (Boolean, Default: false)</li>
+            <li><code>ReleaseYear</code> (Number)</li>
+            <li><code>Rating</code> (Number)</li>
           </ul>
         </div>
         <div>
