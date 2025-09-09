@@ -25,6 +25,7 @@ const corsOptions = {
         "http://localhost:3000",
         "http://localhost:5173",
         "http://localhost:52020",
+        "http://localhost:4200",
         "https://themoviemobs.netlify.app"
 
       ].includes(origin)
@@ -86,7 +87,6 @@ mongoose
 // --- Core Middleware Setup ---
 app.use(morgan("common")); // Log HTTP requests
 
-/*
 {
     origin: (origin, callback) => {
       // Allow requests with no origin (like Postman, curl)
@@ -104,10 +104,10 @@ app.use(morgan("common")); // Log HTTP requests
       // Block requests from other origins
       console.warn(`CORS blocked origin: ${origin}`);
       callback(new Error(`Origin ${origin} not allowed by CORS`));
-    },
-    optionsSuccessStatus: 200,
+    };
+    optionsSuccessStatus: 200;
   }
-*/
+
 app.use(
   // Enable CORS with dynamic origin validation
   cors(corsOptions)
