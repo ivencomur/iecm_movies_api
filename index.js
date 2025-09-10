@@ -21,8 +21,8 @@ const corsOptions = {
         "http://localhost:8080",
         "http://testsite.com",
         "https://ivencomur.github.io",
-        "http://localhost:1234", // Common Parcel dev server port
-        "http://localhost:3000", // Common React dev server port
+        "http://localhost:1234",
+        "http://localhost:3000",
         "http://localhost:5173",
         "http://localhost:52020",
         "https://themoviemobs.netlify.app"
