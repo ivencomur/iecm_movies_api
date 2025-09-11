@@ -25,6 +25,7 @@ const corsOptions = {
         "http://localhost:3000", // Common React dev server port
         "http://localhost:5173",
         "http://localhost:52020",
+        "http://localhost:4200",
         "https://themoviemobs.netlify.app"
 
       ].includes(origin)
