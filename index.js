@@ -1,5 +1,5 @@
 /**
- * @file Main server file for the myFlix API.
+ * Main server file for the myFlix API.
  */
 require('dotenv').config();
 const express = require('express');
@@ -21,21 +21,10 @@ mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true, useUnified
 
 const app = express();
 
-// --- START OF DEFINITIVE CORS FIX ---
-// This must be placed before any routes are defined.
-let allowedOrigins = ['http://localhost:8080', 'http://localhost:4200', 'https://ivencomur.github.io'];
-
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      let message = 'The CORS policy for this application doesn’t allow access from origin ' + origin;
-      return callback(new Error(message), false);
-    }
-    return callback(null, true);
-  }
-}));
-// --- END OF DEFINITIVE CORS FIX ---
+// --- START OF SIMPLIFIED CORS FIX ---
+// This allows all origins.
+app.use(cors());
+// --- END OF SIMPLIFIED CORS FIX ---
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -48,7 +37,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to the MovieMobs API!');
 });
 
-// All other endpoints follow...
+// All other endpoints remain the same...
 app.get('/movies', passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Movies.find()
     .then((movies) => {
