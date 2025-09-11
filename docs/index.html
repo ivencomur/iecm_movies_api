@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Home</h1>
+
+    
+
+
+
+    
+
+
+    <h3> </h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><h1>MovieMobs API</h1>
+<p>This is the back-end server for the MovieMobs application. It's a RESTful API built with Node.js, Express, and MongoDB that provides data about movies, genres, directors, and users.</p>
+<h2>Features</h2>
+<ul>
+<li><strong>User authentication:</strong> Users can register, log in, and manage their profiles. Passwords are encrypted using bcrypt, and authentication is handled using JSON Web Tokens (JWT) with Passport.js.</li>
+<li><strong>Movie information:</strong> Provides access to a collection of movies with details about their genres, directors, and actors.</li>
+<li><strong>Favorite movies:</strong> Authenticated users can add and remove movies from their list of favorites.</li>
+<li><strong>API documentation:</strong> A public folder contains documentation of the API endpoints.</li>
+</ul>
+<h2>Getting Started</h2>
+<p>These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.</p>
+<h3>Prerequisites</h3>
+<ul>
+<li><strong>Node.js</strong> and <strong>npm</strong>: Download and install from <a href="https://nodejs.org/">nodejs.org</a>.</li>
+<li><strong>MongoDB</strong>: Make sure you have a running instance of MongoDB. You'll need the connection URI.</li>
+<li><strong>Create a <code>.env</code> file</strong> in the root directory and add the following environment variables:<pre class="prettyprint source"><code>CONNECTION_URI=&lt;your_mongodb_connection_uri>
+JWT_SECRET=&lt;your_jwt_secret>
+</code></pre>
+</li>
+</ul>
+<h3>Installation</h3>
+<ol>
+<li><strong>Clone the repository:</strong><pre class="prettyprint source lang-sh"><code>git clone &lt;repository-url>
+</code></pre>
+</li>
+<li><strong>Navigate to the project directory:</strong><pre class="prettyprint source lang-sh"><code>cd iecm_movies_api-6.5-INITIAL
+</code></pre>
+</li>
+<li><strong>Install dependencies:</strong><pre class="prettyprint source lang-sh"><code>npm install
+</code></pre>
+</li>
+</ol>
+<h2>Available Scripts</h2>
+<ul>
+<li><code>npm start</code>: Starts the server in production mode.</li>
+<li><code>npm run dev</code>: Starts the server in development mode with <code>nodemon</code>, which automatically restarts the server on file changes.</li>
+<li><code>npm run lint</code>: Lints the project files using ESLint.</li>
+</ul>
+<h2>API Endpoints</h2>
+<p>All movie-related endpoints require a valid JWT for authentication.</p>
+<h3>Movies</h3>
+<ul>
+<li><code>GET /movies</code>: Get a list of all movies.</li>
+<li><code>GET /movies/:Title</code>: Get a single movie by title.</li>
+<li><code>GET /genres/:Name</code>: Get information about a genre by name.</li>
+<li><code>GET /directors/:Name</code>: Get information about a director by name.</li>
+</ul>
+<h3>Users</h3>
+<ul>
+<li><code>POST /users</code>: Register a new user.</li>
+<li><code>PUT /user</code>: Update a user's information.</li>
+<li><code>POST /user/favorites/:MovieID</code>: Add a movie to a user's favorites.</li>
+<li><code>DELETE /user/favorites/:MovieID</code>: Remove a movie from a user's favorites.</li>
+<li><code>GET /user</code>: Get a user's profile information.</li>
+<li><code>DELETE /user</code>: Delete a user's account.</li>
+</ul>
+<h3>Authentication</h3>
+<ul>
+<li><code>POST /login</code>: Log in a user and receive a JWT.</li>
+</ul>
+<h2>Built With</h2>
+<ul>
+<li><a href="https://expressjs.com/">Express</a> - Web framework for Node.js</li>
+<li><a href="https://mongoosejs.com/">Mongoose</a> - MongoDB object modeling for Node.js</li>
+<li><a href="http://www.passportjs.org/">Passport</a> - Authentication middleware for Node.js</li>
+<li><a href="https://jwt.io/">JWT</a> - JSON Web Tokens for authentication</li>
+<li><a href="https://www.npmjs.com/package/bcrypt">Bcrypt</a> - Library for hashing passwords</li>
+</ul></article>
+    </section>
+
+
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>auth.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">This file handles user login and JWT token generation.</div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="auth.js.html">auth.js</a>, <a href="auth.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+        <h3 class="subsection-title">Requires</h3>
+
+        <ul>
+            <li>module:jsonwebtoken</li>
+        
+            <li>module:passport</li>
+        
+            <li>module:./passport</li>
+        </ul>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>index.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">Main server file for the myFlix API.</div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+        <h3 class="subsection-title">Requires</h3>
+
+        <ul>
+            <li>module:express</li>
+        
+            <li>module:morgan</li>
+        
+            <li>module:body-parser</li>
+        
+            <li>module:mongoose</li>
+        
+            <li>module:./models.js</li>
+        
+            <li>module:cors</li>
+        
+            <li>module:express-validator</li>
+        
+            <li>module:passport</li>
+        
+            <li>module:dotenv</li>
+        </ul>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#DELETE/user">DELETE /user</a></li><li><a href="global.html#DELETE/user/favorites/:MovieID">DELETE /user/favorites/:MovieID</a></li><li><a href="global.html#GET/">GET /</a></li><li><a href="global.html#GET/directors/:Name">GET /directors/:Name</a></li><li><a href="global.html#GET/genres/:Name">GET /genres/:Name</a></li><li><a href="global.html#GET/movies">GET /movies</a></li><li><a href="global.html#GET/movies/:Title">GET /movies/:Title</a></li><li><a href="global.html#GET/user">GET /user</a></li><li><a href="global.html#POST/login">POST /login</a></li><li><a href="global.html#POST/user/favorites/:MovieID">POST /user/favorites/:MovieID</a></li><li><a href="global.html#POST/users">POST /users</a></li><li><a href="global.html#PUT/user">PUT /user</a></li><li><a href="global.html#generateJWTToken">generateJWTToken</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu Sep 11 2025 18:37:37 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
