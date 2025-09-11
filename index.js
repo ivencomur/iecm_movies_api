@@ -1,5 +1,5 @@
 /**
- * Main server file for the myFlix API.
+ * @file Main server file for the myFlix API.
  */
 require('dotenv').config();
 const express = require('express');
@@ -7,7 +7,8 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const Models = require('./models.js');
-const cors = require('cors');
+// The 'cors' package is no longer used, so it can be removed or commented out.
+// const cors = require('cors'); 
 const { check, validationResult } = require('express-validator');
 const passport = require('passport');
 require('./passport.js');
@@ -21,10 +22,18 @@ mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true, useUnified
 
 const app = express();
 
-// --- START OF SIMPLIFIED CORS FIX ---
-// This allows all origins.
-app.use(cors());
-// --- END OF SIMPLIFIED CORS FIX ---
+// --- START OF MANUAL CORS FIX ---
+// This middleware will add the required headers to all responses.
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*'); // Allows requests from any origin
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
+      return res.status(200).json({});
+  }
+  next();
+});
+// --- END OF MANUAL CORS FIX ---
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
