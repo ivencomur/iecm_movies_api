@@ -1,13 +1,13 @@
 require('dotenv').config();
-const express = 'express';
-const morgan = 'morgan';
-const bodyParser = 'body-parser';
-const mongoose = 'mongoose';
-const Models = './models.js';
-const cors = 'cors';
-const { check, validationResult } = 'express-validator';
-const passport = 'passport';
-('./passport.js');
+const express = require('express');
+const morgan = require('morgan');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const Models = require('./models.js');
+const cors = require('cors');
+const { check, validationResult } = require('express-validator');
+const passport = require('passport');
+require('./passport.js');
 
 const Movies = Models.Movie;
 const Users = Models.User;
@@ -18,20 +18,17 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
 
 const app = express();
 
-// Basic CORS setup - This should be all that's needed now.
 app.use(cors());
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('common'));
 
-const auth = ('./auth')(app);
+const auth = require('./auth')(app);
 
 app.get('/', (req, res) => {
   res.send('Welcome to the MovieMobs API!');
 });
 
-// All other endpoints...
 app.get('/movies', passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Movies.find()
     .then((movies) => res.status(200).json(movies))
