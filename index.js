@@ -27,7 +27,7 @@ app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
-      let message = 'The CORS policy for this application doesn’t allow access from origin ' + origin;
+      let message = 'The CORS policy for this application does not allow access from origin ' + origin;
       return callback(new Error(message), false);
     }
     return callback(null, true);
@@ -44,23 +44,38 @@ app.get('/', (req, res) => {
   res.send('Welcome to the MovieMobs API!');
 });
 
-// All other endpoints...
+// Fixed movies endpoint with proper population
 app.get('/movies', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  await Movies.find()
-    .then((movies) => res.status(200).json(movies))
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send('Error: ' + err);
-    });
+  try {
+    const movies = await Movies.find()
+      .populate('Genre', 'Name Description')
+      .populate('Director', 'Name Bio Birth Death')
+      .populate('Actors', 'Name Bio Birth Death');
+    
+    console.log('Movies fetched with populated data:', movies.length);
+    res.status(200).json(movies);
+  } catch (err) {
+    console.error('Error fetching movies:', err);
+    res.status(500).send('Error: ' + err);
+  }
 });
 
 app.get('/movies/:Title', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  await Movies.findOne({ Title: req.params.Title })
-    .then((movie) => res.json(movie))
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send('Error: ' + err);
-    });
+  try {
+    const movie = await Movies.findOne({ Title: req.params.Title })
+      .populate('Genre', 'Name Description')
+      .populate('Director', 'Name Bio Birth Death')
+      .populate('Actors', 'Name Bio Birth Death');
+    
+    if (!movie) {
+      return res.status(404).send('Movie not found');
+    }
+    
+    res.json(movie);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error: ' + err);
+  }
 });
 
 app.get('/genres/:Name', passport.authenticate('jwt', { session: false }), async (req, res) => {
