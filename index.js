@@ -1,5 +1,5 @@
 /**
- * Main server file for the API.
+ * @file Main server file for the myFlix API.
  */
 require('dotenv').config();
 const express = require('express');
@@ -20,18 +20,19 @@ mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true, useUnified
 
 const app = express();
 
-// --- START OF MANUAL CORS FIX ---
-// This middleware will add the required headers to all responses.
+// --- START OF DIAGNOSTIC CORS FIX ---
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*'); // Allows requests from any origin
+  console.log('CORS MIDDLEWARE RUNNING FOR REQUEST:', req.method, req.url); // This will show up in Heroku logs
+  res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   if (req.method === 'OPTIONS') {
+      console.log('RESPONDING TO OPTIONS REQUEST'); // This is key for preflight
       res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
       return res.status(200).json({});
   }
   next();
 });
-// --- END OF MANUAL CORS FIX ---
+// --- END OF DIAGNOSTIC CORS FIX ---
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -43,6 +44,8 @@ app.get('/', (req, res) => {
   res.send('Welcome to the MovieMobs API!');
 });
 
+// ... (The rest of your endpoints remain exactly the same) ...
+
 app.get('/movies', passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Movies.find()
     .then((movies) => res.status(200).json(movies))
@@ -52,7 +55,6 @@ app.get('/movies', passport.authenticate('jwt', { session: false }), async (req,
     });
 });
 
-// ... all your other endpoints ...
 app.get('/movies/:Title', passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Movies.findOne({ Title: req.params.Title })
     .then((movie) => {
@@ -124,10 +126,10 @@ app.post('/users', [
 });
 
 app.put('/user', passport.authenticate('jwt', { session: false }), async (req, res) => {
-    if(req.user.Username !== req.body.Username){
+	if(req.user.Username !== req.body.Username){
         return res.status(400).send('Permission denied');
     }
-    await Users.findOneAndUpdate({ Username: req.body.Username }, { $set:
+	await Users.findOneAndUpdate({ Username: req.body.Username }, { $set:
     {
       Username: req.body.Username,
       Password: req.body.Password ? Users.hashPassword(req.body.Password) : req.user.Password,
@@ -200,7 +202,6 @@ app.delete('/user', passport.authenticate('jwt', { session: false }), async (req
       res.status(500).send('Error: ' + err);
     });
 });
-
 
 app.use(express.static('public'));
 
