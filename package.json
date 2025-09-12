@@ -7,8 +7,7 @@
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "lint": "eslint .",
-    "docs": "jsdoc -c jsdoc.conf.json"
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "",
@@ -31,8 +30,7 @@
   "devDependencies": {
     "eslint": "^9.26.0",
     "hint": "^2.0.0",
-    "nodemon": "^3.1.10",
-    "jsdoc": "^4.0.2"
+    "nodemon": "^3.1.10"
   },
   "type": "commonjs",
   "repository": {

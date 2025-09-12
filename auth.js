@@ -1,22 +1,9 @@
-/**
- * @file This file handles user login and JWT token generation.
- * @requires jsonwebtoken
- * @requires passport
- * @requires ./passport
- */
-
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 require("./passport");
 
 const jwtSecret = process.env.JWT_SECRET;
 
-/**
- * Generates a JWT token for a user.
- * @function generateJWTToken
- * @param {Object} user - The user object to sign the token for.
- * @returns {string | null} The generated JWT token or null if secret is not set.
- */
 let generateJWTToken = (user) => {
   if (!jwtSecret) {
     console.error("FATAL ERROR: JWT_SECRET environment variable not set. Cannot sign token.");
@@ -29,43 +16,34 @@ let generateJWTToken = (user) => {
   });
 };
 
-/**
- * Configures the /login endpoint for user authentication.
- * @param {Object} router - The Express router.
- * @returns {void}
- */
 module.exports = (router) => {
-  /**
-   * Handles user login requests, authenticating the user and returning a JWT.
-   * @name POST /login
-   * @function
-   * @param {Object} req - Express request object.
-   * @param {Object} res - Express response object.
-   * @param {function} next - Express next middleware function.
-   * @returns {void}
-   */
   router.post("/login", (req, res, next) => {
     passport.authenticate("local", { session: false }, (error, user, info) => {
       if (error) {
         return next(error);
       }
 
+      //if user not defined or present return 401 network response 
       if (!user) {
         const message = (info && info.message) ? info.message : "Login failed (invalid credentials or user not found).";
         return res.status(401).json({ error: message });
       }
 
+      //otherwise the user object came through login in
       req.login(user, { session: false }, (error) => {
         if (error) {
           return next(error);
         }
 
+        //create token
         try {
           const token = generateJWTToken(user.toJSON());
+          //token not defined return 500 error
           if (!token) {
             return res.status(500).json({ error: "Internal server error: Could not generate token." });
           }
           const userResponse = { ...user.toJSON() };
+          //remove password from response so not sent back over network
           delete userResponse.password;
           return res.status(200).json({ user: userResponse, token: token });
         } catch (jwtError) {
