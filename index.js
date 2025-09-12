@@ -1,54 +1,37 @@
-/**
- * Main server file for the myFlix API.
- */
 require('dotenv').config();
-const express = require('express');
-const morgan = require('morgan');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const Models = require('./models.js');
-const cors = require('cors');
-const { check, validationResult } = require('express-validator');
-const passport = require('passport');
-require('./passport.js');
+const express = 'express';
+const morgan = 'morgan';
+const bodyParser = 'body-parser';
+const mongoose = 'mongoose';
+const Models = './models.js';
+const cors = 'cors';
+const { check, validationResult } = 'express-validator';
+const passport = 'passport';
+('./passport.js');
 
 const Movies = Models.Movie;
 const Users = Models.User;
 
-// --- START OF FIX ---
-// Using the correct environment variable name: MONGO_URI
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connection successful.'))
   .catch(err => console.error('MongoDB connection error:', err));
-// --- END OF FIX ---
 
 const app = express();
 
-let allowedOrigins = ['http://localhost:8080', 'http://localhost:4200', 'https://ivencomur.github.io'];
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      let message = 'The CORS policy for this application doesn’t allow access from origin ' + origin;
-      return callback(new Error(message), false);
-    }
-    return callback(null, true);
-  }
-}));
-app.options('*', cors());
+// Basic CORS setup - This should be all that's needed now.
+app.use(cors());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('common'));
 
-const auth = require('./auth')(app);
+const auth = ('./auth')(app);
 
 app.get('/', (req, res) => {
   res.send('Welcome to the MovieMobs API!');
 });
 
-// ... (The rest of your endpoints remain exactly the same) ...
-
+// All other endpoints...
 app.get('/movies', passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Movies.find()
     .then((movies) => res.status(200).json(movies))
@@ -60,9 +43,7 @@ app.get('/movies', passport.authenticate('jwt', { session: false }), async (req,
 
 app.get('/movies/:Title', passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Movies.findOne({ Title: req.params.Title })
-    .then((movie) => {
-      res.json(movie);
-    })
+    .then((movie) => res.json(movie))
     .catch((err) => {
       console.error(err);
       res.status(500).send('Error: ' + err);
@@ -71,9 +52,7 @@ app.get('/movies/:Title', passport.authenticate('jwt', { session: false }), asyn
 
 app.get('/genres/:Name', passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Movies.findOne({ 'Genre.Name': req.params.Name })
-    .then((movie) => {
-      res.json(movie.Genre);
-    })
+    .then((movie) => res.json(movie.Genre))
     .catch((err) => {
       console.error(err);
       res.status(500).send('Error: ' + err);
@@ -82,9 +61,7 @@ app.get('/genres/:Name', passport.authenticate('jwt', { session: false }), async
 
 app.get('/directors/:Name', passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Movies.findOne({ 'Director.Name': req.params.Name })
-    .then((movie) => {
-      res.json(movie.Director);
-    })
+    .then((movie) => res.json(movie.Director))
     .catch((err) => {
       console.error(err);
       res.status(500).send('Error: ' + err);
@@ -98,11 +75,9 @@ app.post('/users', [
     check('Email', 'Email does not appear to be valid').isEmail()
   ], async (req, res) => {
   let errors = validationResult(req);
-
   if (!errors.isEmpty()) {
     return res.status(422).json({ errors: errors.array() });
   }
-
   let hashedPassword = Users.hashPassword(req.body.Password);
   await Users.findOne({ Username: req.body.Username })
     .then((user) => {
@@ -115,11 +90,11 @@ app.post('/users', [
           Email: req.body.Email,
           Birthday: req.body.Birthday
         })
-        .then((user) =>{res.status(201).json(user) })
+        .then((user) => res.status(201).json(user))
         .catch((error) => {
           console.error(error);
           res.status(500).send('Error: ' + error);
-        })
+        });
       }
     })
     .catch((error) => {
@@ -129,7 +104,7 @@ app.post('/users', [
 });
 
 app.put('/user', passport.authenticate('jwt', { session: false }), async (req, res) => {
-	if(req.user.Username !== req.body.Username){
+    if(req.user.Username !== req.body.Username){
         return res.status(400).send('Permission denied');
     }
 	await Users.findOneAndUpdate({ Username: req.body.Username }, { $set:
@@ -141,24 +116,19 @@ app.put('/user', passport.authenticate('jwt', { session: false }), async (req, r
     }
   },
   { new: true })
-  .then(updatedUser => {
-    res.json(updatedUser);
-  })
+  .then(updatedUser => res.json(updatedUser))
   .catch(err => {
     console.error(err);
     res.status(500).send('Error: ' + err);
   });
 });
 
-
 app.post('/user/favorites/:MovieID', passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Users.findOneAndUpdate({ Username: req.user.Username }, {
      $push: { FavoriteMovies: req.params.MovieID }
    },
    { new: true })
-  .then((updatedUser) => {
-    res.json(updatedUser);
-  })
+  .then((updatedUser) => res.json(updatedUser))
   .catch((err) => {
     console.error(err);
     res.status(500).send('Error: ' + err);
@@ -170,21 +140,16 @@ app.delete('/user/favorites/:MovieID', passport.authenticate('jwt', { session: f
      $pull: { FavoriteMovies: req.params.MovieID }
    },
    { new: true })
-  .then((updatedUser) => {
-    res.json(updatedUser);
-  })
+  .then((updatedUser) => res.json(updatedUser))
   .catch((err) => {
     console.error(err);
     res.status(500).send('Error: ' + err);
   });
 });
 
-
 app.get('/user', passport.authenticate('jwt', { session: false }), async (req, res) => {
     await Users.findOne({ Username: req.user.Username})
-        .then((user) => {
-            res.json(user);
-        })
+        .then((user) => res.json(user))
         .catch((err) => {
             console.error(err);
             res.status(500).send('Error: ' + err);
