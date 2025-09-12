@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const Models = require('./models.js');
+const cors = require('cors'); // Re-enabling the cors package
 const { check, validationResult } = require('express-validator');
 const passport = require('passport');
 require('./passport.js');
@@ -20,19 +21,21 @@ mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true, useUnified
 
 const app = express();
 
-// --- START OF DIAGNOSTIC CORS FIX ---
-app.use((req, res, next) => {
-  console.log('CORS MIDDLEWARE RUNNING FOR REQUEST:', req.method, req.url); // This will show up in Heroku logs
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  if (req.method === 'OPTIONS') {
-      console.log('RESPONDING TO OPTIONS REQUEST'); // This is key for preflight
-      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
-      return res.status(200).json({});
+// --- START OF HEROKU-FOCUSED CORS FIX ---
+let allowedOrigins = ['http://localhost:8080', 'http://localhost:4200', 'https://ivencomur.github.io'];
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      let message = 'The CORS policy for this application doesn’t allow access from origin ' + origin;
+      return callback(new Error(message), false);
+    }
+    return callback(null, true);
   }
-  next();
-});
-// --- END OF DIAGNOSTIC CORS FIX ---
+}));
+// This line is crucial for handling preflight requests that Heroku might be blocking.
+app.options('*', cors());
+// --- END OF HEROKU-FOCUSED CORS FIX ---
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
