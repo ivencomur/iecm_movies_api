@@ -14,13 +14,13 @@ const movieSchema = new mongoose.Schema({
 });
 
 const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  birthday: Date,
-  favoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: "Movie" }],
-  firstname: String,
-  lastname: String,
+  Username: { type: String, required: true, unique: true },
+  Password: { type: String, required: true },
+  Email: { type: String, required: true, unique: true },
+  Birthday: Date,
+  FavoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: "Movie" }],
+  FirstName: String,
+  LastName: String,
 });
 
 userSchema.statics.hashPassword = (password) => {
@@ -42,7 +42,7 @@ userSchema.methods.validatePassword = function (password) {
     return false;
   }
   try {
-    return bcrypt.compareSync(password, this.password);
+    return bcrypt.compareSync(password, this.Password);
   } catch (error) {
     console.error("Error comparing password:", error);
     return false;
@@ -50,23 +50,23 @@ userSchema.methods.validatePassword = function (password) {
 };
 
 const genreSchema = new mongoose.Schema({
-  name: { type: String, required: true, unique: true },
-  description: { type: String, required: true },
+  Name: { type: String, required: true, unique: true },
+  Description: { type: String, required: true },
 });
 
 const directorSchema = new mongoose.Schema({
-  name: { type: String, required: true, unique: true },
-  bio: { type: String, required: true },
-  birth: Date,
-  death: Date,
+  Name: { type: String, required: true, unique: true },
+  Bio: { type: String, required: true },
+  Birth: Date,
+  Death: Date,
 });
 
 const actorSchema = new mongoose.Schema({
-  name: { type: String, required: true, unique: true },
-  bio: { type: String, required: true },
-  birth: Date,
-  death: Date,
-  pictureUrl: String,
+  Name: { type: String, required: true, unique: true },
+  Bio: { type: String, required: true },
+  Birth: Date,
+  Death: Date,
+  PictureUrl: String,
 });
 
 const Movie = mongoose.model("Movie", movieSchema);
