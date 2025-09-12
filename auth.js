@@ -22,8 +22,21 @@ let generateJWTToken = (user) => {
     console.error("FATAL ERROR: JWT_SECRET environment variable not set. Cannot sign token.");
     return null;
   }
+  
+  console.log("User object passed to generateJWTToken:", user);
+  
+  // Extract username properly - handle both Username and username fields
+  const username = user.Username || user.username;
+  console.log("Extracted username:", username, "Type:", typeof username);
+  
+  if (!username || typeof username !== 'string') {
+    console.error("Error: User must have a valid username string for JWT generation");
+    console.error("Available user fields:", Object.keys(user));
+    return null;
+  }
+  
   return jwt.sign(user, jwtSecret, {
-    subject: user.username,
+    subject: username.toString(), // Ensure this is always a string
     expiresIn: "7d",
     algorithm: "HS256",
   });
@@ -47,6 +60,7 @@ module.exports = (router) => {
   router.post("/login", (req, res, next) => {
     passport.authenticate("local", { session: false }, (error, user, info) => {
       if (error) {
+        console.error("Authentication error:", error);
         return next(error);
       }
 
@@ -57,18 +71,28 @@ module.exports = (router) => {
 
       req.login(user, { session: false }, (error) => {
         if (error) {
+          console.error("Login error:", error);
           return next(error);
         }
 
         try {
-          const token = generateJWTToken(user.toJSON());
+          console.log("About to generate JWT for user:", user.Username);
+          const userJson = user.toJSON();
+          console.log("User JSON:", userJson);
+          
+          const token = generateJWTToken(userJson);
           if (!token) {
             return res.status(500).json({ error: "Internal server error: Could not generate token." });
           }
-          const userResponse = { ...user.toJSON() };
-          delete userResponse.password;
+          
+          const userResponse = { ...userJson };
+          delete userResponse.Password; // Remove password from response
+          delete userResponse.password; // Handle both cases
+          
+          console.log("JWT token generated successfully");
           return res.status(200).json({ user: userResponse, token: token });
         } catch (jwtError) {
+          console.error("JWT Error:", jwtError);
           return next(jwtError);
         }
       });
