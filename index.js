@@ -1,5 +1,5 @@
 /**
- * @file Main server file for the myFlix API.
+ * Main server file for the myFlix API.
  */
 require('dotenv').config();
 const express = require('express');
@@ -7,7 +7,7 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const Models = require('./models.js');
-const cors = require('cors'); // Re-enabling the cors package
+const cors = require('cors');
 const { check, validationResult } = require('express-validator');
 const passport = require('passport');
 require('./passport.js');
@@ -15,13 +15,15 @@ require('./passport.js');
 const Movies = Models.Movie;
 const Users = Models.User;
 
-mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+// --- START OF FIX ---
+// Using the correct environment variable name: MONGO_URI
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connection successful.'))
   .catch(err => console.error('MongoDB connection error:', err));
+// --- END OF FIX ---
 
 const app = express();
 
-// --- START OF HEROKU-FOCUSED CORS FIX ---
 let allowedOrigins = ['http://localhost:8080', 'http://localhost:4200', 'https://ivencomur.github.io'];
 app.use(cors({
   origin: (origin, callback) => {
@@ -33,9 +35,7 @@ app.use(cors({
     return callback(null, true);
   }
 }));
-// This line is crucial for handling preflight requests that Heroku might be blocking.
 app.options('*', cors());
-// --- END OF HEROKU-FOCUSED CORS FIX ---
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
