@@ -4,7 +4,7 @@ const Models = require('./models.js');
 
 async function checkMovies() {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.CONNECTION_URI);
     const count = await Models.Movie.countDocuments();
     console.log(`Total movies in database: ${count}`);
     
