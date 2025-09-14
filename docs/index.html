@@ -134,7 +134,7 @@ JWT_SECRET=&lt;your_jwt_secret>
     <div class="container-overview">
     
         
-            <div class="description">This file handles user login and JWT token generation.</div>
+            <div class="description"><p>Handles user login authentication and JWT token creation using Passport.js</p></div>
         
 
         
@@ -237,7 +237,110 @@ JWT_SECRET=&lt;your_jwt_secret>
     <div class="container-overview">
     
         
-            <div class="description">Main server file for the myFlix API.</div>
+            <div class="description"><p>RESTful API for movie database with user authentication and favorites management</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+    <dt class="tag-version">Version:</dt>
+    <dd class="tag-version"><ul class="dummy"><li>1.0.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-author">Author:</dt>
+    <dd class="tag-author">
+        <ul>
+            <li>Ivan Cortes</li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="index.js.html">index.js</a>, <a href="index.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>models.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Mongoose schemas and models for Movie, User, Genre, Director, and Actor collections</p></div>
         
 
         
@@ -272,7 +375,7 @@ JWT_SECRET=&lt;your_jwt_secret>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="index.js.html">index.js</a>, <a href="index.js.html#line1">line 1</a>
+        <a href="models.js.html">models.js</a>, <a href="models.js.html#line1">line 1</a>
     </li></ul></dd>
     
 
@@ -294,23 +397,114 @@ JWT_SECRET=&lt;your_jwt_secret>
         <h3 class="subsection-title">Requires</h3>
 
         <ul>
-            <li>module:express</li>
-        
-            <li>module:morgan</li>
-        
-            <li>module:body-parser</li>
-        
             <li>module:mongoose</li>
         
-            <li>module:./models.js</li>
+            <li>module:bcrypt</li>
+        </ul>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>passport.js</h2>
         
-            <li>module:cors</li>
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
         
-            <li>module:express-validator</li>
+            <div class="description"><p>Configures Local Strategy for username/password authentication and JWT Strategy for token-based authentication</p></div>
         
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="passport.js.html">passport.js</a>, <a href="passport.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+        <h3 class="subsection-title">Requires</h3>
+
+        <ul>
             <li>module:passport</li>
         
-            <li>module:dotenv</li>
+            <li>module:passport-local</li>
+        
+            <li>module:passport-jwt</li>
+        
+            <li>module:./models</li>
         </ul>
     
 
@@ -339,13 +533,13 @@ JWT_SECRET=&lt;your_jwt_secret>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#DELETE/user">DELETE /user</a></li><li><a href="global.html#DELETE/user/favorites/:MovieID">DELETE /user/favorites/:MovieID</a></li><li><a href="global.html#GET/">GET /</a></li><li><a href="global.html#GET/directors/:Name">GET /directors/:Name</a></li><li><a href="global.html#GET/genres/:Name">GET /genres/:Name</a></li><li><a href="global.html#GET/movies">GET /movies</a></li><li><a href="global.html#GET/movies/:Title">GET /movies/:Title</a></li><li><a href="global.html#GET/user">GET /user</a></li><li><a href="global.html#POST/login">POST /login</a></li><li><a href="global.html#POST/user/favorites/:MovieID">POST /user/favorites/:MovieID</a></li><li><a href="global.html#POST/users">POST /users</a></li><li><a href="global.html#PUT/user">PUT /user</a></li><li><a href="global.html#generateJWTToken">generateJWTToken</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Actor">Actor</a></li><li><a href="global.html#DELETE/user">DELETE/user</a></li><li><a href="global.html#DELETE/user/favorites/:MovieID">DELETE/user/favorites/:MovieID</a></li><li><a href="global.html#Director">Director</a></li><li><a href="global.html#GET/">GET/</a></li><li><a href="global.html#GET/directors/:Name">GET/directors/:Name</a></li><li><a href="global.html#GET/genres/:Name">GET/genres/:Name</a></li><li><a href="global.html#GET/movies">GET/movies</a></li><li><a href="global.html#GET/movies/:Title">GET/movies/:Title</a></li><li><a href="global.html#GET/user">GET/user</a></li><li><a href="global.html#Genre">Genre</a></li><li><a href="global.html#JWTStrategy">JWTStrategy</a></li><li><a href="global.html#LocalStrategy">LocalStrategy</a></li><li><a href="global.html#Movie">Movie</a></li><li><a href="global.html#POST/login">POST/login</a></li><li><a href="global.html#POST/user/favorites/:MovieID">POST/user/favorites/:MovieID</a></li><li><a href="global.html#POST/users">POST/users</a></li><li><a href="global.html#PUT/user">PUT/user</a></li><li><a href="global.html#User">User</a></li><li><a href="global.html#allowedOrigins">allowedOrigins</a></li><li><a href="global.html#connectDatabase">connectDatabase</a></li><li><a href="global.html#generateJWTToken">generateJWTToken</a></li><li><a href="global.html#port">port</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu Sep 11 2025 18:37:37 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Sep 13 2025 23:12:12 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
