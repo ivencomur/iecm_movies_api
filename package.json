@@ -33,7 +33,7 @@
   "devDependencies": {
     "eslint": "^9.26.0",
     "hint": "^2.0.0",
-    "jsdoc": "^4.0.2",
+    "jsdoc": "^4.0.4",
     "nodemon": "^3.1.10"
   },
   "type": "commonjs",

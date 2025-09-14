@@ -27,7 +27,8 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
- * @file This file handles user login and JWT token generation.
+ * @fileoverview Authentication module for JWT token generation and user login
+ * @description Handles user login authentication and JWT token creation using Passport.js
  * @requires jsonwebtoken
  * @requires passport
  * @requires ./passport
@@ -40,41 +41,66 @@ require("./passport");
 const jwtSecret = process.env.JWT_SECRET;
 
 /**
- * Generates a JWT token for a user.
+ * Generates a JWT token for authenticated user
  * @function generateJWTToken
- * @param {Object} user - The user object to sign the token for.
- * @returns {string | null} The generated JWT token or null if secret is not set.
+ * @param {Object} user - User object from database
+ * @param {string} user.Username - User's username
+ * @param {string} user._id - User's database ID
+ * @returns {string|null} JWT token string or null if generation fails
+ * @description Creates a signed JWT token with 7-day expiration using HS256 algorithm
  */
 let generateJWTToken = (user) => {
   if (!jwtSecret) {
     console.error("FATAL ERROR: JWT_SECRET environment variable not set. Cannot sign token.");
     return null;
   }
+  
+  console.log("User object passed to generateJWTToken:", user);
+  
+  // Extract username properly - handle both Username and username fields
+  const username = user.Username || user.username;
+  console.log("Extracted username:", username, "Type:", typeof username);
+  
+  if (!username || typeof username !== 'string') {
+    console.error("Error: User must have a valid username string for JWT generation");
+    console.error("Available user fields:", Object.keys(user));
+    return null;
+  }
+  
   return jwt.sign(user, jwtSecret, {
-    subject: user.username,
+    subject: username.toString(), // Ensure this is always a string
     expiresIn: "7d",
     algorithm: "HS256",
   });
 };
 
 /**
- * Configures the /login endpoint for user authentication.
- * @param {Object} router - The Express router.
+ * Configures login endpoint with passport authentication
+ * @function
+ * @param {Object} router - Express router instance
+ * @description Sets up POST /login route with local strategy authentication
  * @returns {void}
  */
 module.exports = (router) => {
   /**
-   * Handles user login requests, authenticating the user and returning a JWT.
-   * @name POST /login
+   * User login endpoint
+   * @name POST/login
    * @function
-   * @param {Object} req - Express request object.
-   * @param {Object} res - Express response object.
-   * @param {function} next - Express next middleware function.
-   * @returns {void}
+   * @param {Object} req - Express request object
+   * @param {Object} req.body - Login credentials
+   * @param {string} req.body.username - User's username
+   * @param {string} req.body.password - User's password
+   * @param {Object} res - Express response object
+   * @param {Function} next - Express next middleware function
+   * @returns {Object} 200 - Login successful with user data and token
+   * @returns {Object} 401 - Invalid credentials
+   * @returns {Object} 500 - Internal server error or token generation failure
+   * @description Authenticates user credentials and returns JWT token for subsequent requests
    */
   router.post("/login", (req, res, next) => {
     passport.authenticate("local", { session: false }, (error, user, info) => {
       if (error) {
+        console.error("Authentication error:", error);
         return next(error);
       }
 
@@ -85,18 +111,28 @@ module.exports = (router) => {
 
       req.login(user, { session: false }, (error) => {
         if (error) {
+          console.error("Login error:", error);
           return next(error);
         }
 
         try {
-          const token = generateJWTToken(user.toJSON());
+          console.log("About to generate JWT for user:", user.Username);
+          const userJson = user.toJSON();
+          console.log("User JSON:", userJson);
+          
+          const token = generateJWTToken(userJson);
           if (!token) {
             return res.status(500).json({ error: "Internal server error: Could not generate token." });
           }
-          const userResponse = { ...user.toJSON() };
-          delete userResponse.password;
+          
+          const userResponse = { ...userJson };
+          delete userResponse.Password; // Remove password from response
+          delete userResponse.password; // Handle both cases
+          
+          console.log("JWT token generated successfully");
           return res.status(200).json({ user: userResponse, token: token });
         } catch (jwtError) {
+          console.error("JWT Error:", jwtError);
           return next(jwtError);
         }
       });
@@ -112,13 +148,13 @@ module.exports = (router) => {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#DELETE/user">DELETE /user</a></li><li><a href="global.html#DELETE/user/favorites/:MovieID">DELETE /user/favorites/:MovieID</a></li><li><a href="global.html#GET/">GET /</a></li><li><a href="global.html#GET/directors/:Name">GET /directors/:Name</a></li><li><a href="global.html#GET/genres/:Name">GET /genres/:Name</a></li><li><a href="global.html#GET/movies">GET /movies</a></li><li><a href="global.html#GET/movies/:Title">GET /movies/:Title</a></li><li><a href="global.html#GET/user">GET /user</a></li><li><a href="global.html#POST/login">POST /login</a></li><li><a href="global.html#POST/user/favorites/:MovieID">POST /user/favorites/:MovieID</a></li><li><a href="global.html#POST/users">POST /users</a></li><li><a href="global.html#PUT/user">PUT /user</a></li><li><a href="global.html#generateJWTToken">generateJWTToken</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Actor">Actor</a></li><li><a href="global.html#DELETE/user">DELETE/user</a></li><li><a href="global.html#DELETE/user/favorites/:MovieID">DELETE/user/favorites/:MovieID</a></li><li><a href="global.html#Director">Director</a></li><li><a href="global.html#GET/">GET/</a></li><li><a href="global.html#GET/directors/:Name">GET/directors/:Name</a></li><li><a href="global.html#GET/genres/:Name">GET/genres/:Name</a></li><li><a href="global.html#GET/movies">GET/movies</a></li><li><a href="global.html#GET/movies/:Title">GET/movies/:Title</a></li><li><a href="global.html#GET/user">GET/user</a></li><li><a href="global.html#Genre">Genre</a></li><li><a href="global.html#JWTStrategy">JWTStrategy</a></li><li><a href="global.html#LocalStrategy">LocalStrategy</a></li><li><a href="global.html#Movie">Movie</a></li><li><a href="global.html#POST/login">POST/login</a></li><li><a href="global.html#POST/user/favorites/:MovieID">POST/user/favorites/:MovieID</a></li><li><a href="global.html#POST/users">POST/users</a></li><li><a href="global.html#PUT/user">PUT/user</a></li><li><a href="global.html#User">User</a></li><li><a href="global.html#allowedOrigins">allowedOrigins</a></li><li><a href="global.html#connectDatabase">connectDatabase</a></li><li><a href="global.html#generateJWTToken">generateJWTToken</a></li><li><a href="global.html#port">port</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu Sep 11 2025 18:37:37 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Sep 13 2025 23:12:12 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

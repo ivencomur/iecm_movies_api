@@ -27,16 +27,10 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
- * @file Main server file for the myFlix API.
- * @requires express
- * @requires morgan
- * @requires body-parser
- * @requires mongoose
- * @requires ./models.js
- * @requires cors
- * @requires express-validator
- * @requires passport
- * @requires dotenv
+ * @fileoverview MovieMobs API Server - Main application file
+ * @description RESTful API for movie database with user authentication and favorites management
+ * @author Ivan Cortes
+ * @version 1.0.0
  */
 
 require('dotenv').config();
@@ -52,14 +46,37 @@ require('./passport.js');
 
 const Movies = Models.Movie;
 const Users = Models.User;
+const Genres = Models.Genre;
+const Directors = Models.Director;
+const Actors = Models.Actor;
 
+/**
+ * Connect to MongoDB database using environment variable
+ * @function connectDatabase
+ */
 mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connection successful.'))
   .catch(err => console.error('MongoDB connection error:', err));
 
 const app = express();
 
-app.use(cors());
+/**
+ * CORS configuration - allowed origins for cross-origin requests
+ * @constant {Array} allowedOrigins - List of allowed origins
+ */
+let allowedOrigins = ['http://localhost:8080', 'http://localhost:4200', 'https://ivencomur.github.io'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      let message = 'The CORS policy for this application does not allow access from origin ' + origin;
+      return callback(new Error(message), false);
+    }
+    return callback(null, true);
+  }
+}));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('common'));
@@ -67,65 +84,87 @@ app.use(morgan('common'));
 const auth = require('./auth')(app);
 
 /**
- * Handles the root endpoint.
+ * Welcome endpoint - API root
+ * @name GET/
  * @function
- * @name GET /
- * @returns {string} Welcome message.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {string} Welcome message
  */
 app.get('/', (req, res) => {
   res.send('Welcome to the MovieMobs API!');
 });
 
 /**
- * Handles fetching all movies.
+ * Get all movies with populated genre, director, and actors information
+ * @name GET/movies
  * @function
- * @name GET /movies
- * @requires passport
- * @returns {Array&lt;Object>} Array of movie objects.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} 200 - Array of movie objects with populated data
+ * @returns {Object} 401 - Unauthorized access
+ * @returns {Object} 500 - Internal server error
+ * @requires authentication JWT token required
  */
 app.get('/movies', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  await Movies.find()
-    .then((movies) => {
-      res.status(200).json(movies);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send('Error: ' + err);
-    });
+  try {
+    const movies = await Movies.find()
+      .populate('Genre', 'Name Description')
+      .populate('Director', 'Name Bio Birth Death')
+      .populate('Actors', 'Name Bio Birth Death');
+    
+    console.log('Movies fetched with populated data:', movies.length);
+    res.status(200).json(movies);
+  } catch (err) {
+    console.error('Error fetching movies:', err);
+    res.status(500).send('Error: ' + err);
+  }
 });
 
 /**
- * Handles fetching a single movie by title.
+ * Get single movie by title
+ * @name GET/movies/:Title
  * @function
- * @name GET /movies/:Title
- * @requires passport
- * @param {string} Title - The title of the movie.
- * @returns {Object} A movie object.
+ * @param {Object} req - Express request object
+ * @param {string} req.params.Title - Movie title
+ * @param {Object} res - Express response object
+ * @returns {Object} 200 - Movie object with populated data
+ * @returns {Object} 404 - Movie not found
+ * @returns {Object} 500 - Internal server error
+ * @requires authentication JWT token required
  */
 app.get('/movies/:Title', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  await Movies.findOne({ Title: req.params.Title })
-    .then((movie) => {
-      res.json(movie);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send('Error: ' + err);
-    });
+  try {
+    const movie = await Movies.findOne({ Title: req.params.Title })
+      .populate('Genre', 'Name Description')
+      .populate('Director', 'Name Bio Birth Death')
+      .populate('Actors', 'Name Bio Birth Death');
+    
+    if (!movie) {
+      return res.status(404).send('Movie not found');
+    }
+    
+    res.json(movie);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error: ' + err);
+  }
 });
 
 /**
- * Handles fetching genre information by name.
+ * Get genre information by name
+ * @name GET/genres/:Name
  * @function
- * @name GET /genres/:Name
- * @requires passport
- * @param {string} Name - The name of the genre.
- * @returns {Object} A genre object.
+ * @param {Object} req - Express request object
+ * @param {string} req.params.Name - Genre name
+ * @param {Object} res - Express response object
+ * @returns {Object} 200 - Genre object
+ * @returns {Object} 500 - Internal server error
+ * @requires authentication JWT token required
  */
 app.get('/genres/:Name', passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Movies.findOne({ 'Genre.Name': req.params.Name })
-    .then((movie) => {
-      res.json(movie.Genre);
-    })
+    .then((movie) => res.json(movie.Genre))
     .catch((err) => {
       console.error(err);
       res.status(500).send('Error: ' + err);
@@ -133,18 +172,19 @@ app.get('/genres/:Name', passport.authenticate('jwt', { session: false }), async
 });
 
 /**
- * Handles fetching director information by name.
+ * Get director information by name
+ * @name GET/directors/:Name
  * @function
- * @name GET /directors/:Name
- * @requires passport
- * @param {string} Name - The name of the director.
- * @returns {Object} A director object.
+ * @param {Object} req - Express request object
+ * @param {string} req.params.Name - Director name
+ * @param {Object} res - Express response object
+ * @returns {Object} 200 - Director object
+ * @returns {Object} 500 - Internal server error
+ * @requires authentication JWT token required
  */
 app.get('/directors/:Name', passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Movies.findOne({ 'Director.Name': req.params.Name })
-    .then((movie) => {
-      res.json(movie.Director);
-    })
+    .then((movie) => res.json(movie.Director))
     .catch((err) => {
       console.error(err);
       res.status(500).send('Error: ' + err);
@@ -152,14 +192,20 @@ app.get('/directors/:Name', passport.authenticate('jwt', { session: false }), as
 });
 
 /**
- * Handles new user registration.
+ * Register a new user
+ * @name POST/users
  * @function
- * @name POST /users
- * @param {string} Username - User's username.
- * @param {string} Password - User's password.
- * @param {string} Email - User's email address.
- * @param {Date} [Birthday] - User's birthday (optional).
- * @returns {Object} The newly created user object.
+ * @param {Object} req - Express request object
+ * @param {Object} req.body - User registration data
+ * @param {string} req.body.Username - User's username (min 5 chars, alphanumeric)
+ * @param {string} req.body.Password - User's password
+ * @param {string} req.body.Email - User's email address
+ * @param {string} [req.body.Birthday] - User's birthday (optional)
+ * @param {Object} res - Express response object
+ * @returns {Object} 201 - Created user object
+ * @returns {Object} 400 - User already exists
+ * @returns {Object} 422 - Validation errors
+ * @returns {Object} 500 - Internal server error
  */
 app.post('/users', [
     check('Username', 'Username is required').isLength({min: 5}),
@@ -168,11 +214,9 @@ app.post('/users', [
     check('Email', 'Email does not appear to be valid').isEmail()
   ], async (req, res) => {
   let errors = validationResult(req);
-
   if (!errors.isEmpty()) {
     return res.status(422).json({ errors: errors.array() });
   }
-
   let hashedPassword = Users.hashPassword(req.body.Password);
   await Users.findOne({ Username: req.body.Username })
     .then((user) => {
@@ -185,11 +229,11 @@ app.post('/users', [
           Email: req.body.Email,
           Birthday: req.body.Birthday
         })
-        .then((user) =>{res.status(201).json(user) })
+        .then((user) => res.status(201).json(user))
         .catch((error) => {
           console.error(error);
           res.status(500).send('Error: ' + error);
-        })
+        });
       }
     })
     .catch((error) => {
@@ -199,14 +243,23 @@ app.post('/users', [
 });
 
 /**
- * Handles updating user information.
+ * Update user information
+ * @name PUT/user
  * @function
- * @name PUT /user
- * @requires passport
- * @returns {Object} The updated user object.
+ * @param {Object} req - Express request object
+ * @param {Object} req.body - Updated user data
+ * @param {string} req.body.Username - User's username
+ * @param {string} [req.body.Password] - User's new password (optional)
+ * @param {string} [req.body.Email] - User's new email (optional)
+ * @param {string} [req.body.Birthday] - User's new birthday (optional)
+ * @param {Object} res - Express response object
+ * @returns {Object} 200 - Updated user object
+ * @returns {Object} 400 - Permission denied
+ * @returns {Object} 500 - Internal server error
+ * @requires authentication JWT token required
  */
 app.put('/user', passport.authenticate('jwt', { session: false }), async (req, res) => {
-	if(req.user.Username !== req.body.Username){
+    if(req.user.Username !== req.body.Username){
         return res.status(400).send('Permission denied');
     }
 	await Users.findOneAndUpdate({ Username: req.body.Username }, { $set:
@@ -217,33 +270,31 @@ app.put('/user', passport.authenticate('jwt', { session: false }), async (req, r
       Birthday: req.body.Birthday
     }
   },
-  { new: true }) // This line makes sure that the updated document is returned
-  .then(updatedUser => {
-    res.json(updatedUser);
-  })
+  { new: true })
+  .then(updatedUser => res.json(updatedUser))
   .catch(err => {
     console.error(err);
     res.status(500).send('Error: ' + err);
   });
 });
 
-
 /**
- * Handles adding a movie to a user's favorites.
+ * Add movie to user's favorites
+ * @name POST/user/favorites/:MovieID
  * @function
- * @name POST /user/favorites/:MovieID
- * @requires passport
- * @param {string} MovieID - The ID of the movie to add.
- * @returns {Object} The updated user object.
+ * @param {Object} req - Express request object
+ * @param {string} req.params.MovieID - Movie ID to add to favorites
+ * @param {Object} res - Express response object
+ * @returns {Object} 200 - Updated user object with new favorite
+ * @returns {Object} 500 - Internal server error
+ * @requires authentication JWT token required
  */
 app.post('/user/favorites/:MovieID', passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Users.findOneAndUpdate({ Username: req.user.Username }, {
      $push: { FavoriteMovies: req.params.MovieID }
    },
    { new: true })
-  .then((updatedUser) => {
-    res.json(updatedUser);
-  })
+  .then((updatedUser) => res.json(updatedUser))
   .catch((err) => {
     console.error(err);
     res.status(500).send('Error: ' + err);
@@ -251,40 +302,41 @@ app.post('/user/favorites/:MovieID', passport.authenticate('jwt', { session: fal
 });
 
 /**
- * Handles removing a movie from a user's favorites.
+ * Remove movie from user's favorites
+ * @name DELETE/user/favorites/:MovieID
  * @function
- * @name DELETE /user/favorites/:MovieID
- * @requires passport
- * @param {string} MovieID - The ID of the movie to remove.
- * @returns {Object} The updated user object.
+ * @param {Object} req - Express request object
+ * @param {string} req.params.MovieID - Movie ID to remove from favorites
+ * @param {Object} res - Express response object
+ * @returns {Object} 200 - Updated user object without the favorite
+ * @returns {Object} 500 - Internal server error
+ * @requires authentication JWT token required
  */
 app.delete('/user/favorites/:MovieID', passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Users.findOneAndUpdate({ Username: req.user.Username }, {
      $pull: { FavoriteMovies: req.params.MovieID }
    },
    { new: true })
-  .then((updatedUser) => {
-    res.json(updatedUser);
-  })
+  .then((updatedUser) => res.json(updatedUser))
   .catch((err) => {
     console.error(err);
     res.status(500).send('Error: ' + err);
   });
 });
 
-
 /**
- * Handles fetching the current user's profile.
+ * Get user profile information
+ * @name GET/user
  * @function
- * @name GET /user
- * @requires passport
- * @returns {Object} The user object.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} 200 - User object
+ * @returns {Object} 500 - Internal server error
+ * @requires authentication JWT token required
  */
 app.get('/user', passport.authenticate('jwt', { session: false }), async (req, res) => {
     await Users.findOne({ Username: req.user.Username})
-        .then((user) => {
-            res.json(user);
-        })
+        .then((user) => res.json(user))
         .catch((err) => {
             console.error(err);
             res.status(500).send('Error: ' + err);
@@ -292,34 +344,49 @@ app.get('/user', passport.authenticate('jwt', { session: false }), async (req, r
 });
 
 /**
- * Handles user account deletion.
+ * Delete user account
+ * @name DELETE/user
  * @function
- * @name DELETE /user
- * @requires passport
- * @returns {string} Confirmation message.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} 200 - Success message
+ * @returns {Object} 400 - User not found
+ * @returns {Object} 500 - Internal server error
+ * @requires authentication JWT token required
  */
 app.delete('/user', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  await Users.findOneAndDelete({ Username: req.user.Username })
-    .then((user) => {
-      if (!user) {
-        res.status(400).send(req.user.Username + ' was not found');
-      } else {
-        res.status(200).send(req.user.Username + ' was deleted.');
-      }
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send('Error: ' + err);
-    });
+  try {
+    const user = await Users.findOneAndDelete({ Username: req.user.Username });
+    if (!user) {
+      res.status(400).send(req.user.Username + ' was not found');
+    } else {
+      res.status(200).send(req.user.Username + ' was deleted.');
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error: ' + err);
+  }
 });
 
 app.use(express.static('public'));
 
+/**
+ * Global error handler middleware
+ * @function
+ * @param {Error} err - Error object
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Next middleware function
+ */
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
 
+/**
+ * Start the server
+ * @constant {number} port - Server port from environment or default 8080
+ */
 const port = process.env.PORT || 8080;
 app.listen(port, '0.0.0.0',() => {
  console.log('Listening on Port ' + port);
@@ -333,13 +400,13 @@ app.listen(port, '0.0.0.0',() => {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#DELETE/user">DELETE /user</a></li><li><a href="global.html#DELETE/user/favorites/:MovieID">DELETE /user/favorites/:MovieID</a></li><li><a href="global.html#GET/">GET /</a></li><li><a href="global.html#GET/directors/:Name">GET /directors/:Name</a></li><li><a href="global.html#GET/genres/:Name">GET /genres/:Name</a></li><li><a href="global.html#GET/movies">GET /movies</a></li><li><a href="global.html#GET/movies/:Title">GET /movies/:Title</a></li><li><a href="global.html#GET/user">GET /user</a></li><li><a href="global.html#POST/login">POST /login</a></li><li><a href="global.html#POST/user/favorites/:MovieID">POST /user/favorites/:MovieID</a></li><li><a href="global.html#POST/users">POST /users</a></li><li><a href="global.html#PUT/user">PUT /user</a></li><li><a href="global.html#generateJWTToken">generateJWTToken</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Actor">Actor</a></li><li><a href="global.html#DELETE/user">DELETE/user</a></li><li><a href="global.html#DELETE/user/favorites/:MovieID">DELETE/user/favorites/:MovieID</a></li><li><a href="global.html#Director">Director</a></li><li><a href="global.html#GET/">GET/</a></li><li><a href="global.html#GET/directors/:Name">GET/directors/:Name</a></li><li><a href="global.html#GET/genres/:Name">GET/genres/:Name</a></li><li><a href="global.html#GET/movies">GET/movies</a></li><li><a href="global.html#GET/movies/:Title">GET/movies/:Title</a></li><li><a href="global.html#GET/user">GET/user</a></li><li><a href="global.html#Genre">Genre</a></li><li><a href="global.html#JWTStrategy">JWTStrategy</a></li><li><a href="global.html#LocalStrategy">LocalStrategy</a></li><li><a href="global.html#Movie">Movie</a></li><li><a href="global.html#POST/login">POST/login</a></li><li><a href="global.html#POST/user/favorites/:MovieID">POST/user/favorites/:MovieID</a></li><li><a href="global.html#POST/users">POST/users</a></li><li><a href="global.html#PUT/user">PUT/user</a></li><li><a href="global.html#User">User</a></li><li><a href="global.html#allowedOrigins">allowedOrigins</a></li><li><a href="global.html#connectDatabase">connectDatabase</a></li><li><a href="global.html#generateJWTToken">generateJWTToken</a></li><li><a href="global.html#port">port</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu Sep 11 2025 18:37:37 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Sep 13 2025 23:12:12 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
