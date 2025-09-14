@@ -1,77 +1,153 @@
 # MovieMobs API
 
-This is the back-end server for the MovieMobs application. It's a RESTful API built with Node.js, Express, and MongoDB that provides data about movies, genres, directors, and users.
+A RESTful API for a movie database application built with Node.js, Express, MongoDB, and JWT authentication.
+
+## Overview
+
+MovieMobs API provides endpoints for movie data management, user authentication, and favorites functionality. The API serves as the backend for the MovieMobs Angular client application.
 
 ## Features
 
-* **User authentication:** Users can register, log in, and manage their profiles. Passwords are encrypted using bcrypt, and authentication is handled using JSON Web Tokens (JWT) with Passport.js.
-* **Movie information:** Provides access to a collection of movies with details about their genres, directors, and actors.
-* **Favorite movies:** Authenticated users can add and remove movies from their list of favorites.
-* **API documentation:** A public folder contains documentation of the API endpoints.
+- **User Authentication**: JWT-based authentication with secure password hashing
+- **Movie Database**: Complete CRUD operations for movies, genres, directors, and actors
+- **User Profiles**: User registration, profile management, and account deletion
+- **Favorites System**: Add and remove movies from user favorites
+- **Data Relationships**: Populated movie data with genre, director, and actor information
+- **Input Validation**: Comprehensive request validation using Express Validator
+- **CORS Support**: Cross-origin resource sharing for frontend integration
 
-## Getting Started
+## Technologies Used
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+- **Node.js** - Runtime environment
+- **Express.js** - Web application framework
+- **MongoDB** - NoSQL database
+- **Mongoose** - MongoDB object modeling
+- **JWT** - JSON Web Tokens for authentication
+- **Passport.js** - Authentication middleware
+- **bcrypt** - Password hashing
+- **CORS** - Cross-origin resource sharing
+- **Express Validator** - Input validation
+- **Morgan** - HTTP request logger
 
-### Prerequisites
+## Prerequisites
 
-* **Node.js** and **npm**: Download and install from [nodejs.org](https://nodejs.org/).
-* **MongoDB**: Make sure you have a running instance of MongoDB. You'll need the connection URI.
-* **Create a `.env` file** in the root directory and add the following environment variables:
-    ```
-    CONNECTION_URI=<your_mongodb_connection_uri>
-    JWT_SECRET=<your_jwt_secret>
-    ```
+- Node.js (v14 or higher)
+- MongoDB Atlas account or local MongoDB installation
+- npm package manager
 
-### Installation
+## Installation
 
-1.  **Clone the repository:**
-    ```sh
-    git clone <repository-url>
-    ```
-2.  **Navigate to the project directory:**
-    ```sh
-    cd iecm_movies_api-6.5-INITIAL
-    ```
-3.  **Install dependencies:**
-    ```sh
-    npm install
-    ```
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd moviemobs-api
+   ```
 
-## Available Scripts
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-* `npm start`: Starts the server in production mode.
-* `npm run dev`: Starts the server in development mode with `nodemon`, which automatically restarts the server on file changes.
-* `npm run lint`: Lints the project files using ESLint.
+3. Create a `.env` file in the root directory:
+   ```
+   CONNECTION_URI=your_mongodb_connection_string
+   JWT_SECRET=your_jwt_secret_key
+   PORT=8080
+   ```
+
+4. Seed the database (optional):
+   ```bash
+   node seed_database.js
+   ```
+
+## Usage
+
+### Development
+```bash
+npm run dev
+```
+
+### Production
+```bash
+npm start
+```
+
+The API will be available at `http://localhost:8080`
 
 ## API Endpoints
 
-All movie-related endpoints require a valid JWT for authentication.
+### Authentication
+- `POST /login` - User login
+- `POST /users` - User registration
 
 ### Movies
+- `GET /movies` - Get all movies
+- `GET /movies/:Title` - Get movie by title
 
-* `GET /movies`: Get a list of all movies.
-* `GET /movies/:Title`: Get a single movie by title.
-* `GET /genres/:Name`: Get information about a genre by name.
-* `GET /directors/:Name`: Get information about a director by name.
+### User Management
+- `GET /user` - Get user profile
+- `PUT /user` - Update user profile
+- `DELETE /user` - Delete user account
+- `POST /user/favorites/:MovieID` - Add movie to favorites
+- `DELETE /user/favorites/:MovieID` - Remove movie from favorites
+
+### Data Queries
+- `GET /genres/:Name` - Get genre information
+- `GET /directors/:Name` - Get director information
+
+## Documentation
+
+Complete API documentation is available in the `/docs` folder. Open `docs/index.html` in your browser to view the full documentation generated with JSDoc.
+
+## Database Schema
 
 ### Users
+- Username (required, unique)
+- Password (hashed with bcrypt)
+- Email (required, unique)
+- Birthday
+- FavoriteMovies (array of movie references)
 
-* `POST /users`: Register a new user.
-* `PUT /user`: Update a user's information.
-* `POST /user/favorites/:MovieID`: Add a movie to a user's favorites.
-* `DELETE /user/favorites/:MovieID`: Remove a movie from a user's favorites.
-* `GET /user`: Get a user's profile information.
-* `DELETE /user`: Delete a user's account.
+### Movies
+- Title (required, unique)
+- Description (required)
+- Genre (reference to Genre)
+- Director (reference to Director)
+- Actors (array of Actor references)
+- ImagePath, Featured, ReleaseYear, Rating
 
-### Authentication
+### Supporting Collections
+- **Genres**: Name, Description
+- **Directors**: Name, Bio, Birth, Death
+- **Actors**: Name, Bio, Birth, Death, PictureUrl
 
-* `POST /login`: Log in a user and receive a JWT.
+## Authentication
 
-## Built With
+The API uses JWT (JSON Web Tokens) for authentication. Include the token in the Authorization header:
 
-* [Express](https://expressjs.com/) - Web framework for Node.js
-* [Mongoose](https://mongoosejs.com/) - MongoDB object modeling for Node.js
-* [Passport](http://www.passportjs.org/) - Authentication middleware for Node.js
-* [JWT](https://jwt.io/) - JSON Web Tokens for authentication
-* [Bcrypt](https://www.npmjs.com/package/bcrypt) - Library for hashing passwords
+```
+Authorization: Bearer your_jwt_token
+```
+
+## Error Handling
+
+The API returns appropriate HTTP status codes and error messages:
+- `200` - Success
+- `201` - Created
+- `400` - Bad Request
+- `401` - Unauthorized
+- `404` - Not Found
+- `422` - Validation Error
+- `500` - Internal Server Error
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
