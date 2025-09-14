@@ -148,6 +148,23 @@ The API returns appropriate HTTP status codes and error messages:
 4. Add tests if applicable
 5. Submit a pull request
 
+## AI Assistance Declaration
+
+This project was developed with significant assistance from AI tools to overcome technical challenges related to outdated dependencies, deprecated packages, and compatibility issues between framework versions. 
+
+**AI assistance was essential for:**
+- Resolving complex server startup failures due to dependency conflicts
+- Reconstructing implementations when course materials referenced deprecated packages
+- Debugging authentication and database connection issues
+- Standardizing code documentation and comment formatting
+- Providing alternative approaches when original tutorials became obsolete
+
+**Development Context:**
+Limited mentor availability necessitated independent problem-solving using available resources, including AI assistance, to complete a functional application despite significant technical obstacles. This resourceful approach enabled successful project completion while maintaining code quality and functionality standards.
+
+**Human Oversight:**
+All AI-generated solutions were thoroughly tested, reviewed, and adapted to meet specific project requirements. Architectural decisions and implementation strategies remained under full developer control.
+
 ## License
 
 This project is licensed under the MIT License.
