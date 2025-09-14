@@ -1,5 +1,6 @@
 /**
- * @file This file handles user login and JWT token generation.
+ * @fileoverview Authentication module for JWT token generation and user login
+ * @description Handles user login authentication and JWT token creation using Passport.js
  * @requires jsonwebtoken
  * @requires passport
  * @requires ./passport
@@ -12,10 +13,13 @@ require("./passport");
 const jwtSecret = process.env.JWT_SECRET;
 
 /**
- * Generates a JWT token for a user.
+ * Generates a JWT token for authenticated user
  * @function generateJWTToken
- * @param {Object} user - The user object to sign the token for.
- * @returns {string | null} The generated JWT token or null if secret is not set.
+ * @param {Object} user - User object from database
+ * @param {string} user.Username - User's username
+ * @param {string} user._id - User's database ID
+ * @returns {string|null} JWT token string or null if generation fails
+ * @description Creates a signed JWT token with 7-day expiration using HS256 algorithm
  */
 let generateJWTToken = (user) => {
   if (!jwtSecret) {
@@ -43,19 +47,27 @@ let generateJWTToken = (user) => {
 };
 
 /**
- * Configures the /login endpoint for user authentication.
- * @param {Object} router - The Express router.
+ * Configures login endpoint with passport authentication
+ * @function
+ * @param {Object} router - Express router instance
+ * @description Sets up POST /login route with local strategy authentication
  * @returns {void}
  */
 module.exports = (router) => {
   /**
-   * Handles user login requests, authenticating the user and returning a JWT.
-   * @name POST /login
+   * User login endpoint
+   * @name POST/login
    * @function
-   * @param {Object} req - Express request object.
-   * @param {Object} res - Express response object.
-   * @param {function} next - Express next middleware function.
-   * @returns {void}
+   * @param {Object} req - Express request object
+   * @param {Object} req.body - Login credentials
+   * @param {string} req.body.username - User's username
+   * @param {string} req.body.password - User's password
+   * @param {Object} res - Express response object
+   * @param {Function} next - Express next middleware function
+   * @returns {Object} 200 - Login successful with user data and token
+   * @returns {Object} 401 - Invalid credentials
+   * @returns {Object} 500 - Internal server error or token generation failure
+   * @description Authenticates user credentials and returns JWT token for subsequent requests
    */
   router.post("/login", (req, res, next) => {
     passport.authenticate("local", { session: false }, (error, user, info) => {
