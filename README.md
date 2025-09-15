@@ -1,203 +1,253 @@
-# MovieMobs API - Achievement 2
+# MovieMobs React Client - Achievement 3
 
-A RESTful API for a movie database application built with Node.js, Express, MongoDB, and JWT authentication. This backend service provides comprehensive movie data management with user authentication and favorites functionality.
+A responsive single-page application (SPA) built with React for browsing and managing movie collections, interfacing with the MovieMobs API backend.
 
 ## Links
 
-- **Repository**: https://github.com/ivencomur/iecm_movies_api/tree/2b6f9fa67a14051e2f45d45d6ac3d399d5cea908
-- **Live API**: https://iecm-movies-app-6966360ed90e.herokuapp.com/
+- **Repository**: https://github.com/ivencomur/MovieMobs-client
+- **Specific Commit**: https://github.com/ivencomur/MovieMobs-client/commit/f1212285a6729b54dfdf1fb4365af4883157df4f
 
 ## Overview
 
-MovieMobs API serves as the backend foundation for movie database applications, providing secure endpoints for movie data retrieval, user management, and favorites functionality. Built with modern Node.js technologies and deployed on Heroku for reliable cloud hosting.
+This React-based client application provides an intuitive, modern interface for the MovieMobs movie database. Built as a single-page application using React functional components and hooks, it demonstrates proficiency in modern React development patterns, state management, component architecture, and RESTful API integration.
 
 ## Features
 
-- **RESTful Architecture**: Well-structured API endpoints following REST principles
-- **JWT Authentication**: Secure user authentication with JSON Web Tokens
-- **MongoDB Integration**: NoSQL database for flexible data storage
-- **User Management**: Registration, authentication, and profile management
-- **Movie Database**: Comprehensive movie information with genres, directors, and actors
-- **Favorites System**: Personal movie favorites for authenticated users
-- **Data Validation**: Input validation and sanitization for security
-- **CORS Support**: Cross-origin resource sharing for frontend integration
-- **Error Handling**: Comprehensive error responses and logging
+- **Single-Page Application**: Seamless navigation without page refreshes
+- **Component-Based Architecture**: Modular, reusable React components
+- **State Management**: Efficient state handling using React hooks
+- **RESTful API Integration**: Communication with MovieMobs backend
+- **User Authentication**: Secure login/registration with JWT tokens
+- **Movie Browsing**: Interactive movie discovery and detailed information
+- **Search & Filter**: Find movies by title, genre, or director
+- **User Profiles**: Personal profile management and account settings
+- **Favorites Management**: Add/remove movies from personal favorites list
+- **Responsive Design**: Mobile-first responsive layout
+- **Client-Side Routing**: React Router for smooth navigation
 
 ## Technologies Used
 
-- **Node.js** - Server runtime environment
-- **Express.js** - Web application framework
-- **MongoDB** - NoSQL database
-- **Mongoose** - MongoDB object modeling
-- **JWT** - JSON Web Token authentication
-- **Passport.js** - Authentication middleware
-- **bcrypt** - Password hashing
-- **express-validator** - Input validation
-- **CORS** - Cross-origin resource sharing
-- **Heroku** - Cloud platform deployment
+- **React 17/18** - Frontend JavaScript library
+- **React Router** - Client-side routing and navigation
+- **React Bootstrap** - UI components and responsive design
+- **Axios** - HTTP client for API communication
+- **PropTypes** - Runtime type checking for components
+- **React Hooks** - Modern state management (useState, useEffect)
+- **JavaScript ES6+** - Modern JavaScript features
+- **CSS3/SCSS** - Styling and responsive design
+- **Parcel** - Build tool and development server
 
-## API Endpoints
+## Prerequisites
 
-### Authentication
-- `POST /users` - User registration
-- `POST /login` - User authentication
+- Node.js (v14 or higher)
+- npm package manager
+- MovieMobs API running on backend (Achievement 2)
 
-### Movies
-- `GET /movies` - Retrieve all movies
-- `GET /movies/:title` - Get specific movie by title
-
-### User Management
-- `GET /users/:username` - Get user profile
-- `PUT /users/:username` - Update user information
-- `DELETE /users/:username` - Delete user account
-
-### Favorites
-- `POST /users/:username/favorites/:movieId` - Add movie to favorites
-- `DELETE /users/:username/favorites/:movieId` - Remove from favorites
-
-### Data Queries
-- `GET /genres/:name` - Get genre information
-- `GET /directors/:name` - Get director details
-
-## Database Schema
-
-### Users Collection
-```javascript
-{
-  username: String (required, unique),
-  password: String (hashed with bcrypt),
-  email: String (required),
-  birthday: Date,
-  favoriteMovies: [ObjectId] // References to movies
-}
-```
-
-### Movies Collection
-```javascript
-{
-  title: String (required),
-  description: String (required),
-  genre: {
-    name: String,
-    description: String
-  },
-  director: {
-    name: String,
-    bio: String,
-    birthYear: Number,
-    deathYear: Number
-  },
-  actors: [String],
-  imagePath: String,
-  featured: Boolean
-}
-```
-
-## Authentication
-
-The API uses JWT (JSON Web Tokens) for secure authentication:
-
-```javascript
-// Include token in request headers
-Authorization: Bearer <jwt_token>
-```
-
-## Error Responses
-
-Standardized error responses with appropriate HTTP status codes:
-
-- `200` - Success
-- `201` - Created
-- `400` - Bad Request
-- `401` - Unauthorized
-- `404` - Not Found
-- `422` - Validation Error
-- `500` - Internal Server Error
-
-## Security Features
-
-- **Password Hashing**: bcrypt with salt rounds
-- **Input Validation**: express-validator for request sanitization
-- **CORS Configuration**: Controlled cross-origin access
-- **JWT Expiration**: Time-limited authentication tokens
-- **Data Sanitization**: Protection against injection attacks
-
-## Deployment
-
-The API is deployed on Heroku with:
-- **MongoDB Atlas**: Cloud database hosting
-- **Environment Variables**: Secure configuration management
-- **Process Management**: Automatic scaling and health monitoring
-- **SSL/HTTPS**: Secure data transmission
-
-## Development Setup
+## Installation
 
 ```bash
-# Clone repository
-git clone https://github.com/ivencomur/iecm_movies_api.git
-cd iecm_movies_api
+# Clone the repository
+git clone https://github.com/ivencomur/MovieMobs-client.git
+cd MovieMobs-client
 
 # Install dependencies
 npm install
 
-# Configure environment variables
-# Create .env file with:
-# CONNECTION_URI=mongodb://localhost:27017/moviedb
-# JWT_SECRET=your_jwt_secret
+# Configure API endpoint
+# Update API base URL in components to match your backend
+const API_URL = 'http://localhost:8080'; // or your deployed API
 
 # Start development server
 npm start
 ```
 
-## API Documentation
+The application will be available at `http://localhost:1234`
 
-Complete API documentation is available at the deployed endpoint. The API includes:
-- Interactive endpoint testing
-- Request/response examples
-- Authentication requirements
-- Error code explanations
+## Project Structure
 
-## Testing
+```
+src/
+├── components/
+│   ├── main-view/              # Main application container
+│   │   └── main-view.jsx
+│   ├── movie-card/             # Movie display card
+│   │   └── movie-card.jsx
+│   ├── movie-view/             # Detailed movie view
+│   │   └── movie-view.jsx
+│   ├── login-view/             # User login form
+│   │   └── login-view.jsx
+│   ├── registration-view/      # User registration form
+│   │   └── registration-view.jsx
+│   ├── profile-view/           # User profile management
+│   │   └── profile-view.jsx
+│   ├── genre-view/             # Genre information display
+│   │   └── genre-view.jsx
+│   └── director-view/          # Director information display
+│       └── director-view.jsx
+├── index.html                  # Main HTML template
+├── index.js                    # Application entry point
+└── index.scss                  # Global styles
+```
 
-The API has been tested with:
-- **Postman**: Manual endpoint testing
-- **Frontend Integration**: React and Angular clients
-- **Error Scenarios**: Validation and authentication testing
-- **Performance**: Load testing for scalability
+## Key Components
+
+### MainView
+- Central application component managing global state
+- Handles routing between different views
+- Manages user authentication state
+- Coordinates API calls and data flow
+
+### MovieCard
+- Reusable component for displaying movie information
+- Handles favorite toggle functionality
+- Responsive card layout with movie poster and details
+
+### MovieView
+- Detailed single movie display component
+- Shows comprehensive movie information
+- Links to director and genre detail views
+- Favorite add/remove functionality
+
+### LoginView & RegistrationView
+- User authentication components
+- Form validation and error handling
+- JWT token management
+- Redirect to main view on successful auth
+
+### ProfileView
+- User profile information display and editing
+- Favorite movies management
+- Account settings and preferences
+- Profile update functionality
+
+## API Integration
+
+The application communicates with the MovieMobs API for:
+
+- **Authentication**: User login and registration
+- **Movies**: Retrieve all movies with detailed information
+- **User Data**: Profile information and favorite movies
+- **Favorites**: Add/remove movies from user favorites
+- **Directors**: Director biographical information
+- **Genres**: Genre descriptions and movie associations
+
+### API Endpoints Used
+```javascript
+// Authentication
+POST /users - User registration
+POST /login - User authentication
+
+// Movies
+GET /movies - Retrieve all movies
+GET /movies/:title - Get specific movie
+
+// User Management
+GET /users/:username - Get user profile
+PUT /users/:username - Update user profile
+POST /users/:username/favorites/:movieId - Add favorite
+DELETE /users/:username/favorites/:movieId - Remove favorite
+
+// Data
+GET /genres/:name - Genre information
+GET /directors/:name - Director information
+```
+
+## State Management
+
+The application uses modern React patterns for state management:
+
+- **React Hooks**: useState and useEffect for component state
+- **Props Drilling**: Component-to-component communication
+- **Lifting State Up**: Shared state management in parent components
+- **Event Handling**: User interaction and form submissions
+
+## Responsive Design
+
+Mobile-first responsive design with breakpoints for:
+- **Mobile**: 320px - 767px
+- **Tablet**: 768px - 1023px
+- **Desktop**: 1024px and above
+
+## Authentication Flow
+
+1. User navigates to application
+2. If not authenticated, login/registration view is displayed
+3. User provides credentials or registers new account
+4. JWT token received and stored in component state
+5. Main movie view displayed with full functionality
+6. Token included in subsequent API requests
+
+## Build & Deployment
+
+```bash
+# Build for production
+npm run build
+
+# Deploy to hosting service
+npm run deploy
+```
+
+Build artifacts are generated in the `dist/` directory for deployment.
 
 ## AI Assistance Declaration
 
-This project required extensive AI assistance to overcome significant technical challenges in backend development:
+This project required significant AI assistance to overcome challenges in React development:
 
 **Technical Challenges Addressed:**
-- MongoDB connection and schema design optimization
-- JWT authentication implementation and security best practices
-- Express.js middleware configuration and error handling
-- API endpoint design following RESTful principles
-- Database query optimization and relationship management
-- Heroku deployment configuration and environment variable management
+- React component architecture and modern hooks implementation
+- State management patterns across multiple components
+- React Router setup and navigation between views
+- API integration with proper error handling and loading states
+- Form validation and user input handling
+- Bootstrap integration with React components
+- Build tool configuration and deployment optimization
 
 **Development Context:**
-Backend development complexity, combined with rapidly evolving Node.js ecosystem and deployment requirements, necessitated additional support when course materials referenced outdated packages or deployment methods. AI assistance was crucial for implementing modern security practices and resolving compatibility issues between different package versions.
+React development complexity, particularly around state management and component communication patterns, required additional support when course materials referenced older class-based component patterns. AI assistance was essential for implementing modern React hooks and functional component patterns.
 
 **Human Oversight:**
-All AI-generated solutions were thoroughly tested, reviewed, and customized to ensure security, performance, and functionality standards. API design decisions and database architecture remained under full developer control.
+All AI-generated solutions were thoroughly tested across different browsers and devices. Component architecture decisions and user experience design remained under full developer control.
+
+## Testing
+
+The application has been tested for:
+- **Functionality**: All features working as expected
+- **Responsiveness**: Proper display across device sizes
+- **Browser Compatibility**: Cross-browser functionality
+- **API Integration**: Proper communication with backend
+- **User Experience**: Intuitive navigation and interactions
 
 ## Performance Optimizations
 
-- **Database Indexing**: Optimized queries for faster data retrieval
-- **Connection Pooling**: Efficient database connection management
-- **Caching Strategies**: Reduced database load for frequent queries
-- **Compression**: Response compression for faster data transfer
+- **Component Memoization**: Preventing unnecessary re-renders
+- **Lazy Loading**: On-demand component loading
+- **API Optimization**: Efficient data fetching strategies
+- **Bundle Optimization**: Code splitting and compression
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
 
 ## Future Enhancements
 
-- Advanced search and filtering capabilities
-- Image upload and storage functionality
-- Real-time features with WebSocket integration
-- API rate limiting and throttling
-- Comprehensive automated testing suite
-- API versioning for backward compatibility
+- Advanced search functionality with filters
+- Movie recommendations based on favorites
+- Social features (reviews, ratings)
+- Enhanced accessibility features
+- Progressive Web App capabilities
+- Offline functionality with service workers
+
+## Learning Outcomes
+
+- Modern React development with hooks and functional components
+- Single-page application architecture and routing
+- RESTful API integration and state synchronization
+- Responsive web design implementation
+- User authentication and session management
+- Component-based development methodology
 
 ## License
 
