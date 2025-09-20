@@ -86,15 +86,16 @@ passport.use(
      * @function
      * @async
      * @param {Object} jwtPayload - Decoded JWT payload containing user information
-     * @param {string} jwtPayload._id - User's database ID from JWT
+     * @param {string} jwtPayload.Username - User's username from JWT
      * @param {Function} callback - Passport authentication callback
      * @returns {Promise<void>} Calls callback with (error, user)
-     * @description Finds user by ID from JWT payload and validates token authenticity
+     * @description Finds user by Username from JWT payload and validates token authenticity
      */
     async (jwtPayload, callback) => {
       console.log('JWT Payload:', jwtPayload);
       try {
-        const user = await Users.findById(jwtPayload._id);
+        // Corrected to find user by Username to avoid ObjectId type issues
+        const user = await Users.findOne({ Username: jwtPayload.Username });
         if (!user) {
           console.log('User not found in JWT verification');
           return callback(null, false);
