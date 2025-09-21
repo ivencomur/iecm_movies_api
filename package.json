@@ -1,44 +1,35 @@
 {
-  "name": "my_movies_api",
+  "name": "movie-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "A RESTful API for the MovieMobs application",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "lint": "eslint ."
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "movies",
+    "api",
+    "restful"
+  ],
+  "author": "Your Name",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
-    "body-parser": "^2.2.0",
+    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "express-validator": "^7.2.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.2",
-    "lodash": "^4.17.21",
-    "mongoose": "^8.14.1",
+    "mongoose": "^8.2.3",
     "morgan": "^1.10.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0"
   },
   "devDependencies": {
-    "eslint": "^9.26.0",
-    "hint": "^2.0.0",
-    "nodemon": "^3.1.10"
-  },
-  "type": "commonjs",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ivencomur/MY_MOVIES_API_2.4.git"
-  },
-  "bugs": {
-    "url": "https://github.com/ivencomur/MY_MOVIES_API_2.4/issues"
-  },
-  "homepage": "https://github.com/ivencomur/MY_MOVIES_API_2.4#readme"
+    "nodemon": "^3.1.0"
+  }
 }
