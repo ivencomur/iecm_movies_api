@@ -36,7 +36,8 @@ let allowedOrigins = [
   'http://localhost:8080',
   'http://localhost:1234',
   'http://localhost:5173',
-  'https://themoviemobs.netlify.app'
+  'https://themoviemobs.netlify.app',
+  'https://themoviemobs.netlify.app/login'  
 ];
 
 app.use(cors({
