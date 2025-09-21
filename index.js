@@ -1,4 +1,9 @@
-require('dotenv').config(); // Loads environment variables from a .env file
+require('dotenv').config(); // This line reads your .env file
+
+// --- DEBUGGING LINE ---
+console.log('CONNECTION_URI loaded:', process.env.CONNECTION_URI);
+// --- END DEBUGGING LINE ---
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = 'morgan';
@@ -6,6 +11,14 @@ const mongoose = require('mongoose');
 const Models = require('./models.js');
 const { check, validationResult } = require('express-validator');
 const cors = require('cors');
+
+
+// ** Check if environment variables are loaded **
+if (!process.env.CONNECTION_URI || !process.env.JWT_SECRET) {
+  console.error('Error: Environment variables not loaded. Please check your .env file.');
+  process.exit(1);
+}
+
 
 // Initialize Express app
 const app = express();
@@ -46,7 +59,7 @@ require('./passport');
 
 
 // --- Database Connection ---
-mongoose.connect(process.env.CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.CONNECTION_URI)
   .then(() => console.log('Successfully connected to MongoDB.'))
   .catch(err => console.error('MongoDB connection error:', err));
 
