@@ -36,7 +36,7 @@ const app = express();
  * CORS configuration - allowed origins for cross-origin requests
  * @constant {Array} allowedOrigins - List of allowed origins
  */
-let allowedOrigins = ['http://localhost:8080', 'http://localhost:4200', 'https://ivencomur.github.io', 'https://iecm-moviemobs-frontend-client-final.onrender.com'];
+let allowedOrigins = ['http://localhost:8080', 'http://localhost:4200', 'https://ivencomur.github.io'];
 
 app.use(cors({
   origin: (origin, callback) => {
