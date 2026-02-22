@@ -20,6 +20,7 @@ MovieMobs API is a robust backend service that powers the MovieMobs movie databa
 ## ✨ Features
 
 ### 🔐 Authentication & Security
+
 - **JWT-based authentication** with secure password hashing (bcrypt)
 - **Passport.js integration** for local and JWT strategies
 - **Input validation** using Express Validator
@@ -27,12 +28,14 @@ MovieMobs API is a robust backend service that powers the MovieMobs movie databa
 - **Environment-based configuration** for security
 
 ### 🎬 Movie Management
+
 - **Complete movie data retrieval** with populated relationships
 - **Advanced search capabilities** by title, genre, and director
 - **Image path management** for movie posters
 - **Populated data responses** for rich frontend experiences
 
 ### 👤 User Features
+
 - **User registration and profile management**
 - **Personalized favorites system**
 - **Profile updates and account deletion**
@@ -40,6 +43,7 @@ MovieMobs API is a robust backend service that powers the MovieMobs movie databa
 - **Birthday and personal information storage**
 
 ### 📊 Data Relationships
+
 - **Genre associations** with detailed descriptions
 - **Director information** with biographies and dates
 - **Actor management** with filmography links
@@ -47,16 +51,16 @@ MovieMobs API is a robust backend service that powers the MovieMobs movie databa
 
 ## 🛠 Technologies Used
 
-| Category | Technologies |
-|----------|-------------|
-| **Runtime** | Node.js (18+) |
-| **Framework** | Express.js 5.1.0 |
-| **Database** | MongoDB with Mongoose ODM |
-| **Authentication** | JWT, Passport.js, bcrypt |
-| **Validation** | Express Validator |
-| **Security** | CORS, dotenv |
-| **Logging** | Morgan |
-| **Deployment** | Render.com |
+| Category           | Technologies              |
+| ------------------ | ------------------------- |
+| **Runtime**        | Node.js (18+)             |
+| **Framework**      | Express.js 5.1.0          |
+| **Database**       | MongoDB with Mongoose ODM |
+| **Authentication** | JWT, Passport.js, bcrypt  |
+| **Validation**     | Express Validator         |
+| **Security**       | CORS, dotenv              |
+| **Logging**        | Morgan                    |
+| **Deployment**     | Render.com                |
 
 ## 📋 Prerequisites
 
@@ -70,17 +74,20 @@ Before you begin, ensure you have the following installed:
 ## ⚙️ Installation
 
 ### 1. Clone the Repository
+
 ```bash
 git clone <repository-url>
 cd moviemobs-api
 ```
 
 ### 2. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 3. Environment Configuration
+
 Create a `.env` file in the root directory:
 
 ```env
@@ -99,7 +106,9 @@ BCRYPT_ROUNDS=10
 ```
 
 ### 4. Database Setup
+
 Seed your database with sample data:
+
 ```bash
 node seed_database.js
 ```
@@ -107,11 +116,13 @@ node seed_database.js
 ### 5. Start the Server
 
 **Development Mode:**
+
 ```bash
 npm run dev
 ```
 
 **Production Mode:**
+
 ```bash
 npm start
 ```
@@ -121,12 +132,14 @@ The API will be available at `http://localhost:8080`
 ## 🌐 API Endpoints
 
 ### Base URL
+
 - **Development**: `http://localhost:8080`
 - **Production**: `https://iecm-movies-api.onrender.com`
 
 ### 🔑 Authentication
 
 #### Register User
+
 ```http
 POST /users
 Content-Type: application/json
@@ -140,6 +153,7 @@ Content-Type: application/json
 ```
 
 #### Login User
+
 ```http
 POST /login
 Content-Type: application/json
@@ -153,12 +167,14 @@ Content-Type: application/json
 ### 👤 User Management
 
 #### Get User Profile
+
 ```http
 GET /user
 Authorization: Bearer <jwt_token>
 ```
 
 #### Update User Profile
+
 ```http
 PUT /user
 Authorization: Bearer <jwt_token>
@@ -171,18 +187,21 @@ Content-Type: application/json
 ```
 
 #### Add Movie to Favorites
+
 ```http
 POST /user/favorites/:movieId
 Authorization: Bearer <jwt_token>
 ```
 
 #### Remove Movie from Favorites
+
 ```http
 DELETE /user/favorites/:movieId
 Authorization: Bearer <jwt_token>
 ```
 
 #### Delete User Account
+
 ```http
 DELETE /user
 Authorization: Bearer <jwt_token>
@@ -191,12 +210,14 @@ Authorization: Bearer <jwt_token>
 ### 🎬 Movies
 
 #### Get All Movies
+
 ```http
 GET /movies
 Authorization: Bearer <jwt_token>
 ```
 
 #### Get Movie by Title
+
 ```http
 GET /movies/:Title
 Authorization: Bearer <jwt_token>
@@ -205,12 +226,14 @@ Authorization: Bearer <jwt_token>
 ### 🎭 Genres & Directors
 
 #### Get Genre by Name
+
 ```http
 GET /genres/:Name
 Authorization: Bearer <jwt_token>
 ```
 
 #### Get Director by Name
+
 ```http
 GET /directors/:Name
 Authorization: Bearer <jwt_token>
@@ -219,6 +242,7 @@ Authorization: Bearer <jwt_token>
 ## 📊 Database Schema
 
 ### User Model
+
 ```javascript
 {
   _id: ObjectId,
@@ -233,6 +257,7 @@ Authorization: Bearer <jwt_token>
 ```
 
 ### Movie Model
+
 ```javascript
 {
   _id: ObjectId,
@@ -249,6 +274,7 @@ Authorization: Bearer <jwt_token>
 ```
 
 ### Supporting Models
+
 - **Genre**: `{ Name, Description }`
 - **Director**: `{ Name, Bio, Birth, Death }`
 - **Actor**: `{ Name, Bio, Birth, Death, PictureUrl }`
@@ -256,6 +282,7 @@ Authorization: Bearer <jwt_token>
 ## 🔒 Security Features
 
 ### Authentication Flow
+
 1. User registers with validated credentials
 2. Password is hashed using bcrypt (10 rounds)
 3. User logs in with username/password
@@ -264,17 +291,19 @@ Authorization: Bearer <jwt_token>
 6. Token expires after 7 days
 
 ### Input Validation
+
 - **Username**: Minimum 5 characters, alphanumeric only
 - **Password**: Required, hashed before storage
 - **Email**: Valid email format required
 - **Dates**: ISO 8601 format validation
 
 ### CORS Configuration
+
 ```javascript
 // Allowed origins for production
 const allowedOrigins = [
-  'http://localhost:4200',
-  'https://your-frontend-app.onrender.com'
+  "http://localhost:4200",
+  "https://your-frontend-app.onrender.com",
 ];
 ```
 
@@ -287,6 +316,7 @@ const allowedOrigins = [
    - Select Node.js environment
 
 2. **Environment Variables**
+
    ```env
    CONNECTION_URI=mongodb+srv://...
    JWT_SECRET=your_production_secret
@@ -294,6 +324,7 @@ const allowedOrigins = [
    ```
 
 3. **Build Command**
+
    ```bash
    npm install
    ```
@@ -304,12 +335,15 @@ const allowedOrigins = [
    ```
 
 ### Health Check
+
 Once deployed, verify your API:
+
 ```http
 GET /
 ```
 
 **Expected Response:**
+
 ```
 Welcome to the MovieMobs API!
 ```
@@ -335,6 +369,7 @@ Welcome to the MovieMobs API!
    - Add/remove favorites
 
 ### Automated Testing
+
 ```bash
 # Run tests (if implemented)
 npm test
@@ -344,17 +379,18 @@ npm test
 
 ### HTTP Status Codes
 
-| Code | Description | Example |
-|------|-------------|---------|
-| 200 | Success | Successful GET request |
-| 201 | Created | User registration successful |
-| 400 | Bad Request | Invalid input data |
-| 401 | Unauthorized | Invalid/missing JWT token |
-| 404 | Not Found | Movie/User not found |
-| 422 | Validation Error | Username too short |
-| 500 | Server Error | Database connection failed |
+| Code | Description      | Example                      |
+| ---- | ---------------- | ---------------------------- |
+| 200  | Success          | Successful GET request       |
+| 201  | Created          | User registration successful |
+| 400  | Bad Request      | Invalid input data           |
+| 401  | Unauthorized     | Invalid/missing JWT token    |
+| 404  | Not Found        | Movie/User not found         |
+| 422  | Validation Error | Username too short           |
+| 500  | Server Error     | Database connection failed   |
 
 ### Error Response Format
+
 ```json
 {
   "error": "Descriptive error message"
@@ -362,6 +398,7 @@ npm test
 ```
 
 ### Validation Error Format
+
 ```json
 {
   "errors": [
@@ -381,6 +418,7 @@ npm test
 ### Common Issues
 
 #### Database Connection Failed
+
 ```bash
 # Check your CONNECTION_URI
 echo $CONNECTION_URI
@@ -390,6 +428,7 @@ echo $CONNECTION_URI
 ```
 
 #### JWT Token Issues
+
 ```bash
 # Check JWT_SECRET is set
 echo $JWT_SECRET
@@ -399,15 +438,17 @@ Authorization: Bearer <actual_token>
 ```
 
 #### CORS Errors
+
 ```javascript
 // Verify allowed origins include your frontend URL
 const allowedOrigins = [
-  'http://localhost:4200',
-  'https://your-frontend.onrender.com'
+  "http://localhost:4200",
+  "https://your-frontend.onrender.com",
 ];
 ```
 
 #### Port Already in Use
+
 ```bash
 # Kill process on port 8080
 lsof -ti:8080 | xargs kill -9
@@ -419,11 +460,13 @@ PORT=3000 npm start
 ## 📈 Performance Considerations
 
 ### Database Optimization
+
 - **Indexes**: Create indexes on frequently queried fields
 - **Population**: Use selective field population to reduce payload size
 - **Pagination**: Implement pagination for large datasets
 
 ### Security Optimization
+
 - **Rate Limiting**: Consider implementing rate limiting for production
 - **Helmet.js**: Add security headers with Helmet middleware
 - **Input Sanitization**: Sanitize user inputs to prevent injection attacks
@@ -431,10 +474,12 @@ PORT=3000 npm start
 ## 📝 API Documentation
 
 Complete interactive API documentation is available:
+
 - **Development**: `http://localhost:8080/documentation.html`
 - **Production**: `https://iecm-movies-api.onrender.com/documentation.html`
 
 Generated JSDoc documentation:
+
 ```bash
 npm run docs
 open docs/index.html
@@ -482,6 +527,7 @@ moviemobs-api/
 ## 🤝 Contributing
 
 ### Development Workflow
+
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature-name`
 3. Make your changes and add tests
@@ -489,6 +535,7 @@ moviemobs-api/
 5. Submit a pull request
 
 ### Code Standards
+
 - Use ESLint configuration provided
 - Follow REST API conventions
 - Add JSDoc comments for functions
@@ -510,6 +557,7 @@ moviemobs-api/
 ## 📞 Support
 
 For questions, issues, or contributions:
+
 - **Email**: [ivancortes@hotmail.com](mailto:ivancortes@hotmail.com)
 - **GitHub**: [@ivencomur](https://github.com/ivencomur)
 - **LinkedIn**: [Ivan Cortes Murcia](https://www.linkedin.com/in/ivan-cortes-murcia-22053953)
@@ -525,6 +573,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 This project was developed with significant assistance from AI tools to overcome technical challenges related to rapidly changing framework versions, deprecated dependencies, and compatibility issues between different package versions.
 
 ### AI Assistance Scope
+
 - **Dependency Resolution**: Resolving complex server startup failures due to dependency conflicts
 - **Framework Updates**: Adapting to deprecated packages and providing current alternatives
 - **Authentication Implementation**: Debugging JWT and Passport.js integration issues
@@ -533,9 +582,11 @@ This project was developed with significant assistance from AI tools to overcome
 - **CORS Configuration**: Implementing proper cross-origin request handling for production deployment
 
 ### Development Context
+
 Limited mentor availability necessitated extensive independent problem-solving using available resources, including AI assistance, to complete a fully functional application despite significant technical obstacles. This approach enabled successful navigation of deprecated course materials and outdated framework references.
 
 ### Human Oversight
+
 All AI-generated solutions underwent thorough testing, code review, and adaptation to meet specific project requirements. Core architectural decisions, security implementations, and API design remained under complete developer control throughout the development process.
 
 The use of AI assistance was instrumental in maintaining development momentum while ensuring modern best practices and security standards were implemented correctly.
